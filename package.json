@@ -1,0 +1,34 @@
+{
+  "name": "grid-snap",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/update-assets.js && vite",
+    "build": "node scripts/update-assets.js && tsc -b && vite build",
+    "build:web": "node scripts/update-assets.js && vite build",
+    "build:itch": "powershell -ExecutionPolicy Bypass -File scripts/build-itch.ps1",
+    "build:mobile": "node scripts/update-assets.js && vite build && npx cap sync",
+    "build:apk": "powershell -ExecutionPolicy Bypass -File scripts/build-apk.ps1",
+    "setup:android": "powershell -ExecutionPolicy Bypass -File scripts/setup-mobile-env.ps1",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.0.0",
+    "framer-motion": "^12.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "bestzip": "^2.2.1",
+    "typescript": "~5.7.0",
+    "vite": "^6.0.0"
+  }
+}
