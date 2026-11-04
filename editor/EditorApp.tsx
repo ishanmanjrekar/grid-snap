@@ -60,7 +60,9 @@ export const EditorApp: React.FC = () => {
   const [statusMessage, setStatusMessage] = useState<string>('Ready.');
 
   // Playtest state
-  const [playtestGrid, setPlaytestGrid] = useState<CellBlock[][]>([]);
+  const [playtestGrid, setPlaytestGrid] = useState<CellBlock[][]>(
+    () => createEmptyMatrices(3, 3).grid
+  );
   const [playtestTimeLeft, setPlaytestTimeLeft] = useState<number>(35);
   const [playtestShifts, setPlaytestShifts] = useState<number>(0);
   const [playtestHint, setPlaytestHint] = useState<ShiftAction | null>(null);
@@ -89,6 +91,7 @@ export const EditorApp: React.FC = () => {
     const hydrated = hydrateEditorColors(lvl);
     setFrames(hydrated.frames);
     setGrid(hydrated.grid);
+    setPlaytestGrid(cloneGrid(hydrated.grid));
     setPaintUndoStack([]);
     setUnsolveUndoStack([]);
     setLastUsedSeed(lvl.scrambleSeed);
@@ -266,12 +269,14 @@ export const EditorApp: React.FC = () => {
   const handleNewLevel = () => {
     const maxId = levels.reduce((m, l) => Math.max(m, l.id), 0);
     const nextId = maxId + 1;
-    const empty = createEmptyMatrices(cols, cols === 3 ? 3 : 4);
+    const nextRows = cols === 3 ? 3 : 4;
+    const empty = createEmptyMatrices(nextRows, cols);
     setLoadedSourceId(null);
     setTargetLevelId(nextId);
-    setRows(cols === 3 ? 3 : 4);
+    setRows(nextRows);
     setFrames(empty.frames);
     setGrid(empty.grid);
+    setPlaytestGrid(cloneGrid(empty.grid));
     setPaintUndoStack([]);
     setUnsolveUndoStack([]);
     setMode('paint');
@@ -380,26 +385,29 @@ export const EditorApp: React.FC = () => {
   );
 
   return (
-    <div className="w-screen h-screen flex flex-col bg-[#F4EFE6] text-[#2C2523] overflow-hidden select-none">
+    <div
+      style={{ fontFamily: "'Be Vietnam Pro', system-ui, -apple-system, sans-serif" }}
+      className="w-screen h-screen flex flex-col bg-[#F4EFE6] text-[#2C2523] overflow-hidden select-none"
+    >
       {/* Top Bar */}
       <header className="flex-none h-14 bg-[#2C2523] text-[#FFFDF8] px-6 flex items-center justify-between border-b-4 border-[#1E1B18]">
         <div className="flex items-center gap-4">
           <span className="font-pixel text-sm text-[#FBBF24]">GRID SNAP // LEVEL EDITOR</span>
-          <span className="text-xs bg-[#1E1B18] text-[#5EEAD4] px-2.5 py-1 border border-[#5EEAD4]">
+          <span className="text-xs font-semibold bg-[#1E1B18] text-[#5EEAD4] px-2.5 py-1 border border-[#5EEAD4]">
             Total Levels in JSON: {levels.length}
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2 text-xs cursor-pointer">
+          <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer">
             <input
               type="checkbox"
               checked={colorblindPreview}
               onChange={(e) => setColorblindPreview(e.target.checked)}
               className="w-4 h-4 accent-[#22C55E]"
             />
-            <span>COLORBLIND SYMBOLS</span>
+            <span>Colorblind Symbols</span>
           </label>
-          <span className="text-xs text-[#FBBF24]">{statusMessage}</span>
+          <span className="text-xs font-medium text-[#FBBF24]">{statusMessage}</span>
         </div>
       </header>
 
@@ -408,7 +416,9 @@ export const EditorApp: React.FC = () => {
         {/* Left Sidebar: Panel 1 (Level CRUD & Metadata) */}
         <aside className="w-80 flex-none bg-[#FFFDF8] border-r-4 border-[#2C2523] p-4 flex flex-col gap-4 overflow-y-auto">
           <div>
-            <h2 className="font-pixel text-xs mb-2 text-[#2C2523]">1. LEVEL SELECT & CRUD</h2>
+            <h2 className="text-sm font-extrabold uppercase tracking-wide mb-2 text-[#2C2523]">
+              1. Level Select &amp; CRUD
+            </h2>
             <select
               value={loadedSourceId ?? ''}
               onChange={(e) => {
@@ -416,7 +426,7 @@ export const EditorApp: React.FC = () => {
                 const found = levels.find((l) => l.id === id);
                 if (found) loadLevelIntoEditor(found);
               }}
-              className="w-full p-2 bg-[#F4EFE6] border-2 border-[#2C2523] font-retro text-xs mb-2"
+              className="w-full p-2 bg-[#F4EFE6] border-2 border-[#2C2523] text-sm font-semibold mb-2"
             >
               <option value="" disabled>
                 -- Select Existing Level --
@@ -432,22 +442,22 @@ export const EditorApp: React.FC = () => {
             <div className="grid grid-cols-3 gap-1.5">
               <button
                 onClick={handleNewLevel}
-                className="pixel-btn bg-[#22C55E] text-white font-pixel text-[9px] py-2"
+                className="pixel-btn bg-[#22C55E] text-white font-bold text-xs py-2"
               >
-                + NEW
+                + New
               </button>
               <button
                 onClick={handleDuplicateLevel}
-                className="pixel-btn bg-[#FBBF24] text-[#2C2523] font-pixel text-[9px] py-2"
+                className="pixel-btn bg-[#FBBF24] text-[#2C2523] font-bold text-xs py-2"
               >
-                DUPLICATE
+                Duplicate
               </button>
               <button
                 onClick={handleDeleteLevel}
                 disabled={loadedSourceId === null}
-                className="pixel-btn bg-[#EF4444] text-white font-pixel text-[9px] py-2 disabled:opacity-40"
+                className="pixel-btn bg-[#EF4444] text-white font-bold text-xs py-2 disabled:opacity-40"
               >
-                DELETE
+                Delete
               </button>
             </div>
           </div>
@@ -456,27 +466,29 @@ export const EditorApp: React.FC = () => {
 
           {/* Target Level ID & Grid Dimensions */}
           <div className="flex flex-col gap-3">
-            <h2 className="font-pixel text-xs text-[#2C2523]">2. STAGE METADATA</h2>
+            <h2 className="text-sm font-extrabold uppercase tracking-wide text-[#2C2523]">
+              2. Stage Metadata
+            </h2>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold">TARGET LEVEL #:</span>
+              <span className="text-xs font-semibold">Target Level #:</span>
               <input
                 type="number"
                 min={1}
                 value={targetLevelId}
                 onChange={(e) => setTargetLevelId(Math.max(1, Number(e.target.value)))}
-                className="w-24 p-1.5 bg-[#F4EFE6] border-2 border-[#2C2523] text-center font-pixel text-xs"
+                className="w-24 p-1.5 bg-[#F4EFE6] border-2 border-[#2C2523] text-center font-bold text-sm"
               />
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold">COLUMNS (3–4):</span>
+              <span className="text-xs font-semibold">Columns (3–4):</span>
               <div className="flex gap-1.5">
                 {([3, 4] as const).map((cVal) => (
                   <button
                     key={cVal}
                     onClick={() => handleResizeGrid(cVal, rows)}
-                    className={`px-3 py-1 border-2 border-[#2C2523] font-pixel text-xs ${
+                    className={`px-3.5 py-1 border-2 border-[#2C2523] font-bold text-sm cursor-pointer ${
                       cols === cVal ? 'bg-[#2C2523] text-[#FBBF24]' : 'bg-[#F4EFE6]'
                     }`}
                   >
@@ -487,13 +499,13 @@ export const EditorApp: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-bold">ROWS (3–8):</span>
+              <span className="text-xs font-semibold">Rows (3–8):</span>
               <div className="grid grid-cols-6 gap-1">
                 {([3, 4, 5, 6, 7, 8] as const).map((rVal) => (
                   <button
                     key={rVal}
                     onClick={() => handleResizeGrid(cols, rVal)}
-                    className={`py-1.5 border-2 border-[#2C2523] font-pixel text-xs ${
+                    className={`py-1.5 border-2 border-[#2C2523] font-bold text-sm cursor-pointer ${
                       rows === rVal ? 'bg-[#2C2523] text-[#FBBF24]' : 'bg-[#F4EFE6]'
                     }`}
                   >
@@ -505,7 +517,7 @@ export const EditorApp: React.FC = () => {
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold">TIMER (SEC):</span>
+                <span className="text-xs font-semibold">Timer (sec):</span>
                 <input
                   type="number"
                   min={10}
@@ -513,25 +525,25 @@ export const EditorApp: React.FC = () => {
                   step={5}
                   value={timeLimitSeconds}
                   onChange={(e) => setTimeLimitSeconds(Math.max(10, Number(e.target.value)))}
-                  className="w-24 p-1.5 bg-[#F4EFE6] border-2 border-[#2C2523] text-center font-pixel text-xs"
+                  className="w-24 p-1.5 bg-[#F4EFE6] border-2 border-[#2C2523] text-center font-bold text-sm"
                 />
               </div>
               <button
                 onClick={() => setTimeLimitSeconds(solverReadout.suggestedTime)}
-                className="w-full py-1.5 bg-[#EAE2CA] border-2 border-[#2C2523] text-[10px] font-bold hover:bg-[#D1C6A5]"
+                className="w-full py-1.5 bg-[#EAE2CA] border-2 border-[#2C2523] text-xs font-bold hover:bg-[#D1C6A5] cursor-pointer"
               >
-                APPLY SUGGESTED TIME ({solverReadout.suggestedTime}s)
+                Apply Suggested Time ({solverReadout.suggestedTime}s)
               </button>
             </div>
 
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-bold">DIFFICULTY BADGE:</span>
+              <span className="text-xs font-semibold">Difficulty Badge:</span>
               <div className="grid grid-cols-3 gap-1">
                 {(['normal', 'hard', 'super_hard'] as const).map((tier) => (
                   <button
                     key={tier}
                     onClick={() => setDifficulty(tier)}
-                    className={`py-1.5 border-2 border-[#2C2523] font-pixel text-[8px] ${
+                    className={`py-1.5 border-2 border-[#2C2523] font-bold text-xs cursor-pointer ${
                       difficulty === tier
                         ? tier === 'super_hard'
                           ? 'bg-[#9333EA] text-white'
@@ -554,15 +566,15 @@ export const EditorApp: React.FC = () => {
           <div className="mt-auto flex flex-col gap-2">
             <button
               onClick={handleSaveLevel}
-              className="pixel-btn w-full py-3 bg-[#22C55E] text-white font-pixel text-xs"
+              className="pixel-btn w-full py-3 bg-[#22C55E] text-white font-bold text-sm"
             >
-              SAVE AS LEVEL #{targetLevelId}
+              Save as Level #{targetLevelId}
             </button>
             <button
               onClick={handleInsertLevel}
-              className="pixel-btn w-full py-2.5 bg-[#FBBF24] text-[#2C2523] font-pixel text-[10px]"
+              className="pixel-btn w-full py-2.5 bg-[#FBBF24] text-[#2C2523] font-bold text-xs"
             >
-              INSERT AT #{targetLevelId} (SHIFT +1)
+              Insert at #{targetLevelId} (Shift +1)
             </button>
           </div>
         </aside>
@@ -573,27 +585,27 @@ export const EditorApp: React.FC = () => {
           <div className="flex-none flex gap-2 mb-3">
             <button
               onClick={() => handleSwitchMode('paint')}
-              className={`pixel-btn px-4 py-2.5 font-pixel text-[10px] ${
+              className={`pixel-btn px-4 py-2 font-bold text-xs ${
                 mode === 'paint' ? 'bg-[#FBBF24] text-[#2C2523]' : 'bg-[#FFFDF8]'
               }`}
             >
-              1. PAINT SOLVED STATE
+              1. Paint Solved State
             </button>
             <button
               onClick={() => handleSwitchMode('unsolve')}
-              className={`pixel-btn px-4 py-2.5 font-pixel text-[10px] ${
+              className={`pixel-btn px-4 py-2 font-bold text-xs ${
                 mode === 'unsolve' ? 'bg-[#5EEAD4] text-[#2C2523]' : 'bg-[#FFFDF8]'
               }`}
             >
-              2. UNSOLVE / SCRAMBLE
+              2. Unsolve / Scramble
             </button>
             <button
               onClick={() => handleSwitchMode('playtest')}
-              className={`pixel-btn px-4 py-2.5 font-pixel text-[10px] ${
+              className={`pixel-btn px-4 py-2 font-bold text-xs ${
                 mode === 'playtest' ? 'bg-[#22C55E] text-white' : 'bg-[#FFFDF8]'
               }`}
             >
-              3. PLAYTEST LEVEL
+              3. Playtest Level
             </button>
           </div>
 
@@ -605,43 +617,44 @@ export const EditorApp: React.FC = () => {
                   <button
                     key={c}
                     onClick={() => setSelectedBrush(c)}
-                    className={`px-2.5 py-1.5 border-2 border-[#2C2523] font-pixel text-[9px] text-white flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 border-2 border-[#2C2523] font-bold text-xs text-white flex items-center gap-1.5 cursor-pointer ${
                       selectedBrush === c ? 'ring-3 ring-[#2C2523] scale-105' : 'opacity-85'
                     }`}
                     style={{ backgroundColor: COLOR_HEX_MAP[c].base }}
                   >
                     <span>#{idx + 1}</span>
-                    <span>{c.toUpperCase()}</span>
+                    <span className="capitalize">{c}</span>
                   </button>
                 ))}
                 <button
                   onClick={() => setSelectedBrush('eraser')}
-                  className={`px-3 py-1.5 border-2 border-[#2C2523] font-pixel text-[9px] ${
+                  className={`px-3 py-1.5 border-2 border-[#2C2523] font-bold text-xs cursor-pointer ${
                     selectedBrush === 'eraser'
                       ? 'bg-[#2C2523] text-white'
                       : 'bg-[#F4EFE6] text-[#2C2523]'
                   }`}
                 >
-                  ERASER
+                  Eraser
                 </button>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold px-2 py-1 bg-[#F4EFE6] border border-[#2C2523]">
-                  Colors: {distinctColorsUsed} | Target Blocks: {snapProgress.totalSlots}
+                <span className="text-xs font-semibold px-2.5 py-1.5 bg-[#F4EFE6] border border-[#2C2523]">
+                  Colors: <strong>{distinctColorsUsed}</strong> | Target Blocks:{' '}
+                  <strong>{snapProgress.totalSlots}</strong>
                 </span>
                 <button
                   onClick={handleUndoPaint}
                   disabled={paintUndoStack.length === 0}
-                  className="px-3 py-1.5 bg-[#EAE2CA] border-2 border-[#2C2523] font-pixel text-[9px] disabled:opacity-40"
+                  className="px-3 py-1.5 bg-[#EAE2CA] border-2 border-[#2C2523] font-bold text-xs disabled:opacity-40 cursor-pointer"
                 >
-                  UNDO ({paintUndoStack.length})
+                  Undo ({paintUndoStack.length})
                 </button>
                 <button
                   onClick={handleClearBoard}
-                  className="px-3 py-1.5 bg-[#EF4444] text-white border-2 border-[#2C2523] font-pixel text-[9px]"
+                  className="px-3 py-1.5 bg-[#EF4444] text-white border-2 border-[#2C2523] font-bold text-xs cursor-pointer"
                 >
-                  CLEAR
+                  Clear
                 </button>
               </div>
             </div>
@@ -650,7 +663,7 @@ export const EditorApp: React.FC = () => {
           {mode === 'unsolve' && (
             <div className="flex-none bg-[#FFFDF8] border-3 border-[#2C2523] p-3 mb-3 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold">AUTO UNSOLVE STEPS:</span>
+                <span className="text-xs font-semibold">Auto Unsolve Steps:</span>
                 <input
                   type="number"
                   min={1}
@@ -659,21 +672,21 @@ export const EditorApp: React.FC = () => {
                   onChange={(e) =>
                     setUnsolveStepsInput(Math.max(1, Math.min(8, Number(e.target.value))))
                   }
-                  className="w-14 p-1 bg-[#F4EFE6] border-2 border-[#2C2523] text-center font-pixel text-xs"
+                  className="w-14 p-1 bg-[#F4EFE6] border-2 border-[#2C2523] text-center font-bold text-sm"
                 />
-                <span className="text-xs font-bold ml-2">SEED (OPT):</span>
+                <span className="text-xs font-semibold ml-2">Seed (opt):</span>
                 <input
                   type="text"
                   placeholder="Random"
                   value={scrambleSeedInput}
                   onChange={(e) => setScrambleSeedInput(e.target.value)}
-                  className="w-24 p-1 bg-[#F4EFE6] border-2 border-[#2C2523] text-center text-xs"
+                  className="w-24 p-1 bg-[#F4EFE6] border-2 border-[#2C2523] text-center text-xs font-medium"
                 />
                 <button
                   onClick={handleAutoUnsolve}
-                  className="pixel-btn px-3 py-1.5 bg-[#5EEAD4] text-[#2C2523] font-pixel text-[9px]"
+                  className="pixel-btn px-3.5 py-1.5 bg-[#5EEAD4] text-[#2C2523] font-bold text-xs"
                 >
-                  AUTO UNSOLVE
+                  Auto Unsolve
                 </button>
               </div>
 
@@ -681,15 +694,15 @@ export const EditorApp: React.FC = () => {
                 <button
                   onClick={handleUndoUnsolve}
                   disabled={unsolveUndoStack.length === 0}
-                  className="px-3 py-1.5 bg-[#EAE2CA] border-2 border-[#2C2523] font-pixel text-[9px] disabled:opacity-40"
+                  className="px-3 py-1.5 bg-[#EAE2CA] border-2 border-[#2C2523] font-bold text-xs disabled:opacity-40 cursor-pointer"
                 >
-                  UNDO ({unsolveUndoStack.length})
+                  Undo ({unsolveUndoStack.length})
                 </button>
                 <button
                   onClick={handleResetToSolved}
-                  className="px-3 py-1.5 bg-[#FBBF24] text-[#2C2523] border-2 border-[#2C2523] font-pixel text-[9px]"
+                  className="px-3 py-1.5 bg-[#FBBF24] text-[#2C2523] border-2 border-[#2C2523] font-bold text-xs cursor-pointer"
                 >
-                  RESET TO SOLVED
+                  Reset to Solved
                 </button>
               </div>
             </div>
@@ -698,13 +711,13 @@ export const EditorApp: React.FC = () => {
           {mode === 'playtest' && (
             <div className="flex-none bg-[#FFFDF8] border-3 border-[#2C2523] p-3 mb-3 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <span className="font-pixel text-xs px-3 py-1.5 bg-[#FFECA8] border-2 border-[#2C2523]">
+                <span className="font-bold text-sm px-3 py-1 bg-[#FFECA8] border-2 border-[#2C2523]">
                   ⏳ {playtestTimeLeft.toFixed(1)}s / {timeLimitSeconds}s
                 </span>
-                <span className="font-pixel text-xs">SHIFTS: {playtestShifts}</span>
+                <span className="font-bold text-sm">Shifts: {playtestShifts}</span>
                 {playtestProgress.isSolved && (
-                  <span className="font-pixel text-xs bg-[#22C55E] text-white px-3 py-1.5 border-2 border-[#2C2523]">
-                    ★ STAGE SOLVED! ★
+                  <span className="font-bold text-sm bg-[#22C55E] text-white px-3 py-1 border-2 border-[#2C2523]">
+                    ★ Stage Solved! ★
                   </span>
                 )}
               </div>
@@ -714,49 +727,49 @@ export const EditorApp: React.FC = () => {
                     const res = solveParMoves(playtestGrid, frames, 250, 7);
                     setPlaytestHint(res.actions[0] ?? null);
                   }}
-                  className="pixel-btn px-3 py-1.5 bg-[#93C5FD] text-[#2C2523] font-pixel text-[9px]"
+                  className="pixel-btn px-3.5 py-1.5 bg-[#93C5FD] text-[#2C2523] font-bold text-xs"
                 >
-                  TEST HINT
+                  Test Hint
                 </button>
                 <button
                   onClick={() => handleSwitchMode('playtest')}
-                  className="pixel-btn px-3 py-1.5 bg-[#FBBF24] text-[#2C2523] font-pixel text-[9px]"
+                  className="pixel-btn px-3.5 py-1.5 bg-[#FBBF24] text-[#2C2523] font-bold text-xs"
                 >
-                  RESTART PLAYTEST
+                  Restart Playtest
                 </button>
               </div>
             </div>
           )}
 
           {/* Live Board Readout Strip */}
-          <div className="flex-none flex items-center justify-between px-3 py-2 bg-[#EAE2CA] border-2 border-[#2C2523] mb-2 text-xs font-bold">
+          <div className="flex-none flex items-center justify-between px-3 py-2 bg-[#EAE2CA] border-2 border-[#2C2523] mb-2 text-xs font-semibold">
             <div>
               Matched Frames:{' '}
               <span
                 className={
                   snapProgress.isSolved
-                    ? 'text-[#EF4444]'
+                    ? 'text-[#EF4444] font-bold'
                     : snapProgress.matchedSlots === 0
-                      ? 'text-[#15803D]'
-                      : 'text-[#D97706]'
+                      ? 'text-[#15803D] font-bold'
+                      : 'text-[#D97706] font-bold'
                 }
               >
                 {snapProgress.matchedSlots} / {snapProgress.totalSlots}{' '}
                 {snapProgress.isSolved
-                  ? '(CURRENTLY SOLVED - SCRAMBLE BEFORE SAVING)'
+                  ? '(Currently Solved — Scramble before saving)'
                   : snapProgress.matchedSlots === 0
-                    ? '(0 PRE-MATCHED — CLEAN!)'
-                    : '(PARTIAL OVERLAP — SAVABLE)'}
+                    ? '(0 pre-matched — Clean!)'
+                    : '(Partial overlap — Savable)'}
               </span>
             </div>
             <div className="flex items-center gap-4">
               <span>
-                IDA* Solver Par: <strong className="font-pixel">{solverReadout.parMoves}</strong>{' '}
+                IDA* Solver Par: <strong className="font-extrabold text-sm">{solverReadout.parMoves}</strong>{' '}
                 Moves
               </span>
               <span>
                 Suggested Timer:{' '}
-                <strong className="font-pixel">{solverReadout.suggestedTime}s</strong>
+                <strong className="font-extrabold text-sm">{solverReadout.suggestedTime}s</strong>
               </span>
             </div>
           </div>

@@ -14,11 +14,14 @@
 
 | Field | Current Value |
 | :--- | :--- |
-| **Current Batch / Phase** | **Batch 2 — Phase 6: In-Game Screen & Modals** (`[ ]` Ready to Start Next) |
-| **Last Verified Milestone** | **Phases 1, 2, 3, 4, 5 & 8.1 Completed & Verified** (Vitest 8/8 passing, `splash.webp` & Android icons generated, `<TorusGrid>`, Level Editor `npm run dev:editor`, 10 campaign levels in `levels.json`, `AudioManager` + 11 WebAudio SFX, and `gameStore.ts` + `useGameLoop.ts` implemented) |
-| **Next Immediate Action** | Implement **Phase 6** (`InGameView.tsx` + 5 Modals: `TutorialOverlay`, `PauseModal`, `LevelCompleteModal`, `OutOfTimeModal`, `SettingsModal`), **Phase 7** (`SplashScreen.tsx`, `MainMenuView.tsx`, `ItemStoreView.tsx`, `App.tsx`), **Phase 8.2** (`DebugPanel.tsx`), and **Phase 9** (`build:itch` & `build:apk`) |
+| **Current Batch / Phase** | **All Web & Itch.io Phases Complete (Phases 1–9.2 `[x]` + Post-Phase Refinements `[x]`; Phase 9.3 Android APK Deferred by User)** |
+| **Last Verified Milestone** | **Desktop `BoundingBox` Frame Fix, Standalone Level Editor Runtime/Cache Fix & `Be Vietnam Pro` Body Typography Sync** |
+| **Next Immediate Action** | Ready for local playtesting (`npm run dev`), level authoring (`npm run dev:editor`), or Itch.io deployment (`dump/grid-snap-*-itch.zip`). Android APK (`npm run build:apk`) deferred until explicitly requested. |
 
-> **Agent Harness Rule**: Whenever starting or resuming work on **Grid Snap**, read this file first to determine the active phase, mark tasks `[/]` when starting and `[x]` when verified, and update the **Live Harness Status** table above at the end of every phase.
+> **Agent Harness Rule (Mandatory End-of-Task Doc Sync)**:
+> 1. Whenever starting or resuming work on **Grid Snap**, read this file first to determine the active phase or maintenance task, mark tasks `[/]` when starting and `[x]` when verified, and update the **Live Harness Status** table above.
+> 2. **At the end of EVERY task** (feature work, bug fixes, UI/UX or font tweaks, Level Editor updates, or build/config adjustments), you **MUST** update `docs/progress.md` AND all affected specification files in `docs/` (`game-design.md`, `architecture.md`, `art-direction.md`, `economy-and-progression.md`, `ui-ux-and-flows.md`, `level-design.md`) before ending the turn.
+> 3. **Android Builds**: Do **NOT** run `npm run build:apk` unless the user explicitly asks for an Android build.
 
 ---
 
@@ -69,16 +72,17 @@
   - `editorPaintMode` cell click/drag handler for the Level Editor.
 
 #### Phase 4: Standalone Level Editor (`editor/` & `vite.editor.config.ts`) & Starter Campaign
-- [x] **4.1 Editor Vite Server & Disk Middleware (`vite.editor.config.ts`)**:
-  - Configured `root: 'editor'` and `saveLevelPlugin` (`GET /api/levels`, `POST /api/save-level`, `POST /api/insert-level`, `DELETE /api/level/:id`).
+- [x] **4.1 Editor Vite Server & Disk Middleware (`vite.editor.config.ts` & `vite.config.ts`)**:
+  - Configured `root: 'editor'`, isolated `cacheDir: 'node_modules/.vite-editor'` for concurrent server execution alongside `npm run dev`, and registered `saveLevelPlugin` (`GET /api/levels`, `POST /api/save-level`, `POST /api/insert-level`, `DELETE /api/level/:id`).
 - [x] **4.2 Standalone Level Editor UI (`editor/index.html`, `editor/main.tsx`, `editor/EditorApp.tsx`)**:
   - Implemented full desktop editor with Level CRUD, Grid Size (`cols: 3|4`, `rows: 3..8`), Paint Mode (8-color brushes, Eraser, Undo, Clear), Unsolve Mode (shared `<TorusGrid>`, Undo, `Reset to Solved`, Seeded `Auto Unsolve in X Steps`, live `Matched Frames: k / M`, IDA\* `Solver Par`, `Suggested Timer`), Playtest Mode, and Save/Insert with overwrite confirmation.
+  - Configured **Be Vietnam Pro** (`'Be Vietnam Pro', system-ui, sans-serif`) for all body text, controls, inputs, and buttons while keeping **Press Start 2P** (`font-pixel`) on the top `GRID SNAP // LEVEL EDITOR` title only.
 - [x] **4.3 Author 10 Starter Campaign Levels (`src/config/levels.json`)**:
   - Populated 10 progressive, IDA\*-verified levels (`3×3` onboarding -> `4×4` core -> `4×6` Hard -> `4×8` Super Hard).
 
 ---
 
-### Batch 2: Zustand Store, Game Loop, Splash, In-Game & Meta Screens (`[/]` Partially Complete)
+### Batch 2: Zustand Store, Game Loop, Splash, In-Game & Meta Screens (`[x]` Complete)
 
 #### Phase 5: Zustand Store & Game Loop (`src/store/gameStore.ts` & `src/hooks/useGameLoop.ts`)
 - [x] **5.1 Zustand Store (`src/store/gameStore.ts`)**:
@@ -90,9 +94,9 @@
   - `requestAnimationFrame` delta timer, `visibilitychange` auto-pause, and `@capacitor/app` Android hardware `backButton` listener.
 
 #### Phase 6: In-Game Screen & All 5 Modals (`src/components/`)
-- [ ] **6.1 In-Game View (`src/components/screens/InGameView.tsx`)**:
+- [x] **6.1 In-Game View (`src/components/screens/InGameView.tsx`)**:
   - Top HUD (Coin pill, `LVL.{X}`, `||` Pause button, `⏳ MM:SS` timer pill, `economy.json`-driven 3-Star Milestone Progress Bar with double-tap star Debug trigger), elastic center `<TorusGrid>`, and bottom `💡 HINT ($50)` + `+5S EXTRA TIME ($100)` buttons.
-- [ ] **6.2 Modal Overlays (`src/components/modals/`)**:
+- [x] **6.2 Modal Overlays (`src/components/modals/`)**:
   - `TutorialOverlay.tsx` (Level 1 first launch; pauses timer until tapped).
   - `PauseModal.tsx` (`RESUME` and `QUIT` with `YOU WILL LOSE 1 ❤️` warning).
   - `LevelCompleteModal.tsx` (`LEVEL {X} CLEAR!`, 3 pixel stars, status banner, `TIME` without `BEST!`, `SHIFTS`, `COINS: +200`, `NEXT LEVEL ▶`, top-right `✕`).
@@ -100,30 +104,45 @@
   - `SettingsModal.tsx` (`MUSIC`, `SFX`, and `COLORBLIND` `ON/OFF` switches + double-tap `⚠ RESET PROGRESS`).
 
 #### Phase 7: Boot Splash Screen & Meta Screens (`SplashScreen`, `MainMenuView`, `ItemStoreView`)
-- [ ] **7.1 Boot Splash Screen (`src/components/SplashScreen.tsx`)**:
+- [x] **7.1 Boot Splash Screen (`src/components/SplashScreen.tsx`)**:
   - Full-bleed cover overlay inside `<BoundingBox width={450} height={800}>` (`z-index: 100`) displaying `AssetLoader.resolvePath('splash.webp')`.
   - Smooth `0%–100%` loading bar at `top: 63%` below `"GRID SNAP"` logo (`LOADING CARTRIDGE...` → `CARTRIDGE READY` + `{progress}%`, 16-bit progress bar, pulsing `TAP TO CONTINUE` prompt + `Space`/`Enter`), `450ms` scale/fade exit, and WebAudio unlock.
-- [ ] **7.2 Main Menu Screen (`src/components/screens/MainMenuView.tsx`)**:
+- [x] **7.2 Main Menu Screen (`src/components/screens/MainMenuView.tsx`)**:
   - Top Coin & Heart HUD capsules (`FULL` with no timer when `lives >= 5`, `MM:SS` timer when `lives < 5`), `STORE` & `⚙` buttons, vertical Level Path (`unlockedLevel` at bottom, `HARD`/`SUPER HARD` badges, last-10 loop), `STAR COUNT` vanity bar + Share button, and `▶ PLAY` CTA.
-- [ ] **7.3 Item Store Screen (`src/components/screens/ItemStoreView.tsx`)**:
+- [x] **7.3 Item Store Screen (`src/components/screens/ItemStoreView.tsx`)**:
   - `GET LIVES` (`5`, `10`, `20` Lives) and `GET COINS` (`500 C`, `1,200 C`, `5,000 C`) 3-column grids wired to Ko-fi `/2`, `/5`, `/10` tiers + inline `#toast` banner + `◀ BACK TO MENU`.
-- [ ] **7.4 Root App Assembly (`src/App.tsx`)**:
+- [x] **7.4 Root App Assembly (`src/App.tsx`)**:
   - Wire `SplashScreen`, `MainMenuView`, `InGameView`, `ItemStoreView`, all 5 modals, `useGameLoop`, and lazy `DebugPanel` inside `<BoundingBox width={450} height={800}>`.
 
 ---
 
-### Batch 3: Audio System, Debug Mode & Production Builds (`[/]` Partially Complete)
+### Batch 3: Audio System, Debug Mode & Production Builds (`[x]` Web & Itch Complete)
 
 #### Phase 8: Audio System & Developer Debug Mode
 - [x] **8.1 Chiptune SFX & Music Controller (`src/audio/sfx.ts` & `src/audio/AudioManager.ts`)**:
   - Synthesized all 11 16-bit SFX cues via WebAudio + optional `public/audio/sfx/<key>.ogg` override support + dual-track music controller (`public/audio/music/menu.ogg|.mp3` and `gameplay.ogg|.mp3`) with silent missing-file fallback and `35%` modal ducking.
-- [ ] **8.2 Developer Debug Panel (`src/components/DebugPanel.tsx`)**:
+- [x] **8.2 Developer Debug Panel (`src/components/DebugPanel.tsx`)**:
   - Triggered by double-tapping any HUD star within `350ms`; includes `WIN LEVEL`, `GO TO LVL #`, `+1,000 COINS`, `+5 LIVES`, `-1 LIFE`, `REFILL TIME`, `FREEZE TIMER`, and sentinel `'__GRID_SNAP_DEBUG_PANEL__'`, gated behind `import.meta.env.VITE_DISABLE_DEBUG !== 'true'`.
 
 #### Phase 9: Verification & Build Exports
-- [ ] **9.1 Automated Tests & Typecheck**:
+- [x] **9.1 Automated Tests & Typecheck**:
   - Run `npm test` (Vitest) and `npm run build` (`tsc -b && vite build`).
-- [ ] **9.2 Itch.io Build & Sentinel Verification**:
+- [x] **9.2 Itch.io Build & Sentinel Verification**:
   - Run `npm run build:itch` and verify `'__GRID_SNAP_DEBUG_PANEL__'` is absent from `dist/assets/*.js` and `dump/grid-snap-*-itch.zip` is generated.
-- [ ] **9.3 Android APK Build**:
+- [ ] **9.3 Android APK Build** *(Deferred per user request — do not run until explicitly requested)*:
   - Run `npm run build:apk` and verify `dump/grid-snap-*-android.apk` is generated with custom launcher icons.
+
+---
+
+## 3. Post-Phase Refinements & Maintenance Log
+
+- [x] **Desktop `<BoundingBox>` Frame Detection Fix (`src/components/BoundingBox.tsx`)**:
+  - Replaced `'Capacitor' in window` with `Boolean(window.Capacitor?.isNativePlatform?.())` (since `@capacitor/core` attaches `window.Capacitor` on Desktop Web too) and tightened `checkIsMobile()` so desktop browsers and touch-enabled Windows laptops always render the framed `450×800` arcade cabinet instead of fluid full-bleed mobile mode.
+- [x] **Standalone Level Editor Runtime, Tailwind & Dual-Server Cache Fix (`src/engine/grid.ts`, `editor/EditorApp.tsx`, `src/index.css`, `vite.editor.config.ts`, `vite.config.ts`)**:
+  - Made `getSnapProgress` null-safe (`grid[r]?.[c]`) and initialized/synced `playtestGrid` in `EditorApp.tsx` so `playtestProgress` never accesses an uninitialized row when loading levels.
+  - Added `@source "../src";` and `@source "../editor";` to `src/index.css` so Tailwind CSS v4 generates all classes when Vite runs with `root: 'editor'`.
+  - Isolated `cacheDir` in `vite.editor.config.ts` to `node_modules/.vite-editor` so `npm run dev` (`:5173`) and `npm run dev:editor` (`:5174`) can run side-by-side without pre-bundled dependency hash collisions.
+- [x] **Standalone Level Editor Typography Refinement (`editor/index.html`, `editor/EditorApp.tsx`)**:
+  - Loaded Google Font `Be Vietnam Pro` in `editor/index.html` and applied it to all body text, labels, inputs, dropdowns, and buttons in `editor/EditorApp.tsx`, keeping `font-pixel` (`Press Start 2P`) only on the main `GRID SNAP // LEVEL EDITOR` header title.
+- [x] **Harness & End-of-Task Documentation Sync Rule (`AGENTS.md` & `docs/*.md`)**:
+  - Updated `AGENTS.md` and `docs/progress.md` to enforce mandatory updates across `docs/progress.md` and all affected `docs/*.md` specification files at the end of every task.

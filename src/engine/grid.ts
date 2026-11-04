@@ -103,7 +103,7 @@ export function getSnapProgress<B, F>(
       const targetColor = frames[r][c];
       if (targetColor !== null && targetColor !== ('neutral' as unknown as F)) {
         totalSlots++;
-        if ((grid[r][c] as unknown) === (targetColor as unknown)) {
+        if ((grid[r]?.[c] as unknown) === (targetColor as unknown)) {
           matchedSlots++;
         }
       }

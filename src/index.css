@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source "../src";
+@source "../editor";
 
 /* Self-Hosted Retro Arcade Typography */
 @font-face {

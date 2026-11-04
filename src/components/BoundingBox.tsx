@@ -13,13 +13,25 @@ export const BoundingBox: React.FC<GameLayerProps> = ({ width, height, children 
 
   useLayoutEffect(() => {
     // Detect if running inside the Capacitor native WebView shell or a mobile/tablet browser.
-    // Uses Math.min(innerWidth, innerHeight) <= 800 so both Portrait and Landscape phones are detected.
-    const checkCapacitor =
-      typeof window !== 'undefined' &&
-      ('Capacitor' in window || (window as unknown as { Capacitor?: unknown }).Capacitor !== undefined);
-    const checkIsMobile = () =>
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-      (navigator.maxTouchPoints > 0 && Math.min(window.innerWidth, window.innerHeight) <= 800);
+    // Note: Importing @capacitor/core defines window.Capacitor on Web too, so we must check isNativePlatform().
+    const capGlobal =
+      typeof window !== 'undefined'
+        ? (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor
+        : undefined;
+    const checkCapacitor = Boolean(capGlobal?.isNativePlatform?.());
+
+    const isPortraitGame = width < height;
+    const checkIsMobile = () => {
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+      if (isMobileUA) return true;
+      // Avoid false-positives on touch-enabled Windows desktop laptops where innerHeight <= 800
+      if (isPortraitGame) {
+        return navigator.maxTouchPoints > 0 && window.innerWidth <= 600 && window.innerWidth < window.innerHeight;
+      }
+      return navigator.maxTouchPoints > 0 && Math.max(window.innerWidth, window.innerHeight) <= 900;
+    };
 
     const handleResize = () => {
       const isFluid = checkCapacitor || checkIsMobile();

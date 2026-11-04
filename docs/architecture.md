@@ -181,7 +181,7 @@ export function getSnapProgress(
       const targetColor = frames[r][c];
       if (targetColor !== null) {
         totalSlots++;
-        if (grid[r][c] === targetColor) {
+        if (grid[r]?.[c] === targetColor) {
           matchedSlots++;
         }
       }
@@ -496,12 +496,14 @@ When `startLevel()` loads a `LevelConfig`:
 
 ---
 
-## 7. Standalone Level Editor Architecture (`vite.editor.config.ts`)
+## 7. Standalone Level Editor Architecture (`vite.editor.config.ts` & `editor/`)
 
-- **Isolated Dev Server (`npm run dev:editor`)**:
-  - Launches `vite --config vite.editor.config.ts` with `root: 'editor'`.
+- **Isolated Dev Server & Cache (`npm run dev:editor`)**:
+  - Launches `vite --config vite.editor.config.ts` with `root: 'editor'` on port `5174`.
+  - Uses an isolated dependency cache (`cacheDir: path.resolve(__dirname, 'node_modules/.vite-editor')`) so `npm run dev` (`:5173`) and `npm run dev:editor` (`:5174`) can run side-by-side without pre-bundled Vite chunk hash conflicts.
   - Shares `src/engine/*` (toroidal math, `autoUnsolve`, IDA\* `solveParMoves`) and `src/components/TorusGrid.tsx` directly with the game, while rendering inside a full-screen desktop layout (outside `<BoundingBox>`).
-- **Direct Disk Read/Write Middleware (`saveLevelPlugin`)**:
+  - **Editor Typography**: Loads `Be Vietnam Pro` in `editor/index.html` for all body text, controls, inputs, and buttons (`fontFamily: "'Be Vietnam Pro', system-ui, -apple-system, sans-serif"`), while retaining `font-pixel` (`'Press Start 2P'`) exclusively on the top `GRID SNAP // LEVEL EDITOR` title.
+- **Direct Disk Read/Write Middleware (`saveLevelPlugin` exported from `vite.editor.config.ts` and also registered in `vite.config.ts`)**:
   - `GET /api/levels`: Reads `src/config/levels.json` and returns `{ levels: LevelConfig[] }`.
   - `POST /api/save-level`: Upserts a `LevelConfig` for `id: X` (after client-side confirmation if overwriting an existing ID), sorts by `id` ascending, and writes formatted JSON to `src/config/levels.json`.
   - `POST /api/insert-level`: Inserts a level at `id: X`, increments `id` by `+1` for all existing levels with `id >= X`, and writes `src/config/levels.json`.
@@ -541,10 +543,10 @@ When `startLevel()` loads a `LevelConfig`:
 ---
 
 ## 10. Platform, Styling & Asset Optimization Pipeline
-- **Tailwind CSS v4 (`@tailwindcss/vite`)**: Provides zero-config CSS-first styling and native `@container` query units (`cqw`, `cqh`).
-- **Self-Hosted Fonts (`public/fonts/`)**: `Press Start 2P`, `Silkscreen`, and `Space Mono` `.woff2` files are stored locally in `public/fonts/` and loaded via `@font-face` in `src/index.css`—never from `fonts.googleapis.com`.
+- **Tailwind CSS v4 (`@tailwindcss/vite`)**: Provides zero-config CSS-first styling and native `@container` query units (`cqw`, `cqh`). `src/index.css` explicitly includes `@source "../src";` and `@source "../editor";` so Tailwind scans both the game and standalone editor directories regardless of the active Vite `root`.
+- **Self-Hosted Game Fonts (`public/fonts/`)**: `Press Start 2P`, `Silkscreen`, and `Space Mono` `.woff2` files are stored locally in `public/fonts/` and loaded via `@font-face` in `src/index.css` for the runtime game (`editor/index.html` loads `Be Vietnam Pro` for the local-only Level Editor UI).
 - **Safe Asset Resolution**: Always resolve `public/` assets through `AssetLoader.resolvePath()` (`import.meta.env.BASE_URL`) so Itch.io CDN subpaths never 404.
-- **Viewport Scaling**: `<BoundingBox width={450} height={800}>` provides `containerType: 'size'` and switches between framed desktop scaling and 100% fluid mobile/APK rendering (`data-layout="fluid"`).
+- **Viewport Scaling (`src/components/BoundingBox.tsx`)**: `<BoundingBox width={450} height={800}>` provides `containerType: 'size'` and switches between framed desktop scaling (`450×800` box with `4px` arcade border) and 100% fluid mobile/APK rendering (`data-layout="fluid"`). Native platform detection checks `Boolean(window.Capacitor?.isNativePlatform?.())` (never `'Capacitor' in window`, which is truthy on Desktop Web when `@capacitor/core` is imported) and guards against false-positive fluid mode on touch-enabled desktop laptops.
 
 ### 10.1 Splash Screen & Game Icon Optimization (`scripts/generate-icons.py` & `scripts/update-assets.js`)
 Following the asset pipeline in `topdown-2d-car-engine` and `portable-web-android-game-skill`:

@@ -214,3 +214,5 @@ All modals render inside an `absolute inset-0 z-50` container over the active sc
 Per `AGENTS.md`, when converting any HTML/Tailwind snippet from `ui-refs/` into React components:
 1. **No Viewport Units or Breakpoints**: Strip `min-h-screen`, `h-screen`, `w-screen`, and all `sm:` / `md:` / `lg:` media-query classes.
 2. **Container Query Sizing**: `<BoundingBox width={450} height={800}>` establishes `containerType: 'size'`. Use `cqw`, `cqh`, `clamp(...)`, and Flexbox (`flex-1 min-h-0`) so the layout scales identically inside the desktop frame and full-bleed mobile WebViews (`[data-layout="fluid"]`).
+3. **Desktop Frame vs. Native Mobile Fluid Detection (`src/components/BoundingBox.tsx`)**:
+   - Check `Boolean(window.Capacitor?.isNativePlatform?.())` (never `'Capacitor' in window`, since `@capacitor/core` registers `window.Capacitor` on Desktop Web as well) and ensure touch-enabled desktop laptops in landscape windows remain in framed `450×800` desktop mode rather than fluid mode.

@@ -41,12 +41,16 @@ A level can contain **multiple blocks and frames of the same color** (for exampl
 
 ## 3. Standalone Level Editor (`npm run dev:editor`)
 
-### 3.1 Execution, Code Sharing & File Persistence Architecture
+### 3.1 Execution, Code Sharing, Typography & File Persistence Architecture
 Matching the clean workflow from `loop-game`, the Level Editor is a standalone internal developer tool:
-- **Game Dev Server**: `npm run dev` (runs `vite` using `vite.config.ts`).
-- **Level Editor Server**: `npm run dev:editor` (runs `vite --config vite.editor.config.ts` rooted at `editor/index.html`).
+- **Game Dev Server**: `npm run dev` (runs `vite` on port `5173` using `vite.config.ts`).
+- **Level Editor Server**: `npm run dev:editor` (runs `vite --config vite.editor.config.ts` on port `5174` rooted at `editor/index.html`).
+- **Isolated Vite Cache for Concurrent Servers**: `vite.editor.config.ts` configures `cacheDir: path.resolve(__dirname, 'node_modules/.vite-editor')` so `npm run dev` (`:5173`) and `npm run dev:editor` (`:5174`) can run concurrently without pre-bundled dependency hash collisions, while `src/index.css` declares `@source "../src";` and `@source "../editor";` so Tailwind CSS v4 scans both source trees regardless of the active Vite root.
 - **Shared Core & Desktop Layout**: The editor imports `src/engine/*` (toroidal shift functions, `autoUnsolve`, IDA\* `solveParMoves`) and `src/components/TorusGrid.tsx` directly so board interactions feel identical to the live game, while rendering inside a wide multi-panel desktop layout (not constrained to `<BoundingBox>`).
-- **Direct Disk Read/Write (`saveLevelPlugin` in `vite.editor.config.ts`)**:
+- **Editor Typography (High-Legibility Authoring)**:
+  - **Main Header Title**: Uses `font-pixel` (`'Press Start 2P'`) exclusively on the top `GRID SNAP // LEVEL EDITOR` title (`editor/EditorApp.tsx`).
+  - **All Body Text, Labels, Inputs, Dropdowns & Buttons**: Uses **`Be Vietnam Pro`** (`'Be Vietnam Pro', system-ui, -apple-system, sans-serif`, loaded in `editor/index.html`) so dense authoring controls, stats, and level lists remain effortless to read during long design sessions.
+- **Direct Disk Read/Write (`saveLevelPlugin` in `vite.editor.config.ts` & `vite.config.ts`)**:
   - `GET /api/levels`: Reads and returns the full levels array from `src/config/levels.json`.
   - `POST /api/save-level`: Inserts a new level or overwrites an existing **Level No. `X`** inside `src/config/levels.json` (sorted by `id: number`) and formats the JSON cleanly on disk.
   - `POST /api/insert-level`: Inserts the level at **Level No. `X`** and shifts all existing levels with `id >= X` up by `+1`.

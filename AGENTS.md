@@ -6,13 +6,17 @@ This project was scaffolded with `portable-web-android-game-skill`. You **MUST**
 
 ## 1. Documentation Hub, Progress Harness & Cross-Linking (`docs/`)
 - **Central Hub (`docs/game-design.md`)**: `docs/game-design.md` is the master index for all project documentation.
-- **Live Implementation Harness (`docs/progress.md`)**: `docs/progress.md` tracks the 9-phase implementation plan and live build status. Always read `docs/progress.md` when starting or resuming implementation work, and update its `Live Harness Status` table and task checkboxes (`[ ]` → `[/]` → `[x]`) as each phase is completed and verified.
-- **Starter Docs**: The project begins with core documents under `docs/`:
+- **Live Implementation Harness (`docs/progress.md`)**: `docs/progress.md` tracks the 9-phase implementation plan, live build status, and post-phase maintenance log. Always read `docs/progress.md` when starting or resuming implementation work, and update its `Live Harness Status` table and task checkboxes (`[ ]` → `[/]` → `[x]`) as each phase or task is completed and verified.
+- **Mandatory End-of-Task Documentation Sync Rule**: At the end of **every task** (whether implementing a feature, fixing a bug, adjusting UI/UX or typography, updating the Level Editor, or changing build/config files), you **MUST** inspect and update `docs/progress.md` AND any affected specification documents in `docs/` (`game-design.md`, `architecture.md`, `art-direction.md`, `economy-and-progression.md`, `ui-ux-and-flows.md`, `level-design.md`) before finishing your turn. Never leave documentation out of sync with the live codebase.
+- **Starter & Core Docs**: The project documentation suite under `docs/` consists of:
   - [`docs/game-design.md`](./docs/game-design.md)
   - [`docs/architecture.md`](./docs/architecture.md)
   - [`docs/art-direction.md`](./docs/art-direction.md)
+  - [`docs/economy-and-progression.md`](./docs/economy-and-progression.md)
+  - [`docs/ui-ux-and-flows.md`](./docs/ui-ux-and-flows.md)
+  - [`docs/level-design.md`](./docs/level-design.md)
   - [`docs/progress.md`](./docs/progress.md)
-- **Strict Cross-Linking Rule**: Whenever you create a new markdown file in `docs/` (for example, `level-design.md`, `economy.md`, `ui-ux.md`, `testing-and-qa.md`) or rename/remove an existing one:
+- **Strict Cross-Linking Rule**: Whenever you create a new markdown file in `docs/` (for example, `testing-and-qa.md`) or rename/remove an existing one:
   1. You **MUST** add a relative link and 1-line summary to the `### Related Documents` section at the top of `docs/game-design.md`.
   2. You **MUST** include a `### Related Documents` section at the top of the new document linking back to `./game-design.md` and other relevant docs in `docs/` so the documentation graph stays 100% connected.
   3. Always use relative paths (`./filename.md`), never machine-specific absolute paths.
@@ -21,6 +25,9 @@ This project was scaffolded with `portable-web-android-game-skill`. You **MUST**
 
 ## 2. Layout, Scaling & `BoundingBox` Rules (Portrait & Landscape)
 - **Single Root Wrapper**: The entire game UI lives inside `<BoundingBox width={W} height={H}>` (`src/components/BoundingBox.tsx`), which supports both Vertical/Portrait (`width < height`, e.g., `450x800`) and Horizontal/Landscape (`width > height`, e.g., `800x450`) games.
+- **Native vs. Desktop Web Detection in `BoundingBox.tsx`**:
+  - Importing `@capacitor/core` registers `window.Capacitor` on Desktop Web as well (`isNativePlatform()` returns `false`). Therefore, `BoundingBox.tsx` **MUST** check `Boolean(window.Capacitor?.isNativePlatform?.())`—**NEVER** `'Capacitor' in window`—when deciding whether to enter full-bleed fluid mode (`data-layout="fluid"`).
+  - Touch-enabled desktop laptops (`navigator.maxTouchPoints > 0` in a landscape browser window) must remain in framed desktop mode (`450x800` scaled box); only genuine mobile user agents or narrow portrait viewports (`window.innerWidth <= 600 && window.innerWidth < window.innerHeight`) should trigger fluid mobile mode on web.
 - **No Viewport Wrappers Inside `App.tsx`**: Do NOT wrap `<BoundingBox>` in `100vh`, `100dvh`, or `w-screen` divs—`#root` in `src/index.css` already owns the full viewport and safe-area padding (`env(safe-area-inset-*)`).
 - **Container Queries Only — No Viewport Breakpoints**:
   - `BoundingBox` sets `containerType: 'size'` on its inner game box.
@@ -57,7 +64,9 @@ Not every game needs a Debug Panel, so do not create one unless the user asks fo
 
 ---
 
-## 5. Build & Export Commands
+## 5. Build, Editor & Export Commands
+- **Game Dev Server**: Run `npm run dev` (starts Vite on port `5173` using `vite.config.ts`).
+- **Standalone Level Editor**: Run `npm run dev:editor` (starts Vite on port `5174` using `vite.editor.config.ts` with isolated `cacheDir: 'node_modules/.vite-editor'` so it can run concurrently alongside `npm run dev` without pre-bundled dependency hash conflicts).
 - **Itch.io ZIP Export**: Run `npm run build:itch` (executes `scripts/build-itch.ps1`, runs `scripts/verify-build.js`, builds in `--mode itch`, and outputs `dump/[appname]-ddMMyy-HHmm-itch.zip` with `index.html` at the archive root).
-- **Android APK Export**: Run `npm run build:apk` (executes `scripts/build-apk.ps1`, links the shared JDK/Android SDK cache from `$HOME\.portable-android-env` into `.local-env/`, syncs icons from `android-assets/icon.png`, cleans stale caches, and outputs `dump/[appname]-ddMMyy-HHmm-android.apk`).
+- **Android APK Export (Explicit User Request Only)**: Run `npm run build:apk` **only when explicitly requested by the user** (executes `scripts/build-apk.ps1`, links the shared JDK/Android SDK cache from `$HOME\.portable-android-env` into `.local-env/`, syncs icons from `android-assets/icon.png`, cleans stale caches, and outputs `dump/[appname]-ddMMyy-HHmm-android.apk`). Do **not** run Android builds proactively.
 

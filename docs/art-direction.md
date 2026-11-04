@@ -91,6 +91,8 @@ To guarantee 100% offline reliability in Android APKs and zero CDN latency on It
   - Loaded via `@font-face` in `src/index.css` using relative asset paths compatible with `base: './'`:
     - **Display & Pixel Numerals (`--font-pixel`)**: `'Press Start 2P', monospace` (`PressStart2P-Regular.woff2`) — used for modal ribbon titles (`LEVEL 25 CLEAR!`, `TIME'S UP!`, `PAUSED`, `SETTINGS`), level node numbers (`25`), HUD counters (`99,999`, `00:56`), difficulty badges (`HARD`, `SUPER HARD`), and primary CTAs.
     - **Secondary Retro UI (`--font-retro`)**: `'Silkscreen', 'Space Mono', monospace` (`Silkscreen-Regular.woff2`, `Silkscreen-Bold.woff2`, `SpaceMono-Bold.woff2`) — used for supporting labels, tabular stats, and compact descriptions.
+- **Standalone Level Editor Typography Override (`editor/index.html` & `editor/EditorApp.tsx`)**:
+  - Because the standalone Level Editor (`npm run dev:editor`) is a local desktop authoring tool with dense controls, it uses **`Be Vietnam Pro`** (`'Be Vietnam Pro', system-ui, -apple-system, sans-serif`) for all body text, labels, inputs, dropdowns, and buttons while keeping `'Press Start 2P'` (`font-pixel`) exclusively on the top `GRID SNAP // LEVEL EDITOR` title.
 - **Inline Pixel Art SVGs (Replacing Material Symbols)**:
   - All icons that used `material-symbols-outlined` in the `ui-refs/` prototypes (`storefront`, `settings`, `share`, `warning`, `close`, `lightbulb`, `hourglass`) must be implemented as crisp inline pixel-grid `<svg>` components with `shape-rendering="crispEdges"`.
 - **Formatting Rules**:

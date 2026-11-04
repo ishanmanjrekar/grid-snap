@@ -28,7 +28,7 @@ function writeLevelsToDisk(levels: any[]): void {
   fs.writeFileSync(levelsFilePath, JSON.stringify(sorted, null, 2) + '\n', 'utf-8');
 }
 
-function saveLevelPlugin(): Plugin {
+export function saveLevelPlugin(): Plugin {
   return {
     name: 'grid-snap-save-level-plugin',
     configureServer(server) {
@@ -116,9 +116,14 @@ function saveLevelPlugin(): Plugin {
 
 export default defineConfig({
   root: 'editor',
+  cacheDir: path.resolve(__dirname, 'node_modules/.vite-editor'),
+  publicDir: path.resolve(__dirname, 'public'),
   plugins: [react(), tailwindcss(), saveLevelPlugin()],
   server: {
     port: 5174,
+    fs: {
+      allow: [__dirname],
+    },
   },
 });
 
