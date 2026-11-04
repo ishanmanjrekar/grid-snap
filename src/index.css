@@ -1,4 +1,72 @@
-/* Scrollbar Neutralization */
+@import "tailwindcss";
+
+/* Self-Hosted Retro Arcade Typography */
+@font-face {
+  font-family: 'Press Start 2P';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../public/fonts/PressStart2P-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Silkscreen';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../public/fonts/Silkscreen-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Silkscreen';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../public/fonts/Silkscreen-Bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../public/fonts/SpaceMono-Bold.woff2') format('woff2');
+}
+
+:root {
+  /* Typography Tokens */
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-retro: 'Silkscreen', 'Space Mono', monospace;
+
+  /* Base Canvas & Hardware Surfaces */
+  --canvas-bg: #F4EFE6;
+  --surface-card: #FFFDF8;
+  --surface-modal: #F6F1DC;
+  --surface-bezel: #EAE2CA;
+  --surface-tray: #D1C6A5;
+  --surface-tray-shadow: #9E9375;
+  --surface-neutral: #F8F5EB;
+  --arcade-ink: #2C2523;
+  --arcade-ink-deep: #1E1B18;
+
+  /* Semantic UI Accents */
+  --accent-gold: #FBBF24;
+  --accent-gold-dark: #D97706;
+  --accent-emerald: #22C55E;
+  --accent-emerald-dark: #15803D;
+  --accent-crimson: #EF4444;
+  --accent-crimson-dark: #B91C1C;
+  --accent-mint: #5EEAD4;
+  --accent-sky: #4DA2FF;
+  --accent-purple: #9333EA;
+}
+
+/* Scrollbar Neutralization & Crisp Pixel Rendering */
+* {
+  box-sizing: border-box;
+  image-rendering: pixelated;
+}
+
 html,
 body {
   margin: 0;
@@ -7,14 +75,15 @@ body {
   height: 100%;
   overflow: hidden;
   scrollbar-width: none;
-  /* Firefox */
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
+  background-color: #1A1615;
+  font-family: var(--font-retro);
+  color: var(--arcade-ink);
 }
 
 ::-webkit-scrollbar {
   display: none;
-  /* Chrome, Safari, Edge */
 }
 
 /* Base Game Container */
@@ -25,20 +94,13 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-
-  /* Safe Area for Mobile (Notches, Home Bar) - requires viewport-fit=cover in index.html */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-
-  /* Prevent Native Touch Interactions */
   touch-action: none;
-  /* Prevent pull to refresh */
   -webkit-touch-callout: none;
-  /* Disable iOS callouts */
   -webkit-user-select: none;
-  /* Disable text selection */
   user-select: none;
 }
 
@@ -52,12 +114,209 @@ body {
   justify-content: space-between;
   box-sizing: border-box;
   overflow: hidden;
+  background-color: var(--canvas-bg);
+  color: var(--arcade-ink);
+  border: 4px solid var(--arcade-ink);
 }
 
-/* Automatically strip decorative borders and rounded corners in fluid mobile/APK mode (both Portrait & Landscape) */
+/* Automatically strip decorative borders and rounded corners in fluid mobile/APK mode */
 [data-layout="fluid"] .game-container {
   border: none !important;
   border-radius: 0 !important;
+}
+
+/* Typography Helper Classes */
+.font-pixel {
+  font-family: var(--font-pixel);
+}
+
+.font-retro {
+  font-family: var(--font-retro);
+}
+
+/* Microswitch Arcade Button Physics */
+.pixel-btn {
+  border: 3px solid var(--arcade-ink);
+  box-shadow: 3px 3px 0px var(--arcade-ink);
+  transition: transform 75ms steps(2, end), box-shadow 75ms steps(2, end);
+  cursor: pointer;
+}
+
+.pixel-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--arcade-ink);
+}
+
+.pixel-btn:disabled {
+  cursor: not-allowed;
+}
+
+/* 3D Beveled Surface & Card Helpers */
+.pixel-box-sm {
+  box-shadow:
+    inset 2px 2px 0 0 #FFFFFF,
+    inset -2px -2px 0 0 #C4BA9D,
+    2px 2px 0 0 #2C2523;
+}
+
+.pixel-tray-inset {
+  background-color: var(--surface-tray);
+  box-shadow:
+    inset 3px 3px 0 0 var(--surface-tray-shadow),
+    inset -2px -2px 0 0 #EDE5CE;
+}
+
+/* 8-Color + Neutral 3D Beveled Puzzle Blocks */
+.pixel-tile-neutral {
+  background-color: #F8F5EB;
+  border: 2px solid #332B25;
+  box-shadow:
+    inset 2px 2px 0 0 #FFFFFF,
+    inset -2px -2px 0 0 #DDD2BA,
+    0 2.5px 0 0 #9E937D;
+}
+
+.pixel-tile-ruby {
+  background-color: #EF4444;
+  border: 2px solid #2B1810;
+  box-shadow:
+    inset 2.5px 2.5px 0 0 #FFA3A8,
+    inset -2.5px -2.5px 0 0 #B91C1C,
+    0 2.5px 0 0 #7F1D1D;
+}
+
+.pixel-tile-emerald {
+  background-color: #22C55E;
+  border: 2px solid #14281A;
+  box-shadow:
+    inset 2.5px 2.5px 0 0 #86EFAC,
+    inset -2.5px -2.5px 0 0 #15803D,
+    0 2.5px 0 0 #14532D;
+}
+
+.pixel-tile-cobalt {
+  background-color: #3B82F6;
+  border: 2px solid #132238;
+  box-shadow:
+    inset 2.5px 2.5px 0 0 #93C5FD,
+    inset -2.5px -2.5px 0 0 #1D4ED8,
+    0 2.5px 0 0 #1E3A8A;
+}
+
+.pixel-tile-yellow {
+  background-color: #F59E0B;
+  border: 2px solid #78350F;
+  box-shadow:
+    inset 2.5px 2.5px 0 0 #FDE68A,
+    inset -2.5px -2.5px 0 0 #B45309,
+    0 2.5px 0 0 #451A03;
+}
+
+.pixel-tile-purple {
+  background-color: #A855F7;
+  border: 2px solid #581C87;
+  box-shadow:
+    inset 2.5px 2.5px 0 0 #D8B4FE,
+    inset -2.5px -2.5px 0 0 #7E22CE,
+    0 2.5px 0 0 #3B0764;
+}
+
+.pixel-tile-cyan {
+  background-color: #06B6D4;
+  border: 2px solid #164E63;
+  box-shadow:
+    inset 2.5px 2.5px 0 0 #A5F3FC,
+    inset -2.5px -2.5px 0 0 #0891B2,
+    0 2.5px 0 0 #155E75;
+}
+
+.pixel-tile-tangerine {
+  background-color: #F97316;
+  border: 2px solid #431407;
+  box-shadow:
+    inset 2.5px 2.5px 0 0 #FDBA74,
+    inset -2.5px -2.5px 0 0 #C2410C,
+    0 2.5px 0 0 #7C2D12;
+}
+
+.pixel-tile-magenta {
+  background-color: #EC4899;
+  border: 2px solid #500724;
+  box-shadow:
+    inset 2.5px 2.5px 0 0 #F9A8D4,
+    inset -2.5px -2.5px 0 0 #BE185D,
+    0 2.5px 0 0 #831843;
+}
+
+/* Fixed Target Frame Wireframes (8 Colors) */
+.slot-ruby {
+  border: 2.5px dashed #DC2626;
+  background-color: rgba(239, 68, 68, 0.14);
+}
+
+.slot-emerald {
+  border: 2.5px dashed #16A34A;
+  background-color: rgba(34, 197, 94, 0.14);
+}
+
+.slot-cobalt {
+  border: 2.5px dashed #2563EB;
+  background-color: rgba(59, 130, 246, 0.14);
+}
+
+.slot-yellow {
+  border: 2.5px dashed #D97706;
+  background-color: rgba(245, 158, 11, 0.14);
+}
+
+.slot-purple {
+  border: 2.5px dashed #9333EA;
+  background-color: rgba(168, 85, 247, 0.14);
+}
+
+.slot-cyan {
+  border: 2.5px dashed #0891B2;
+  background-color: rgba(6, 182, 212, 0.14);
+}
+
+.slot-tangerine {
+  border: 2.5px dashed #EA580C;
+  background-color: rgba(249, 115, 22, 0.14);
+}
+
+.slot-magenta {
+  border: 2.5px dashed #DB2777;
+  background-color: rgba(236, 72, 153, 0.14);
+}
+
+/* Stepped Keyframe Animations */
+@keyframes pixelBlink {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.pixel-star-active {
+  animation: pixelBlink 1.4s steps(2, start) infinite;
+}
+
+@keyframes snapPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-snap-pop {
+  animation: snapPop 150ms ease-out;
 }
 
 /* GPU Acceleration Helpers */

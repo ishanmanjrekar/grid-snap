@@ -1,0 +1,71 @@
+{
+  "maxLives": 5,
+  "startingLives": 5,
+  "lifeRegenIntervalSeconds": 1800,
+  "startingCoins": 250,
+  "levelClearReward": 200,
+  "campaignLoopSize": 10,
+  "starThresholds": {
+    "threeStarMinRatio": 0.50,
+    "twoStarMinRatio": 0.15
+  },
+  "boosters": {
+    "hintCostCoins": 50,
+    "extraTimeCostCoins": 100,
+    "extraTimeSeconds": 5,
+    "extraTimeCapToLimit": true,
+    "reviveCostCoins": 200,
+    "reviveSeconds": 30
+  },
+  "storePacks": [
+    {
+      "id": "lives_5",
+      "type": "lives",
+      "label": "5 LIVES",
+      "amount": 5,
+      "kofiUrl": "https://ko-fi.com/ishanmanjrekar/2",
+      "toastMessage": "PURCHASED 5 LIVES!"
+    },
+    {
+      "id": "lives_10",
+      "type": "lives",
+      "label": "10 LIVES",
+      "amount": 10,
+      "kofiUrl": "https://ko-fi.com/ishanmanjrekar/5",
+      "toastMessage": "PURCHASED 10 LIVES!"
+    },
+    {
+      "id": "lives_20",
+      "type": "lives",
+      "label": "20 LIVES",
+      "amount": 20,
+      "kofiUrl": "https://ko-fi.com/ishanmanjrekar/10",
+      "toastMessage": "PURCHASED 20 LIVES!"
+    },
+    {
+      "id": "coins_500",
+      "type": "coins",
+      "label": "500 C",
+      "amount": 500,
+      "kofiUrl": "https://ko-fi.com/ishanmanjrekar/2",
+      "toastMessage": "ADDED 500 COINS!"
+    },
+    {
+      "id": "coins_1200",
+      "type": "coins",
+      "label": "1,200 C",
+      "amount": 1200,
+      "kofiUrl": "https://ko-fi.com/ishanmanjrekar/5",
+      "toastMessage": "ADDED 1,200 COINS!"
+    },
+    {
+      "id": "coins_5000",
+      "type": "coins",
+      "label": "5,000 C",
+      "amount": 5000,
+      "kofiUrl": "https://ko-fi.com/ishanmanjrekar/10",
+      "toastMessage": "ADDED 5,000 COINS!"
+    }
+  ]
+}
+
