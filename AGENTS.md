@@ -4,12 +4,14 @@ This project was scaffolded with `portable-web-android-game-skill`. You **MUST**
 
 ---
 
-## 1. Documentation Hub & Cross-Linking (`docs/`)
+## 1. Documentation Hub, Progress Harness & Cross-Linking (`docs/`)
 - **Central Hub (`docs/game-design.md`)**: `docs/game-design.md` is the master index for all project documentation.
-- **Starter Docs**: The project begins with three core documents under `docs/`:
+- **Live Implementation Harness (`docs/progress.md`)**: `docs/progress.md` tracks the 9-phase implementation plan and live build status. Always read `docs/progress.md` when starting or resuming implementation work, and update its `Live Harness Status` table and task checkboxes (`[ ]` → `[/]` → `[x]`) as each phase is completed and verified.
+- **Starter Docs**: The project begins with core documents under `docs/`:
   - [`docs/game-design.md`](./docs/game-design.md)
   - [`docs/architecture.md`](./docs/architecture.md)
   - [`docs/art-direction.md`](./docs/art-direction.md)
+  - [`docs/progress.md`](./docs/progress.md)
 - **Strict Cross-Linking Rule**: Whenever you create a new markdown file in `docs/` (for example, `level-design.md`, `economy.md`, `ui-ux.md`, `testing-and-qa.md`) or rename/remove an existing one:
   1. You **MUST** add a relative link and 1-line summary to the `### Related Documents` section at the top of `docs/game-design.md`.
   2. You **MUST** include a `### Related Documents` section at the top of the new document linking back to `./game-design.md` and other relevant docs in `docs/` so the documentation graph stays 100% connected.

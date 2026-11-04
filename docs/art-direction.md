@@ -6,6 +6,7 @@
 - [Economy, Boosters & Progression](./economy-and-progression.md) - Heart escrow system, flat 200-coin clear reward, speed-based star ratings, `HINT` & `EXTRA TIME` boosters, and frictionless Ko-fi store.
 - [UI/UX & Screen Flows](./ui-ux-and-flows.md) - Complete screen inventory, modal state flows, drag-only input rules, `ui-refs/` reference overrides, and `<BoundingBox>` container query rules.
 - [Level Design & Level Editor](./level-design.md) - Reverse solved-to-unsolved authoring, multi-block same-color rules, standalone Level Editor (`npm run dev:editor`), IDA\* par solver, and last-10 campaign loop.
+- [Implementation Plan & Progress Harness](./progress.md) - Live 9-phase build checklist, session status tracker, and verification gates.
 
 ---
 
@@ -132,6 +133,8 @@ To guarantee 100% offline reliability in Android APKs and zero CDN latency on It
    - Stepped 8-bit keyframe animation (`animation: pixelBlink 1.6s steps(2, start) infinite` oscillating between `scale(1)` and `scale(1.08)`).
 5. **Victory Celebration**:
    - Upon solving the final frame, all matched frames flash in unison before the **Level Complete** modal zooms in (`scale: 0.9 -> 1.0`, `duration: 180ms`) with sequential pixel star pop-ins.
+6. **Boot Splash Screen & Loading Bar (`SplashScreen.tsx` & `public/splash.webp`)**:
+   - On initial boot, `SplashScreen.tsx` displays the optimized `public/splash.webp` cover illustration (`900×1650` WebP generated from `itch-assets/splash.png`) with a tactile 16-bit progress bar (`LOADING CARTRIDGE...` → `CARTRIDGE READY`, `#2C2523` hard ink border, `#FBBF24` → `#22C55E` fill) and a pulsing `TAP TO CONTINUE` prompt positioned below the `"GRID SNAP"` title (`top: 63%`). Tapping scales and fades the splash screen out (`scale(1.04)`, `opacity: 0` over `450ms`) while unlocking WebAudio.
 
 ---
 

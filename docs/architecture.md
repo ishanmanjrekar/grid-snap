@@ -6,6 +6,7 @@
 - [Economy, Boosters & Progression](./economy-and-progression.md) - Heart escrow system, flat 200-coin clear reward, speed-based star ratings, `HINT` & `EXTRA TIME` boosters, and frictionless Ko-fi store.
 - [UI/UX & Screen Flows](./ui-ux-and-flows.md) - Complete screen inventory, modal state flows, drag-only input rules, `ui-refs/` reference overrides, and `<BoundingBox>` container query rules.
 - [Level Design & Level Editor](./level-design.md) - Reverse solved-to-unsolved authoring, multi-block same-color rules, standalone Level Editor (`npm run dev:editor`), IDA\* par solver, and last-10 campaign loop.
+- [Implementation Plan & Progress Harness](./progress.md) - Live 9-phase build checklist, session status tracker, and verification gates.
 
 ---
 
@@ -16,7 +17,7 @@
 ```text
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                                React UI                                 │
-│  (MainMenu, InGameView, ItemStoreView, Modals, TorusGrid, DebugPanel*)  │
+│ (SplashScreen, MainMenu, InGameView, ItemStoreView, Modals, TorusGrid)  │
 └───────────────┬─────────────────────────────────────────┬───────────────┘
                 │ Reads State / Dispatches Actions        │ Triggers Audio / Solver
                 ▼                                         ▼
@@ -28,8 +29,9 @@
 │    coins, lives, lastLifeRegenAt,         │ └───────────────────────────┘
 │    unlockedLevel, levelStars, settings    │
 │  • Ephemeral Session Slice:               │
-│    activeScreen, activeModal, grid,       │
-│    frames, escrowActive, cachedSolution,  │
+│    isGameStarted, activeScreen,           │
+│    activeModal, grid, frames,             │
+│    escrowActive, cachedSolution,          │
 │    activeHint, timeRemaining, shiftsCount │
 └───────────────┬───────────────────────────┘
                 │ Hydrates From / Reads Configs
@@ -243,6 +245,7 @@ export interface GameState {
   };
 
   // Ephemeral Navigation & Active Level Session (Never persisted to localStorage)
+  isGameStarted: boolean;
   activeScreen: ScreenView;
   activeModal: ModalType;
   activeLevelId: number;
@@ -270,6 +273,7 @@ export interface GameState {
 ```typescript
 export interface GameActions {
   // Navigation & Lifecycle
+  startGame: () => void; // Dismisses SplashScreen and unlocks WebAudio
   navigateTo: (screen: ScreenView) => void;
   openModal: (modal: ModalType) => void;
   closeModal: () => void;
@@ -536,8 +540,22 @@ When `startLevel()` loads a `LevelConfig`:
 
 ---
 
-## 10. Platform, Styling & Asset Rules
+## 10. Platform, Styling & Asset Optimization Pipeline
 - **Tailwind CSS v4 (`@tailwindcss/vite`)**: Provides zero-config CSS-first styling and native `@container` query units (`cqw`, `cqh`).
 - **Self-Hosted Fonts (`public/fonts/`)**: `Press Start 2P`, `Silkscreen`, and `Space Mono` `.woff2` files are stored locally in `public/fonts/` and loaded via `@font-face` in `src/index.css`—never from `fonts.googleapis.com`.
 - **Safe Asset Resolution**: Always resolve `public/` assets through `AssetLoader.resolvePath()` (`import.meta.env.BASE_URL`) so Itch.io CDN subpaths never 404.
 - **Viewport Scaling**: `<BoundingBox width={450} height={800}>` provides `containerType: 'size'` and switches between framed desktop scaling and 100% fluid mobile/APK rendering (`data-layout="fluid"`).
+
+### 10.1 Splash Screen & Game Icon Optimization (`scripts/generate-icons.py` & `scripts/update-assets.js`)
+Following the asset pipeline in `topdown-2d-car-engine` and `portable-web-android-game-skill`:
+1. **Splash Screen Resizing & WebP Compression (`itch-assets/splash.png` → `public/splash.webp`)**:
+   - The master artwork in `itch-assets/splash.png` (`1536×2816`, `~4.58 MB` PNG) is resized to **`900×1650`** (`2×` retina resolution for the `450×800` `<BoundingBox>`) using Lanczos resampling and encoded to **`public/splash.webp`** (`quality=82, method=6`), reducing the bundled file size from **`4.58 MB` down to `~110–150 KB` (`>96%` reduction)**.
+   - At runtime, `src/components/SplashScreen.tsx` loads `${import.meta.env.BASE_URL}splash.webp` (via `AssetLoader.resolvePath('splash.webp')`) as a full-bleed cover overlay with a 0–100% progress bar and `TAP TO CONTINUE` prompt.
+2. **Game Icon Resizing & Capacitor Android Sync (`public/icon.png`)**:
+   - The master square icon in `public/icon.png` (`1024×1024`, `~1.32 MB`) is synced to `android-assets/icon.png` and optimized for web (`public/icon.png` / `public/assets/icon.png` resized to `256×256` optimized PNG for fast favicon and UI loading).
+   - `scripts/generate-icons.py` (invoked automatically during asset sync and `npm run build:apk`) reads the master `1024×1024` icon and generates all 5 Android native launcher densities inside `android/app/src/main/res/`:
+     - `mipmap-mdpi`: `48×48` (`ic_launcher.png`, `ic_launcher_round.png`), `108×108` (`ic_launcher_foreground.png`)
+     - `mipmap-hdpi`: `72×72` / `162×162`
+     - `mipmap-xhdpi`: `96×96` / `216×216`
+     - `mipmap-xxhdpi`: `144×144` / `324×324`
+     - `mipmap-xxxhdpi`: `192×192` / `432×432`

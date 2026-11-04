@@ -6,6 +6,7 @@
 - [Art Direction & UI System](./art-direction.md) - `Color Shift 16-Bit Arcade` visual theme, 8-color block bevels, colorblind shapes, and dashed target frame tokens.
 - [Economy, Boosters & Progression](./economy-and-progression.md) - Heart escrow system, flat 200-coin clear reward, speed-based star ratings, `HINT` & `EXTRA TIME` boosters, and Ko-fi store.
 - [UI/UX & Screen Flows](./ui-ux-and-flows.md) - Complete screen inventory, Main Menu level path difficulty badges, drag-only input rules, and `<BoundingBox>` layout rules.
+- [Implementation Plan & Progress Harness](./progress.md) - Live 9-phase build checklist, session status tracker, and verification gates.
 
 ---
 

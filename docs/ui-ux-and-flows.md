@@ -6,6 +6,7 @@
 - [Art Direction & UI System](./art-direction.md) - `Color Shift 16-Bit Arcade` visual theme, color tokens, 3D tile bevels, colorblind shapes, pixel typography, animation, and audio specs.
 - [Economy, Boosters & Progression](./economy-and-progression.md) - Heart escrow system, flat 200-coin clear reward, speed-based star ratings, `HINT` & `EXTRA TIME` boosters, and frictionless Ko-fi store.
 - [Level Design & Level Editor](./level-design.md) - Reverse solved-to-unsolved authoring, multi-block same-color rules, standalone Level Editor (`npm run dev:editor`), IDA\* par solver, and last-10 campaign loop.
+- [Implementation Plan & Progress Harness](./progress.md) - Live 9-phase build checklist, session status tracker, and verification gates.
 
 ---
 
@@ -15,7 +16,8 @@ All screens and modals render inside the single root `<BoundingBox width={450} h
 
 ```mermaid
 stateDiagram-v2
-    [*] --> MainMenu
+    [*] --> SplashScreen : App Boot (Loads splash.webp & 0-100% Loader)
+    SplashScreen --> MainMenu : Tap to Continue / Space / Enter (Unlocks Audio)
     MainMenu --> ItemStore : Tap STORE / Tap [+] on Coins or Lives
     ItemStore --> MainMenu : Tap ◀ BACK TO MENU
     MainMenu --> SettingsModal : Tap ⚙ Settings
@@ -44,12 +46,13 @@ stateDiagram-v2
 
 ---
 
-## 2. Reference Mapping (`ui-refs/` to React Views & Approved Design Overrides)
+## 2. Reference Mapping (`ui-refs/` & Assets to React Views & Approved Design Overrides)
 
-Every screen and popup in the game maps to a reference folder in `./ui-refs/`, with the following **locked design overrides** applied during implementation:
+Every screen and popup in the game maps to a reference asset or folder in `./ui-refs/`, with the following **locked design overrides** applied during implementation:
 
-| Screen / Modal | `ui-refs/` Reference Folder | View Type | Key UI Responsibilities & Locked Overrides over `ui-refs/` |
+| Screen / Modal | Source Reference / Asset | View Type | Key UI Responsibilities & Locked Overrides |
 | :--- | :--- | :---: | :--- |
+| **Boot Splash Screen** | `itch-assets/splash.png` → `public/splash.webp` | Full-Screen Boot Overlay (`SplashScreen`) | Full-bleed cover artwork (`900×1650` optimized WebP), `0%–100%` loading progress bar (`LOADING CARTRIDGE...` → `CARTRIDGE READY`), and pulsing `TAP TO CONTINUE` prompt (or `Space`/`Enter`) that fades/scales out (`450ms`) and unlocks WebAudio. |
 | **Main Menu & Level Path** | `color_shift_retro_main_menu_difficulty_tags` | Full Screen (`menu`) | Top Coin/Heart HUD capsules (**Override**: displays `FULL` with no timer when `lives >= 5`), `STORE` & `⚙` buttons, vertical Level Path (`unlockedLevel` at bottom, no replay of cleared levels, loops last 10 levels past `N`), `STAR COUNT` vanity bar + Share button, and Gold `▶ PLAY` CTA. |
 | **In-Game (`3×3`–`4×4`)** | `color_shift_pastel_minimalist_game_ui` | Full Screen (`playing`) | Top Bar (`$` pill, `LVL. X`, `⏸`), `⏳ MM:SS` timer pill, 3-Star progress bar (**Override**: star `left: %` driven by `economy.json`), central arcade bezel (**Override**: `▲▼◄►` arrows are visual-only `pointer-events: none`; input is drag-only), bottom **`💡 HINT ($50)`** (**Override**: replaces `REWIND`) & **`+5S EXTRA TIME ($100)`** units. |
 | **In-Game (`4×5`–`4×8`)** | `color_shift_4x8_grid_pixel_art_puzzle_ui` | Full Screen (`playing`) | Same bolted top HUD and bottom powerup footer, with the central `flex-1 min-h-0` stage auto-scaling the taller `4×8` (32-tile) bezel and 8-row decorative side arrows cleanly without scrolling. |
@@ -63,6 +66,24 @@ Every screen and popup in the game maps to a reference folder in `./ui-refs/`, w
 ---
 
 ## 3. Detailed Screen & Modal Specifications
+
+### 3.0 Boot Splash Screen (`src/components/SplashScreen.tsx`)
+Modelled after the `SplashScreen.tsx` implementation in `topdown-2d-car-engine` and styled with the **`Color Shift 16-Bit Arcade`** design system:
+- **Full-Screen Overlay (`z-index: 100`)**:
+  - Covers the entire `450×800` `<BoundingBox>` on initial boot while the Main Menu pre-renders underneath (`!isGameStarted`).
+  - Uses `backgroundImage: url("${AssetLoader.resolvePath('splash.webp')}")` with `backgroundSize: 'cover'` and `backgroundPosition: 'center'`.
+- **Progress Loader (`0%` → `100%`)**:
+  - Advances smoothly from `0%` to `100%` on a `30ms` interval (`+4%` while `< 60%`, `+2.5%` while `< 85%`, `+5%` to `100%`), then sets `isLoaded = true` after `150ms`.
+- **Loader HUD Overlay (Positioned Below the Central `"GRID SNAP"` Artwork, `top: 63%`)**:
+  - **Status & Percentage Header**: Left label (`LOADING CARTRIDGE...` while loading → `CARTRIDGE READY` when `isLoaded`) and right percentage (`{Math.floor(progress)}%`) in `--font-pixel` / `--font-retro` with hard dark text shadow.
+  - **16-Bit Progress Bar Track**: Framed in a heavy `#2C2523` (`3px solid`) container with hard offset shadow (`4px 4px 0 #2C2523`) and warm cream/dark recessed interior, filled by an animated gold-to-emerald bar (`#FBBF24` → `#22C55E`).
+  - **Interactive Prompt**:
+    - While loading (`!isLoaded`): Displays `PLEASE WAIT...`.
+    - Once loaded (`isLoaded === true`): Displays a pulsing `TAP TO CONTINUE` badge (`animation: pulsePrompt 1.4s ease-in-out infinite`).
+- **Dismissal & Audio Unlock**:
+  - Tapping/clicking anywhere on the splash screen (or pressing `Space` / `Enter` on desktop) once `isLoaded === true` triggers the exit transition (`opacity: 0`, `transform: scale(1.04)` over `450ms cubic-bezier(0.16, 1, 0.3, 1)`), unlocks `AudioManager` (playing `button_tap` and starting the `menu` music loop), and calls `startGame()` in `gameStore`.
+
+---
 
 ### 3.1 Main Menu Screen
 - **Top HUD (`flex-none`)**:

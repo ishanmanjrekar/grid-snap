@@ -6,6 +6,7 @@
 - [Economy, Boosters & Progression](./economy-and-progression.md) - Heart escrow system, flat 200-coin clear reward, speed-based star ratings, `HINT` & `EXTRA TIME` boosters, and frictionless Ko-fi store.
 - [UI/UX & Screen Flows](./ui-ux-and-flows.md) - Complete screen inventory, modal state flows, drag-only input rules, `ui-refs/` reference overrides, and `<BoundingBox>` container query rules.
 - [Level Design & Level Editor](./level-design.md) - Reverse solved-to-unsolved authoring, multi-block same-color rules, standalone Level Editor (`npm run dev:editor`), IDA\* par solver, and last-10 campaign loop.
+- [Implementation Plan & Progress Harness](./progress.md) - Live 9-phase build checklist, session status tracker, and verification gates.
 
 ---
 
@@ -25,12 +26,13 @@
 ## 2. Core Gameplay Loop
 
 ```text
-[Main Menu: Level Path] ──► [Tap ▶ PLAY (Holds 1 ❤️ in Escrow)] ──► [Analyze Fixed Target Frames]
-         ▲                                                                     │
-         │                                                                     ▼
-[Advance to Next Level] ◄── [Refund 1 ❤️ + Earn 1–3★ & 200 Coins] ◄── [Drag Rows/Cols (Torus) & Snap All Blocks Before 00:00]
+[Boot Splash Screen: 0–100% Loader & TAP TO CONTINUE] ──► [Main Menu: Level Path] ──► [Tap ▶ PLAY (Holds 1 ❤️ in Escrow)]
+                                                                   ▲                                           │
+                                                                   │                                           ▼
+                                               [Advance to Next Level] ◄── [Refund 1 ❤️ + 1–3★ & 200 Coins] ◄── [Drag Rows/Cols & Snap All Blocks Before 00:00]
 ```
 
+0. **Boot & Splash Screen (`SplashScreen.tsx`)**: Launching the game displays the illustrated **Grid Snap** splash screen (`public/splash.webp`, optimized from `itch-assets/splash.png`) with an animated `0%–100%` loading bar (`LOADING CARTRIDGE...` → `CARTRIDGE READY`) and a pulsing **`TAP TO CONTINUE`** prompt that unlocks WebAudio and transitions smoothly into the Main Menu.
 1. **Stage Launch (Heart Escrow)**: From the vertical Level Path on the Main Menu, the player taps `▶ PLAY` to enter the current active level (requires at least `1 ❤️` life). Starting a level immediately places **`1 ❤️` in escrow** (deducted upfront from persisted `lives` so force-closing or reloading mid-level cannot bypass the life penalty).
 2. **Board Analysis**: The level starts with:
    - **Fixed Target Frames** anchored to specific `(row, col)` cells.

@@ -6,6 +6,7 @@
 - [Art Direction & UI System](./art-direction.md) - Visual tokens for currency capsules, booster buttons, colorblind shapes, and store cards.
 - [UI/UX & Screen Flows](./ui-ux-and-flows.md) - HUD counter placements, Item Store layout, and modal reward/penalty flows.
 - [Level Design & Level Editor](./level-design.md) - Reverse solved-to-unsolved authoring, multi-block same-color rules, standalone Level Editor (`npm run dev:editor`), IDA\* par solver, and last-10 campaign loop.
+- [Implementation Plan & Progress Harness](./progress.md) - Live 9-phase build checklist, session status tracker, and verification gates.
 
 ---
 
