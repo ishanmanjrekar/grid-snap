@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>Color Shift Puzzle - Retro Pixel Edition</title>
+<!-- Tailwind CSS CDN with Forms & Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Font Awesome Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- Google Fonts for Retro Pixel Aesthetics -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;family=Silkscreen:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            pixel: ['"Press Start 2P"', 'monospace'],
+            retro: ['"Silkscreen"', 'monospace'],
+          },
+          colors: {
+            pixelBg: '#F3EEDB',
+            pixelTray: '#E5DCBE',
+            pixelDark: '#2C2523',
+            pixelShadow: '#403833',
+            pixelLight: '#FFFBF0',
+            pixelRuby: '#E7525B',
+            pixelEmerald: '#38B764',
+            pixelCobalt: '#3B82F6',
+            pixelGold: '#F8B800',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="pixel-visual-fx">
+    /* Universal pixel sharpness */
+    * {
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+    }
+
+    body {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      background-color: #E2DAC2;
+    }
+
+    /* 3D Pixel Bevels */
+    .pixel-box-sm {
+      box-shadow: 
+        inset 2px 2px 0 0 #FFFFFF,
+        inset -2px -2px 0 0 #C4BA9D,
+        2px 2px 0 0 #2C2523;
+    }
+
+    .pixel-tile-neutral {
+      background-color: #F8F5EB;
+      box-shadow: 
+        inset 2.5px 2.5px 0 0 #FFFFFF,
+        inset -2.5px -2.5px 0 0 #DDD2BA,
+        0 3px 0 0 #9E937D;
+      border: 2px solid #332B25;
+    }
+    
+    .pixel-tile-ruby {
+      background-color: #EF4444;
+      box-shadow: 
+        inset 2.5px 2.5px 0 0 #FFA3A8,
+        inset -2.5px -2.5px 0 0 #B91C1C,
+        0 3px 0 0 #7F1D1D;
+      border: 2px solid #2B1810;
+    }
+
+    .pixel-tile-emerald {
+      background-color: #22C55E;
+      box-shadow: 
+        inset 2.5px 2.5px 0 0 #86EFAC,
+        inset -2.5px -2.5px 0 0 #15803D,
+        0 3px 0 0 #14532D;
+      border: 2px solid #14281A;
+    }
+
+    .pixel-tile-cobalt {
+      background-color: #3B82F6;
+      box-shadow: 
+        inset 2.5px 2.5px 0 0 #93C5FD,
+        inset -2.5px -2.5px 0 0 #1D4ED8,
+        0 3px 0 0 #1E3A8A;
+      border: 2px solid #132238;
+    }
+
+    /* Target slots (pixel outline frames) */
+    .slot-emerald {
+      border: 3px dashed #16A34A;
+      background-color: rgba(34, 197, 94, 0.12);
+    }
+    .slot-ruby {
+      border: 3px dashed #DC2626;
+      background-color: rgba(239, 68, 68, 0.12);
+    }
+    .slot-cobalt {
+      border: 3px dashed #2563EB;
+      background-color: rgba(59, 130, 246, 0.12);
+    }
+
+    /* Chunky Arcade Button Frames */
+    .arcade-card {
+      box-shadow: 
+        inset 3px 3px 0 0 #FFFBF0,
+        inset -3px -3px 0 0 #A89D80,
+        3px 4px 0 0 #2C2523;
+    }
+    .arcade-card:active {
+      transform: translate(2px, 2px);
+      box-shadow: 
+        inset 3px 3px 0 0 #FFFBF0,
+        inset -3px -3px 0 0 #A89D80,
+        1px 2px 0 0 #2C2523;
+    }
+
+    /* Star flicker / 8-bit pulse */
+    @keyframes pixelBlink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(1.08); }
+    }
+    .pixel-star-active {
+      animation: pixelBlink 1.6s steps(2, start) infinite;
+    }
+  </style>
+</head>
+<body class="flex justify-center items-center min-h-screen text-[#2C2523] font-retro antialiased p-0 sm:p-4">
+<!-- BEGIN: MobileContainer -->
+<main class="w-full max-w-[420px] min-h-screen sm:min-h-[850px] sm:max-h-[890px] bg-[#F4EFE0] sm:rounded-[36px] shadow-[8px_8px_0_0_#2C2523] overflow-hidden flex flex-col justify-between relative border-0 sm:border-4 border-[#2C2523]">
+<!-- BEGIN: TopBar -->
+<header class="px-5 pt-7 pb-2 flex flex-col items-center select-none w-full" data-purpose="header-section">
+<!-- Upper row: Coins, Level title, Pause button -->
+<div class="w-full flex items-center justify-between mb-3">
+<!-- Pixel Coin Counter Pill -->
+<div class="flex items-center bg-[#FFFBEA] px-2.5 py-1.5 border-2 border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] space-x-2" data-purpose="coin-badge">
+<!-- 8-bit Pixel Coin -->
+<div class="w-4 h-4 bg-[#F8B800] border border-[#2C2523] flex items-center justify-center text-[8px] font-pixel text-[#614500] font-bold">
+$
+</div>
+<span class="font-pixel text-[10px] text-[#2C2523] tracking-tight">99,999</span>
+</div>
+<!-- Level Number in Bold 8-Bit Typography -->
+<div class="text-center">
+<h1 class="font-pixel text-xs sm:text-sm text-[#2C2523] tracking-widest leading-none drop-shadow-[1px_1px_0_#FFF]">
+LVL.25
+</h1>
+</div>
+<!-- Retro Pause Button || -->
+<button aria-label="Pause Game" class="w-9 h-9 bg-[#FFFDF7] hover:bg-[#F0E8D0] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center justify-center text-[#2C2523] border-2 border-[#2C2523] shadow-[2px_2px_0_0_#2C2523]" type="button">
+<div class="flex space-x-1">
+<span class="w-1.5 h-3.5 bg-[#2C2523]"></span>
+<span class="w-1.5 h-3.5 bg-[#2C2523]"></span>
+</div>
+</button>
+</div>
+<!-- Pixel Timer Pill -->
+<div class="inline-flex items-center bg-[#FFECA8] border-2 border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] px-3 py-1 my-1 space-x-2" data-purpose="timer-badge">
+<span class="text-[11px]">⏳</span>
+<span class="font-pixel text-[10px] text-[#2C2523] tracking-wider pt-0.5">00:56</span>
+</div>
+<!-- 8-Bit Milestone Progress Bar with Pixel Stars -->
+<div class="w-full px-3 mt-3 relative flex flex-col items-center" data-purpose="star-progress-bar">
+<!-- Segmented Retro Rail -->
+<div class="w-full h-4 bg-[#DCD2B6] border-2 border-[#2C2523] p-[1px] relative overflow-hidden flex items-center">
+<!-- Striped Retro Progress Fill (72%) -->
+<div class="h-full bg-[#4DA2FF] w-[72%] border-r-2 border-[#2C2523] relative">
+<!-- Pixel grid texture lines -->
+<div class="absolute inset-0 opacity-20 bg-[linear-gradient(90deg,#000_1px,transparent_1px)] bg-[size:6px_100%]"></div>
+</div>
+</div>
+<!-- 3 Pixel Milestone Stars -->
+<div class="w-full absolute -top-3.5 px-3 pointer-events-none left-0 right-0 h-0"><div class="relative w-full h-full"><!-- Pixel Star 1 (0% milestone mark) --><div class="absolute -translate-x-1/2" style="left: 0%;"><svg class="w-7 h-7 drop-shadow-[2px_2px_0_#2C2523]" fill="#F8B800" stroke="#2C2523" stroke-width="1" viewbox="0 0 16 16"><polygon points="8,1 10,6 15,6 11,9 13,15 8,11 3,15 5,9 1,6 6,6"></polygon></svg></div><!-- Pixel Star 2 (40% milestone mark) --><div class="absolute pixel-star-active -translate-x-1/2" style="left: 40%;"><svg class="w-7 h-7 drop-shadow-[2px_2px_0_#2C2523]" fill="#F8B800" stroke="#2C2523" stroke-width="1" viewbox="0 0 16 16"><polygon points="8,1 10,6 15,6 11,9 13,15 8,11 3,15 5,9 1,6 6,6"></polygon></svg></div><!-- Pixel Star 3 (80% milestone mark) --><div class="absolute -translate-x-1/2" style="left: 80%;"><svg class="w-7 h-7 opacity-75 drop-shadow-[1px_1px_0_#2C2523]" fill="#D2C7AA" stroke="#2C2523" stroke-width="1" viewbox="0 0 16 16"><polygon points="8,1 10,6 15,6 11,9 13,15 8,11 3,15 5,9 1,6 6,6"></polygon></svg></div></div></div>
+</div>
+</header>
+<!-- END: TopBar -->
+<!-- BEGIN: GameBoardArea -->
+<section class="flex-1 flex flex-col items-center justify-center px-4 py-2" data-purpose="playable-grid-section">
+<!-- Rubik's Pixel Frame (GameBoy/Handheld arcade tray aesthetic) -->
+<div class="relative bg-[#EAE2CA] px-8 pt-7 pb-8 border-4 border-[#2C2523] shadow-[5px_5px_0_0_#2C2523] max-w-[390px] w-full" data-purpose="rubiks-board-card">
+<!-- Top Arrow Indicators (pointing up ▲, matching each 4 columns) -->
+<div class="absolute top-1.5 left-8 right-8 h-5 grid grid-cols-4 pointer-events-none items-center">
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="2" x="5" y="2"></rect><rect height="2" width="4" x="4" y="4"></rect><rect height="2" width="6" x="3" y="6"></rect><rect height="2" width="8" x="2" y="8"></rect></svg></div>
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="2" x="5" y="2"></rect><rect height="2" width="4" x="4" y="4"></rect><rect height="2" width="6" x="3" y="6"></rect><rect height="2" width="8" x="2" y="8"></rect></svg></div>
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="2" x="5" y="2"></rect><rect height="2" width="4" x="4" y="4"></rect><rect height="2" width="6" x="3" y="6"></rect><rect height="2" width="8" x="2" y="8"></rect></svg></div>
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="2" x="5" y="2"></rect><rect height="2" width="4" x="4" y="4"></rect><rect height="2" width="6" x="3" y="6"></rect><rect height="2" width="8" x="2" y="8"></rect></svg></div>
+</div>
+<!-- Bottom Arrow Indicators (pointing down ▼, matching each 4 columns) -->
+<div class="absolute bottom-1.5 left-8 right-8 h-5 grid grid-cols-4 pointer-events-none items-center">
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="8" x="2" y="2"></rect><rect height="2" width="6" x="3" y="4"></rect><rect height="2" width="4" x="4" y="6"></rect><rect height="2" width="2" x="5" y="8"></rect></svg></div>
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="8" x="2" y="2"></rect><rect height="2" width="6" x="3" y="4"></rect><rect height="2" width="4" x="4" y="6"></rect><rect height="2" width="2" x="5" y="8"></rect></svg></div>
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="8" x="2" y="2"></rect><rect height="2" width="6" x="3" y="4"></rect><rect height="2" width="4" x="4" y="6"></rect><rect height="2" width="2" x="5" y="8"></rect></svg></div>
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="8" x="2" y="2"></rect><rect height="2" width="6" x="3" y="4"></rect><rect height="2" width="4" x="4" y="6"></rect><rect height="2" width="2" x="5" y="8"></rect></svg></div>
+</div>
+<!-- Left Arrow Indicators (pointing left ◄, matching each 4 rows) -->
+<div class="absolute left-1 top-7 bottom-8 w-6 grid grid-rows-4 pointer-events-none items-center justify-center">
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="2" x="2" y="5"></rect><rect height="4" width="2" x="4" y="4"></rect><rect height="6" width="2" x="6" y="3"></rect><rect height="8" width="2" x="8" y="2"></rect></svg></div>
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="2" x="2" y="5"></rect><rect height="4" width="2" x="4" y="4"></rect><rect height="6" width="2" x="6" y="3"></rect><rect height="8" width="2" x="8" y="2"></rect></svg></div>
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="2" x="2" y="5"></rect><rect height="4" width="2" x="4" y="4"></rect><rect height="6" width="2" x="6" y="3"></rect><rect height="8" width="2" x="8" y="2"></rect></svg></div>
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="2" x="2" y="5"></rect><rect height="4" width="2" x="4" y="4"></rect><rect height="6" width="2" x="6" y="3"></rect><rect height="8" width="2" x="8" y="2"></rect></svg></div>
+</div>
+<!-- Right Arrow Indicators (pointing right ►, matching each 4 rows) -->
+<div class="absolute right-1 top-7 bottom-8 w-6 grid grid-rows-4 pointer-events-none items-center justify-center">
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="2" x="8" y="5"></rect><rect height="4" width="2" x="6" y="4"></rect><rect height="6" width="2" x="4" y="3"></rect><rect height="8" width="2" x="2" y="2"></rect></svg></div>
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="2" x="8" y="5"></rect><rect height="4" width="2" x="6" y="4"></rect><rect height="6" width="2" x="4" y="3"></rect><rect height="8" width="2" x="2" y="2"></rect></svg></div>
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="2" x="8" y="5"></rect><rect height="4" width="2" x="6" y="4"></rect><rect height="6" width="2" x="4" y="3"></rect><rect height="8" width="2" x="2" y="2"></rect></svg></div>
+<div class="flex items-center justify-center"><svg class="w-3.5 h-3.5 fill-[#2C2523] drop-shadow-[1px_1px_0_#FFF]" viewbox="0 0 12 12"><rect height="2" width="2" x="8" y="5"></rect><rect height="4" width="2" x="6" y="4"></rect><rect height="6" width="2" x="4" y="3"></rect><rect height="8" width="2" x="2" y="2"></rect></svg></div>
+</div>
+<!-- 4x4 Grid Matrix Container with Inset Pixel Board -->
+<div class="grid grid-cols-4 grid-rows-4 gap-2 bg-[#D1C6A5] p-2 border-2 border-[#2C2523] shadow-[inset_3px_3px_0_0_#9E9375] w-full" data-purpose="grid-matrix">
+<!-- ================= ROW 1 ================= -->
+<div class="aspect-square pixel-tile-neutral relative cursor-pointer flex items-center justify-center active:translate-y-0.5">
+<span class="w-1.5 h-1.5 bg-[#BCB199]"></span>
+</div>
+<div class="aspect-square pixel-tile-ruby relative cursor-pointer flex items-center justify-center group active:translate-y-0.5"></div>
+<div class="aspect-square pixel-tile-neutral relative cursor-pointer flex items-center justify-center active:translate-y-0.5">
+<span class="w-1.5 h-1.5 bg-[#BCB199]"></span>
+</div>
+<div class="aspect-square pixel-tile-neutral relative cursor-pointer flex items-center justify-center active:translate-y-0.5">
+<span class="w-1.5 h-1.5 bg-[#BCB199]"></span>
+</div>
+<!-- ================= ROW 2 ================= -->
+<div class="aspect-square slot-emerald p-1 relative flex items-center justify-center" data-purpose="target-slot-green">
+<div class="w-full h-full pixel-tile-neutral flex items-center justify-center">
+<span class="w-2 h-2 bg-[#86EFAC] border border-[#15803D]"></span>
+</div>
+</div>
+<div class="aspect-square pixel-tile-neutral relative cursor-pointer flex items-center justify-center active:translate-y-0.5">
+<span class="w-1.5 h-1.5 bg-[#BCB199]"></span>
+</div>
+<div class="aspect-square pixel-tile-neutral relative cursor-pointer flex items-center justify-center active:translate-y-0.5">
+<span class="w-1.5 h-1.5 bg-[#BCB199]"></span>
+</div>
+<div class="aspect-square pixel-tile-neutral relative cursor-pointer flex items-center justify-center active:translate-y-0.5">
+<span class="w-1.5 h-1.5 bg-[#BCB199]"></span>
+</div>
+<!-- ================= ROW 3 ================= -->
+<div class="aspect-square pixel-tile-emerald relative cursor-pointer flex items-center justify-center group active:translate-y-0.5"></div>
+<div class="aspect-square pixel-tile-neutral relative cursor-pointer flex items-center justify-center active:translate-y-0.5">
+<span class="w-1.5 h-1.5 bg-[#BCB199]"></span>
+</div>
+<div class="aspect-square slot-ruby p-1 relative flex items-center justify-center" data-purpose="target-slot-red">
+<div class="w-full h-full pixel-tile-neutral flex items-center justify-center">
+<span class="w-2 h-2 bg-[#FCA5A5] border border-[#B91C1C]"></span>
+</div>
+</div>
+<div class="aspect-square pixel-tile-neutral relative cursor-pointer flex items-center justify-center active:translate-y-0.5">
+<span class="w-1.5 h-1.5 bg-[#BCB199]"></span>
+</div>
+<!-- ================= ROW 4 ================= -->
+<div class="aspect-square pixel-tile-neutral relative cursor-pointer flex items-center justify-center active:translate-y-0.5">
+<span class="w-1.5 h-1.5 bg-[#BCB199]"></span>
+</div>
+<div class="aspect-square slot-cobalt p-1 relative flex items-center justify-center" data-purpose="target-slot-blue">
+<div class="w-full h-full pixel-tile-neutral flex items-center justify-center">
+<span class="w-2 h-2 bg-[#93C5FD] border border-[#1D4ED8]"></span>
+</div>
+</div>
+<div class="aspect-square pixel-tile-neutral relative cursor-pointer flex items-center justify-center active:translate-y-0.5">
+<span class="w-1.5 h-1.5 bg-[#BCB199]"></span>
+</div>
+<div class="aspect-square pixel-tile-cobalt relative cursor-pointer flex items-center justify-center group active:translate-y-0.5"></div>
+</div>
+</div>
+</section>
+<!-- END: GameBoardArea -->
+<!-- BEGIN: BottomControls (Retro Inventory Item Slots & Arcade Cartridge Buttons) -->
+<footer class="w-full pt-1 pb-6 flex items-center justify-around px-5" data-purpose="footer-controls"><!-- Power-up 1: Pixel Rewind / Undo Rectangular Unit -->
+<div class="flex flex-col items-center select-none w-36" data-purpose="undo-powerup"><button aria-label="Rewind Move" class="w-full py-2 px-2 bg-[#EEF5FF] hover:bg-[#93C5FD] border-2 border-[#2C2523] shadow-[3px_3px_0_0_#2C2523] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none flex items-center justify-between transition-all group" type="button">
+<div class="w-7 h-6 bg-[#93C5FD] border border-[#2C2523] flex items-center justify-around px-0.5 shadow-[inset_1px_1px_0_#FFF]">
+<span class="w-1.5 h-1.5 bg-[#2C2523]"></span>
+<span class="font-pixel text-[6px] text-[#2C2523] font-bold">◄◄</span>
+<span class="w-1.5 h-1.5 bg-[#2C2523]"></span>
+</div>
+<span class="font-pixel text-[8px] text-[#1D4ED8] tracking-tight">REWIND</span>
+</button>
+<button aria-label="Buy Rewind for 50 Coins" class="w-full mt-2 py-1 px-2 bg-[#EEF5FF] hover:bg-[#93C5FD] border-2 border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none flex items-center justify-center space-x-1.5 transition-all" type="button">
+<span class="w-3 h-3 bg-[#F8B800] border border-[#2C2523] flex items-center justify-center text-[7px] font-pixel font-bold text-[#614500]">$</span>
+<span class="font-pixel text-[8px] text-[#2C2523]">50</span>
+</button></div>
+<!-- Power-up 2: Pixel Time Bottle / +5S Rectangular Unit -->
+<div class="flex flex-col items-center select-none w-36" data-purpose="time-powerup"><button aria-label="Add extra seconds" class="w-full py-2 px-1.5 bg-[#EBFFEF] hover:bg-[#86EFAC] border-2 border-[#2C2523] shadow-[3px_3px_0_0_#2C2523] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none flex items-center justify-between transition-all group" type="button">
+<div class="w-7 h-6 bg-[#86EFAC] border border-[#2C2523] flex items-center justify-center shadow-[inset_1px_1px_0_#FFF]">
+<span class="font-pixel text-[7px] text-[#15803D] font-bold">+5S</span>
+</div>
+<span class="font-pixel text-[7px] text-[#15803D] tracking-tight">EXTRA TIME</span>
+</button>
+<button aria-label="Buy Extra Time for 100 Coins" class="w-full mt-2 py-1 px-2 bg-[#EBFFEF] hover:bg-[#86EFAC] border-2 border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none flex items-center justify-center space-x-1.5 transition-all" type="button">
+<span class="w-3 h-3 bg-[#F8B800] border border-[#2C2523] flex items-center justify-center text-[7px] font-pixel font-bold text-[#614500]">$</span>
+<span class="font-pixel text-[8px] text-[#2C2523]">100</span>
+</button></div></footer>
+<!-- END: BottomControls -->
+<!-- Retro Handheld Bevel Base line -->
+<div class="w-24 h-1.5 bg-[#2C2523]/30 mx-auto mb-2 pointer-events-none"></div>
+<div class="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-[2px] p-5 select-none" data-purpose="pause-modal-overlay"><div class="w-full max-w-[320px] bg-[#FFF8F0] border-4 border-[#2C2523] shadow-[6px_6px_0_0_#2C2523] relative flex flex-col items-center pt-8 pb-7 px-5" style="image-rendering: pixelated;"><div class="absolute -top-5 px-5 py-2 bg-[#F8B800] border-4 border-[#2C2523] shadow-[3px_3px_0_0_#2C2523] flex items-center justify-center"><span class="font-pixel text-xs text-[#2C2523] tracking-widest font-bold">PAUSED</span></div><div class="flex items-center justify-center my-3 p-3 bg-[#EAE2CA] border-2 border-[#2C2523] shadow-[2px_2px_0_0_#2C2523]"><div class="flex space-x-2"><span class="w-2.5 h-6 bg-[#2C2523]"></span><span class="w-2.5 h-6 bg-[#2C2523]"></span></div></div><div class="w-full border-t-2 border-dashed border-[#2C2523]/40 my-3"></div><div class="w-full flex flex-col gap-3.5 mt-1"><button aria-label="Resume Game" class="w-full py-3 px-4 bg-[#22C55E] hover:bg-[#16A34A] text-white border-4 border-[#2C2523] shadow-[4px_4px_0_0_#2C2523] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center justify-center cursor-pointer" type="button"><span class="font-pixel text-[11px] text-white tracking-widest drop-shadow-[1px_1px_0_#14532D]">RESUME</span></button><div class="flex flex-col items-center gap-2"><button aria-label="Quit Game" class="w-full py-2.5 px-4 bg-[#F8F5EB] hover:bg-[#EAE2CA] text-[#2C2523] border-4 border-[#2C2523] shadow-[4px_4px_0_0_#2C2523] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center justify-center cursor-pointer" type="button"><span class="font-pixel text-[10px] text-[#2C2523] tracking-widest font-bold">QUIT</span></button><div class="flex items-center justify-center space-x-1 pt-0.5"><span class="font-pixel text-[8px] text-[#B91C1C] tracking-tight">YOU WILL LOSE 1</span><span class="text-[11px] leading-none text-[#DC2626]">❤️</span></div></div></div></div></div></main>
+<!-- END: MobileContainer -->
+<!-- Playful micro-interaction script for visual tactile feedback -->
+<script data-purpose="casual-interaction">
+    document.addEventListener('DOMContentLoaded', () => {
+      const tiles = document.querySelectorAll('[data-purpose="grid-matrix"] > div');
+      tiles.forEach(tile => {
+        tile.addEventListener('click', () => {
+          tile.classList.add('translate-y-1');
+          setTimeout(() => tile.classList.remove('translate-y-1'), 100);
+        });
+      });
+    });
+  </script>
+</body></html>

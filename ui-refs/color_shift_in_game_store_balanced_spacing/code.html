@@ -1,0 +1,242 @@
+<!DOCTYPE html><html class="h-full" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_blank" name="shell-type"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-primary-fixed": "#261a00", "on-secondary": "#ffffff", "surface": "#fff8f5", "surface-variant": "#eae1dd", "on-secondary-container": "#007432", "on-secondary-fixed": "#002109", "on-tertiary-fixed": "#001a42", "tertiary-fixed-dim": "#adc6ff", "surface-container": "#f5ece8", "inverse-on-surface": "#f8efeb", "surface-container-low": "#fbf2ee", "on-primary-container": "#6c4f00", "primary-container": "#fbbf24", "secondary-container": "#6bff8f", "on-tertiary-container": "#0050ad", "on-background": "#1f1b19", "tertiary": "#005ac2", "error": "#ba1a1a", "primary-fixed-dim": "#f9bd22", "surface-container-high": "#efe6e3", "on-primary": "#ffffff", "secondary": "#006e2f", "background": "#fff8f5", "on-error-container": "#93000a", "on-secondary-fixed-variant": "#005321", "secondary-fixed-dim": "#4ae176", "surface-dim": "#e1d8d5", "primary": "#795900", "primary-fixed": "#ffdf9f", "outline-variant": "d3c5ac", "surface-tint": "#795900", "tertiary-container": "#b0c8ff", "surface-container-lowest": "#ffffff", "on-tertiary-fixed-variant": "#004395", "surface-bright": "#fff8f5", "on-error": "#ffffff", "on-surface": "#1f1b19", "surface-container-highest": "#eae1dd", "outline": "#817661", "on-tertiary": "#ffffff", "inverse-primary": "#f9bd22", "secondary-fixed": "#6bff8f", "tertiary-fixed": "#d8e2ff", "error-container": "#ffdad6", "on-primary-fixed-variant": "#5c4300", "on-surface-variant": "#4f4633", "inverse-surface": "#342f2d" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-lg": "1.5rem", "margin-mobile": "1rem", "space-xl": "2.5rem", "margin": "1.5rem", "gutter": "1rem", "space-md": "1rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "gutter-mobile": "0.75rem" }, fontFamily: { "label-md": ["Space Mono"], "label-sm": ["Space Mono"], "headline-xl": ["Space Mono"], "label-lg": ["Space Mono"], "body-md": ["Space Mono"], "body-sm": ["Space Mono"], "headline-sm": ["Space Mono"], "headline-lg": ["Space Mono"], "headline-md": ["Space Mono"], "headline-xl-mobile": ["Space Mono"], "body-lg": ["Space Mono"] }, fontSize: { "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.08em", fontWeight: "700" }], "label-sm": ["10px", { lineHeight: "14px", letterSpacing: "0.1em", fontWeight: "700" }], "headline-xl": ["36px", { lineHeight: "44px", letterSpacing: "-0.04em", fontWeight: "700" }], "label-lg": ["14px", { lineHeight: "18px", letterSpacing: "0.06em", fontWeight: "700" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }], "body-sm": ["12px", { lineHeight: "16px", fontWeight: "400" }], "headline-sm": ["16px", { lineHeight: "24px", fontWeight: "700" }], "headline-lg": ["24px", { lineHeight: "32px", letterSpacing: "-0.02em", fontWeight: "700" }], "headline-md": ["20px", { lineHeight: "28px", fontWeight: "700" }], "headline-xl-mobile": ["26px", { lineHeight: "32px", letterSpacing: "-0.03em", fontWeight: "700" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }] } } } }</script><style>@layer base{html,body{width:100%;margin:0;padding:0;min-height:100%;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}}::-webkit-scrollbar{display:none;}*{-ms-overflow-style:none;scrollbar-width:none;}</style></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased flex flex-col min-h-screen"><main class="flex-1 flex flex-col relative w-full bg-surface pt-safe pb-safe"><div class="flex flex-col w-full max-w-md mx-auto px-3 py-3 select-none flex-1 justify-between gap-3" style="font-family: 'Press Start 2P', 'Space Mono', monospace;">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap" rel="stylesheet">
+<!-- TOP HUD BAR -->
+<div class="flex items-center justify-between w-full gap-2">
+<!-- Coin Badge -->
+<div class="flex items-center">
+<div class="flex items-center gap-1.5 bg-[#ffffff] px-2 py-1.5 border-[2.5px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523]">
+<div class="w-3.5 h-3.5 bg-[#fbbf24] border-[1.5px] border-[#2C2523] flex items-center justify-center text-[8px] font-bold text-[#2C2523] leading-none">$</div>
+<span class="text-[10px] text-[#2C2523] tracking-tight" id="player-coins">99,999</span>
+</div>
+<button class="w-7 h-7 bg-[#fbbf24] hover:bg-[#f59e0b] border-[2.5px] border-l-0 border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] flex items-center justify-center text-[#2C2523] text-xs font-bold active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" onclick="playChime()">
+        +
+      </button>
+</div>
+<!-- Heart / Lives Badge -->
+<div class="flex items-center">
+<div class="flex items-center gap-1.5 bg-[#ffffff] px-2 py-1.5 border-[2.5px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523]">
+<span class="text-[10px] leading-none text-[#ef4444]">❤️</span>
+<span class="text-[9px] text-[#2C2523]" id="player-lives">4</span>
+<span class="text-[8px] text-[#817661]">|</span>
+<span class="text-[8px] text-[#817661] tracking-tighter">24:15</span>
+</div>
+<button class="w-7 h-7 bg-[#10b981] hover:bg-[#059669] border-[2.5px] border-l-0 border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] flex items-center justify-center text-[#ffffff] text-xs font-bold active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" onclick="playChime()">
+        +
+      </button>
+</div>
+</div>
+<!-- STORE HEADER BANNER -->
+<div class="relative w-full bg-[#fbbf24] border-[3px] border-[#2C2523] shadow-[3px_3px_0_0_#2C2523] p-2.5 flex items-center justify-between overflow-hidden">
+<!-- Retro Pixel Awning Accent -->
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 bg-[#2C2523] flex items-center justify-center text-[#fbbf24]">
+<span class="material-symbols-outlined text-[16px]">storefront</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[12px] text-[#2C2523] font-bold tracking-wider">ITEM STORE</span>
+</div>
+</div>
+<!-- Blinking Sale/Cartridge Badge -->
+</div>
+<!-- SECTION 1: LIVES / HEARTS -->
+<div class="w-full bg-[#fbf2ee] border-[3px] border-[#2C2523] shadow-[3px_3px_0_0_#2C2523] p-2.5 flex flex-col gap-2">
+<!-- Section 1 Header Banner -->
+<div class="flex items-center justify-between bg-[#ef4444] text-[#ffffff] px-2 py-1.5 border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523]">
+<div class="flex items-center gap-1.5">
+<svg class="drop-shadow-[1px_1px_0_#2C2523] flex-shrink-0" fill="none" height="14" viewBox="0 0 14 13" width="15"><path d="M2 1h3v1h1v1h2V2h1V1h3v1h1v3h-1v2h-1v1h-1v1h-1v1h-1v1h-2v-1H5v-1H4V8H3V7H2V5H1V2h1V1z" fill="#ffffff"></path><path d="M3 2h2v1H3V2zm6 0h2v1H9V2z" fill="#fef08a"></path></svg>
+<span class="text-[10px] font-bold tracking-wide leading-none">GET LIVES</span>
+</div>
+
+</div>
+<!-- 3-Column Pack Grid -->
+<div class="grid grid-cols-3 gap-2">
+<!-- Heart Pack 1 -->
+<div class="bg-[#ffffff] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] p-1.5 flex flex-col justify-between items-center text-center relative pt-2">
+<div class="h-4 flex items-center">
+<span class="text-[8px] text-[#2C2523] leading-none font-bold">5 LIVES</span>
+</div>
+<div class="my-2 h-10 flex items-center justify-center">
+<svg class="drop-shadow-[1px_1px_0_#2C2523]" fill="none" height="26" viewBox="0 0 14 13" width="28">
+<path d="M2 1h3v1h1v1h2V2h1V1h3v1h1v3h-1v2h-1v1h-1v1h-1v1h-1v1h-2v-1H5v-1H4V8H3V7H2V5H1V2h1V1z" fill="#ef4444"></path>
+<path d="M3 2h2v1H3V2zm6 0h2v1H9V2z" fill="#fca5a5"></path>
+<path d="M2 1H0v4h1v2h1v1h1v1h1v1h1v1h1v1h2v-1h1v-1h1v-1h1v-1h1V7h1V5h1V1h-2V0H9v1H8v1H6V1H5V0H2v1z" fill="#2C2523" fill-opacity="0.3"></path>
+</svg>
+</div>
+<button class="w-full bg-[#10b981] hover:bg-[#059669] text-[#ffffff] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] py-1.5 text-[8px] font-bold active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" onclick="buyItem('5 Hearts', 99)">
+        BUY
+      </button>
+</div>
+<!-- Heart Pack 2 (Popular) -->
+<div class="bg-[#ffffff] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] p-1.5 flex flex-col justify-between items-center text-center relative pt-2">
+<div class="h-4 flex items-center">
+<span class="text-[8px] text-[#2C2523] leading-none font-bold">10 LIVES</span>
+</div>
+<div class="my-2 h-10 flex items-center justify-center relative">
+<svg class="absolute -left-1" fill="none" height="22" viewBox="0 0 14 13" width="24">
+<path d="M2 1h3v1h1v1h2V2h1V1h3v1h1v3h-1v2h-1v1h-1v1h-1v1h-1v1h-2v-1H5v-1H4V8H3V7H2V5H1V2h1V1z" fill="#ef4444"></path>
+<path d="M3 2h2v1H3V2z" fill="#fca5a5"></path>
+</svg>
+<svg class="relative z-10 translate-x-2 drop-shadow-[1px_1px_0_#2C2523]" fill="none" height="24" viewBox="0 0 14 13" width="26">
+<path d="M2 1h3v1h1v1h2V2h1V1h3v1h1v3h-1v2h-1v1h-1v1h-1v1h-1v1h-2v-1H5v-1H4V8H3V7H2V5H1V2h1V1z" fill="#dc2626"></path>
+<path d="M3 2h2v1H3V2zm6 0h2v1H9V2z" fill="#fca5a5"></path>
+</svg>
+</div>
+<button class="w-full bg-[#10b981] hover:bg-[#059669] text-[#ffffff] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] py-1.5 text-[8px] font-bold active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" onclick="buyItem('10 Hearts', 199)">
+        BUY
+      </button>
+</div>
+<!-- Heart Pack 3 (Best Value) -->
+<div class="bg-[#ffffff] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] p-1.5 flex flex-col justify-between items-center text-center relative pt-2">
+<div class="h-4 flex items-center">
+<span class="text-[8px] text-[#2C2523] leading-none font-bold">20 LIVES</span>
+</div>
+<div class="my-2 h-10 flex items-center justify-center relative">
+<div class="absolute w-8 h-8 bg-[#fef08a] rounded-none opacity-40"></div>
+<svg class="absolute -left-2 top-0" fill="none" height="20" viewBox="0 0 14 13" width="22">
+<path d="M2 1h3v1h1v1h2V2h1V1h3v1h1v3h-1v2h-1v1h-1v1h-1v1h-1v1h-2v-1H5v-1H4V8H3V7H2V5H1V2h1V1z" fill="#f87171"></path>
+</svg>
+<svg class="absolute right-0 top-1" fill="none" height="20" viewBox="0 0 14 13" width="22">
+<path d="M2 1h3v1h1v1h2V2h1V1h3v1h1v3h-1v2h-1v1h-1v1h-1v1h-1v1h-2v-1H5v-1H4V8H3V7H2V5H1V2h1V1z" fill="#dc2626"></path>
+</svg>
+<svg class="relative z-10 drop-shadow-[1px_1px_0_#2C2523]" fill="none" height="22" viewBox="0 0 14 13" width="24">
+<path d="M2 1h3v1h1v1h2V2h1V1h3v1h1v3h-1v2h-1v1h-1v1h-1v1h-1v1h-2v-1H5v-1H4V8H3V7H2V5H1V2h1V1z" fill="#b91c1c"></path>
+<path d="M3 2h2v1H3V2zm6 0h2v1H9V2z" fill="#fca5a5"></path>
+</svg>
+</div>
+<button class="w-full bg-[#10b981] hover:bg-[#059669] text-[#ffffff] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] py-1.5 text-[8px] font-bold active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" onclick="buyItem('20 Hearts', 349)">
+        BUY
+      </button>
+</div>
+</div>
+</div>
+<!-- SECTION 2: COINS -->
+<div class="w-full bg-[#fbf2ee] border-[3px] border-[#2C2523] shadow-[3px_3px_0_0_#2C2523] p-2.5 flex flex-col gap-2">
+<!-- Section 2 Header Banner -->
+<div class="flex items-center justify-between bg-[#fbbf24] text-[#2C2523] px-2 py-1.5 border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523]">
+<div class="flex items-center gap-1.5">
+<div class="w-3.5 h-3.5 bg-[#2C2523] flex items-center justify-center text-[8px] font-bold text-[#fbbf24] leading-none">$</div>
+<span class="text-[10px] font-bold tracking-wide leading-none">GET COINS</span>
+</div>
+
+</div>
+<!-- 3-Column Pack Grid -->
+<div class="grid grid-cols-3 gap-2">
+<!-- Coin Pack 1 -->
+<div class="bg-[#ffffff] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] p-1.5 flex flex-col justify-between items-center text-center relative pt-2">
+<div class="h-4 flex items-center">
+<span class="text-[8px] text-[#2C2523] leading-none font-bold">500 C</span>
+</div>
+<div class="my-2 h-10 flex items-center justify-center">
+<svg class="drop-shadow-[1px_1px_0_#2C2523]" fill="none" height="28" viewBox="0 0 16 16" width="28">
+<rect fill="#fbbf24" height="12" width="8" x="4" y="2"></rect>
+<rect fill="#f59e0b" height="10" width="6" x="5" y="3"></rect>
+<rect fill="#fbbf24" height="6" width="4" x="6" y="5"></rect>
+<rect fill="#2C2523" height="4" width="2" x="7" y="6"></rect>
+<rect fill="#d97706" height="2" width="12" x="2" y="5"></rect>
+<rect fill="#2C2523" height="2" width="8" x="4" y="1"></rect>
+</svg>
+</div>
+<button class="w-full bg-[#fbbf24] hover:bg-[#f59e0b] text-[#2C2523] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] py-1.5 text-[8px] font-bold active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" onclick="buyCoins('500 Coins', 500)">
+        BUY
+      </button>
+</div>
+<!-- Coin Pack 2 (HOT) -->
+<div class="bg-[#ffffff] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] p-1.5 flex flex-col justify-between items-center text-center relative pt-2">
+<div class="h-4 flex items-center">
+<span class="text-[8px] text-[#2C2523] leading-none font-bold">1,200 C</span>
+</div>
+<div class="my-2 h-10 flex items-center justify-center">
+<svg class="drop-shadow-[1px_1px_0_#2C2523]" fill="none" height="28" viewBox="0 0 16 16" width="30">
+<rect fill="#fbbf24" height="7" width="6" x="1" y="7"></rect>
+<rect fill="#2C2523" height="1" width="6" x="1" y="9"></rect>
+<rect fill="#2C2523" height="1" width="6" x="1" y="11"></rect>
+<rect fill="#f59e0b" height="10" width="6" x="9" y="4"></rect>
+<rect fill="#2C2523" height="1" width="6" x="9" y="6"></rect>
+<rect fill="#2C2523" height="1" width="6" x="9" y="8"></rect>
+<rect fill="#2C2523" height="1" width="6" x="9" y="10"></rect>
+<rect fill="#2C2523" height="1" width="6" x="9" y="12"></rect>
+<rect fill="#fde047" height="4" width="6" x="5" y="10"></rect>
+<rect fill="#2C2523" height="1" width="6" x="5" y="12"></rect>
+</svg>
+</div>
+<button class="w-full bg-[#fbbf24] hover:bg-[#f59e0b] text-[#2C2523] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] py-1.5 text-[8px] font-bold active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" onclick="buyCoins('1,200 Coins', 1200)">
+        BUY
+      </button>
+</div>
+<!-- Coin Pack 3 (MEGA) -->
+<div class="bg-[#ffffff] border-[2.5px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] p-1.5 flex flex-col justify-between items-center text-center relative pt-2">
+<div class="h-4 flex items-center">
+<span class="text-[8px] text-[#2C2523] leading-none font-bold">5,000 C</span>
+</div>
+<div class="my-2 h-10 flex items-center justify-center">
+<svg class="drop-shadow-[1px_1px_0_#2C2523]" fill="none" height="28" viewBox="0 0 16 16" width="32">
+<rect fill="#b45309" height="11" width="12" x="2" y="3"></rect>
+<rect fill="#d97706" height="4" width="14" x="1" y="2"></rect>
+<rect fill="#2C2523" height="2" width="12" x="2" y="6"></rect>
+<rect fill="#fbbf24" height="4" width="2" x="7" y="5"></rect>
+<rect fill="#fbbf24" height="3" width="2" x="4" y="3"></rect>
+<rect fill="#fbbf24" height="3" width="2" x="10" y="3"></rect>
+<rect fill="#fbbf24" height="5" width="2" x="4" y="8"></rect>
+<rect fill="#fbbf24" height="5" width="2" x="10" y="8"></rect>
+<rect fill="#fde047" height="2" width="4" x="6" y="1"></rect>
+</svg>
+</div>
+<button class="w-full bg-[#fbbf24] hover:bg-[#f59e0b] text-[#2C2523] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] py-1.5 text-[8px] font-bold active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" onclick="buyCoins('5,000 Coins', 500)">
+        BUY
+      </button>
+</div>
+</div>
+</div>
+<!-- SPECIAL POWER-UPS STRIP -->
+<!-- PURCHASE NOTIFICATION TOAST (HIDDEN BY DEFAULT) -->
+<div class="opacity-0 pointer-events-none transition-opacity duration-200 w-full bg-[#22c55e] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] p-2 text-center" id="toast">
+<span class="text-[8px] text-[#ffffff] font-bold tracking-tight" id="toast-text">PURCHASE SUCCESSFUL!</span>
+</div>
+<!-- BOTTOM DOCKED NAVIGATION (BACK TO MENU) -->
+<div class="w-full mt-auto pt-1">
+<button class="w-full bg-[#ECE3D4] hover:bg-[#e1d8d5] text-[#2C2523] border-[3px] border-[#2C2523] shadow-[3px_3px_0_0_#2C2523] py-3 text-[10px] font-bold flex items-center justify-center gap-2 active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all" onclick="window.history.back()">
+<span class="text-[12px] leading-none">◀</span>
+<span class="">BACK TO MENU</span>
+</button>
+</div>
+<!-- INTERACTIVE CLIENT LOGIC -->
+<script>
+    let coins = 99999;
+    let lives = 4;
+
+    function playChime() {
+      showToast("+ READY TO PLAY!");
+    }
+
+    function buyCoins(packName, amount) {
+      coins += amount;
+      document.getElementById('player-coins').textContent = coins.toLocaleString();
+      showToast("ADDED " + packName + "!");
+    }
+
+    function buyItem(name, cost) {
+      if (name.includes('Heart')) {
+        lives += parseInt(name);
+        document.getElementById('player-lives').textContent = lives;
+      }
+      showToast("PURCHASED " + name + "!");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-text');
+      text.textContent = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      clearTimeout(window._toastTimeout);
+      window._toastTimeout = setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 1600);
+    }
+  </script>
+</div></main>
+
+
+</body></html>
