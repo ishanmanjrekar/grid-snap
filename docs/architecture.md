@@ -553,7 +553,7 @@ When `startLevel()` loads a `LevelConfig`:
 ### 10.1 Splash Screen & Game Icon Optimization (`scripts/generate-icons.py` & `scripts/update-assets.js`)
 Following the asset pipeline in `topdown-2d-car-engine` and `portable-web-android-game-skill`:
 1. **Splash Screen Resizing & WebP Compression (`itch-assets/splash.png` → `public/splash.webp`)**:
-   - The master artwork in `itch-assets/splash.png` (`1536×2816`, `~4.58 MB` PNG) is resized to **`900×1650`** (`2×` retina resolution for the `450×800` `<BoundingBox>`) using Lanczos resampling and encoded to **`public/splash.webp`** (`quality=82, method=6`), reducing the bundled file size from **`4.58 MB` down to `~110–150 KB` (`>96%` reduction)**.
+   - The master artwork in `itch-assets/splash.png` (`1080×2400`, `9:20` aspect ratio) is resized to **`900×2000`** (`2×` retina resolution for tall mobile displays and `450×800` `<BoundingBox>`) using Lanczos resampling and encoded to **`public/splash.webp`** (`quality=82, method=6`), keeping the bundle footprint lightweight (`~185 KB`).
    - At runtime, `src/components/SplashScreen.tsx` loads `${import.meta.env.BASE_URL}splash.webp` (via `AssetLoader.resolvePath('splash.webp')`) as a full-bleed cover overlay with a 0–100% progress bar and `TAP TO CONTINUE` prompt.
 2. **Game Icon Resizing & Capacitor Android Sync (`public/icon.png`)**:
    - The master square icon in `public/icon.png` (`1024×1024`, `~1.32 MB`) is synced to `android-assets/icon.png` and optimized for web (`public/icon.png` / `public/assets/icon.png` resized to `256×256` optimized PNG for fast favicon and UI loading).

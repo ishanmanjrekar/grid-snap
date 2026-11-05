@@ -168,6 +168,10 @@
 - [x] **Main Menu Dotted Line & Bottom Panel Spacing Polish (`src/components/screens/MainMenuView.tsx`)**:
   - Truncated vertical dashed line `y2` from `540` to `420` so it terminates cleanly inside the green active level button with zero pixels peeking out underneath.
   - Adjusted footer spacing (`-mt-8 pb-10`), cutting the vertical dead space between the green button and the Star Count panel in half (~50% reduction) and lifting the PLAY button away from the bottom of the screen with comfortable breathing room.
+- [x] **Splash Screen 9:20 Tall Aspect Ratio & Zero-Crop Mobile Asset Update (`itch-assets/splash.png`, `public/splash.webp`, `scripts/generate-icons.py`)**:
+  - Upgraded master `itch-assets/splash.png` to **`1080×2400`** (`9:20` aspect ratio, `3.49 MB`) and compiled optimized WebP to **`900×2000`** (`185.4 KB`) via `scripts/generate-icons.py`.
+  - Solved side-cropping on long mobile viewports (19.5:9 and 20:9 devices such as iPhone 13–16 and Galaxy S20–S24) with `0%` horizontal crop, while keeping the central title (`y = 50%`) and loader HUD (`top: 63%`) centered within the 16:9 safe zone for desktop `<BoundingBox>`.
+  - Rebuilt Itch distribution package (`dump/grid-snap-051126-0149-itch.zip`, `0.59 MB`) and verified passing Vitest suite (9/9 tests).
 - [x] **Splash Screen Loader Label Simplification (`src/components/SplashScreen.tsx`)**:
   - Simplified splash progress status from `'LOADING CARTRIDGE...'` / `'CARTRIDGE READY'` to clean `'LOADING...'` and `'READY'`.
 - [x] **Store (`🛒`) & Settings (`⚙️`) Button Polish (`src/components/PixelIcons.tsx`, `MainMenuView.tsx`, `SettingsModal.tsx`)**:

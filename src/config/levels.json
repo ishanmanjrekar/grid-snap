@@ -222,31 +222,31 @@
     "initialGrid": [
       [
         null,
-        4,
-        2
-      ],
-      [
-        3,
         null,
         null
       ],
       [
         null,
+        3,
+        null
+      ],
+      [
+        null,
+        2,
+        null
+      ],
+      [
+        null,
+        null,
+        4
+      ],
+      [
+        0,
         1,
         null
-      ],
-      [
-        null,
-        null,
-        null
-      ],
-      [
-        null,
-        null,
-        0
       ]
     ],
-    "parMoves": 6,
+    "parMoves": 4,
     "scrambleSeed": 100105
   },
   {
@@ -422,43 +422,43 @@
     ],
     "initialGrid": [
       [
+        1,
         null,
-        null,
-        4,
+        2,
         null
       ],
       [
-        null,
-        1,
-        null,
-        2
-      ],
-      [
-        null,
         null,
         0,
+        null,
         null
       ],
       [
-        null,
         1,
         null,
-        2
+        null,
+        null
       ],
       [
-        null,
         null,
         3,
+        null,
+        4
+      ],
+      [
+        null,
+        null,
+        2,
         null
       ],
       [
-        0,
         null,
+        0,
         null,
         null
       ]
     ],
-    "parMoves": 1,
+    "parMoves": 4,
     "scrambleSeed": 100108
   },
   {
@@ -502,37 +502,37 @@
     ],
     "initialGrid": [
       [
-        4,
         null,
-        0,
-        null
-      ],
-      [
-        5,
-        null,
-        null,
-        null
-      ],
-      [
         1,
         null,
-        null,
-        2
+        null
       ],
       [
+        5,
         3,
         null,
+        5
+      ],
+      [
         null,
+        0,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        4,
         null
       ],
       [
         null,
         0,
-        5,
-        null
+        null,
+        2
       ]
     ],
-    "parMoves": 1,
+    "parMoves": 4,
     "scrambleSeed": 100109
   },
   {
@@ -594,34 +594,16 @@
     ],
     "initialGrid": [
       [
-        4,
-        0,
         null,
-        4
-      ],
-      [
-        null,
-        null,
-        6,
-        null
-      ],
-      [
-        7,
-        null,
-        null,
-        0
-      ],
-      [
-        1,
         2,
-        2,
+        null,
         null
       ],
       [
         3,
         null,
-        null,
-        3
+        5,
+        7
       ],
       [
         null,
@@ -630,19 +612,37 @@
         null
       ],
       [
-        5,
+        0,
         null,
+        6,
+        4
+      ],
+      [
+        null,
+        5,
         null,
         null
       ],
       [
+        4,
         null,
+        2,
+        1
+      ],
+      [
+        null,
+        0,
+        null,
+        null
+      ],
+      [
         7,
+        null,
         1,
-        5
+        3
       ]
     ],
-    "parMoves": 1,
+    "parMoves": 5,
     "scrambleSeed": 100110
   }
 ]
