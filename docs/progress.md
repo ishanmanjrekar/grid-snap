@@ -15,7 +15,7 @@
 | Field | Current Value |
 | :--- | :--- |
 | **Current Batch / Phase** | **All Web & Itch.io Phases Complete (Phases 1–9.2 `[x]` + Post-Phase Refinements `[x]`; Phase 9.3 Android APK Deferred by User)** |
-| **Last Verified Milestone** | **Desktop `BoundingBox` Frame Fix, Standalone Level Editor Runtime/Cache Fix & `Be Vietnam Pro` Body Typography Sync** |
+| **Last Verified Milestone** | **Documentation Hub Synchronized (`progress.md`, `art-direction.md`, `ui-ux-and-flows.md`, `economy-and-progression.md`)** |
 | **Next Immediate Action** | Ready for local playtesting (`npm run dev`), level authoring (`npm run dev:editor`), or Itch.io deployment (`dump/grid-snap-*-itch.zip`). Android APK (`npm run build:apk`) deferred until explicitly requested. |
 
 > **Agent Harness Rule (Mandatory End-of-Task Doc Sync)**:
@@ -146,3 +146,31 @@
   - Loaded Google Font `Be Vietnam Pro` in `editor/index.html` and applied it to all body text, labels, inputs, dropdowns, and buttons in `editor/EditorApp.tsx`, keeping `font-pixel` (`Press Start 2P`) only on the main `GRID SNAP // LEVEL EDITOR` header title.
 - [x] **Harness & End-of-Task Documentation Sync Rule (`AGENTS.md` & `docs/*.md`)**:
   - Updated `AGENTS.md` and `docs/progress.md` to enforce mandatory updates across `docs/progress.md` and all affected `docs/*.md` specification files at the end of every task.
+- [x] **Target Frame Inset Smaller-Square & Colored Center Pip Fix (`src/components/TorusGrid.tsx`, `src/engine/types.ts`, `src/index.css`)**:
+  - Added `pipFill` and `pipBorder` tokens to `COLOR_HEX_MAP` in `src/engine/types.ts`.
+  - Updated `TorusGrid.tsx` (`renderCell` and `renderTileFace`) so cells with a target frame (`targetColor !== null`) render an outer `.slot-${targetColor}` container (`2px dashed` border + `12%` tinted margin + inset padding) containing a smaller `.pixel-tile-*` inner square with its own `#332B25` dark border, 3D bevel, and framed colored center pip (`pipFill` + `1.5px solid pipBorder`), matching `ui-refs/color_shift_4x8_grid_pixel_art_puzzle_ui`.
+- [x] **Drag-Release 50–99% Snap Animation Direction Fix (`src/components/TorusGrid.tsx`)**:
+  - Locked `commitBaseCells = Math.trunc(current.offsetPx / stepSizePx)` in `DragState` upon pointer release so `baseCells` does not jump ahead when `Math.round(...) !== Math.trunc(...)`, ensuring `remainderPx` transitions forward in the drag direction (`±0.55 * stepSizePx -> ±1.0 * stepSizePx`) instead of snapping backward toward `0`.
+- [x] **Live Remote Config Sync for `levels.json` & `economy.json` (`src/utils/remoteData.ts`, `src/store/gameStore.ts`, UI Views)**:
+  - Implemented `fetchLiveGameConfigs`, `fetchRemoteConfig`, `isValidLevelsConfig`, and `isValidEconomyConfig` in `src/utils/remoteData.ts` fetching from `https://raw.githubusercontent.com/ishanmanjrekar/grid-snap/main/src/config/` with a `3000ms` `AbortController` timeout, `cache: 'no-cache'`, runtime schema validation, local dev guard (`import.meta.env.DEV`), and instant fallback to bundled JSONs.
+  - Wired `levels`, `economy`, and `syncRemoteConfigs()` into `src/store/gameStore.ts`, `SplashScreen.tsx`, `MainMenuView.tsx`, `InGameView.tsx`, `ItemStoreView.tsx`, and `OutOfTimeModal.tsx`, and verified with 9/9 passing Vitest unit tests (`npm test`) and production build (`npm run build`).
+- [x] **Heart Icon SVG & Store Card Layout Refinement (`src/components/PixelIcons.tsx`, `src/components/screens/ItemStoreView.tsx`)**:
+  - Replaced `HeartIcon` in `src/components/PixelIcons.tsx` with user-provided vector heart SVG, matching the vibrant `#EF4444` crimson fill and `#2C2523` border from the "TIME'S UP!" tab/design tokens (with `LegacyPixelHeartIcon` preserved for instant fallback).
+  - Updated `ItemStoreView.tsx` lives pack cards to display side-by-side heart icons: 1 heart for 5 Lives, 2 hearts for 10 Lives, and 3 hearts for 20 Lives.
+- [x] **Settings (`ArticleMultiple`) & Store (`Cart`) Custom SVG Icons (`src/components/PixelIcons.tsx`)**:
+  - Integrated user's `ArticleMultiple` SVG for the Settings button (`SettingsGearIcon` & `ArticleMultiple`) with clean scalable props and preserved `LegacyPixelSettingsGearIcon`.
+  - Integrated user's `Cart` SVG (`#ef4444` red shopping cart) for the Store button (`StorefrontIcon` & `Cart`) across the Main Menu and Store View, preserving `LegacyPixelStorefrontIcon` for instant reversion.
+- [x] **Universal Emoji Icon System (`src/components/PixelIcons.tsx`, Screen Views, Modals)**:
+  - Replaced SVG icons with native scalable Unicode emojis: `🪙` for coins across all HUD capsules, booster costs, shop packs, and victory rewards; `❤️` for lives and escrow; `⚙️` for settings; `🛒` for the store; `⚠️` for the settings reset warning; `💡` for hint booster; and `⭐` for star ratings (lit vs dimmed grayscale).
+- [x] **Difficulty Badges Rescaling (+50%) (`src/components/screens/MainMenuView.tsx`)**:
+  - Increased `HARD` difficulty badge size by 50% (`text-[7px]` -> `text-[10.5px]`, `px-2 py-0.5` -> `px-3.5 py-1`, `border-2 shadow-[2px_2px_0]` -> `border-[2.5px] shadow-[2.5px_2.5px_0]`).
+  - Scaled `SUPER HARD` badge proportionally (`text-[6.5px]` -> `text-[9px]`, `px-3 py-1`).
+- [x] **Main Menu Dotted Line & Bottom Panel Spacing Polish (`src/components/screens/MainMenuView.tsx`)**:
+  - Truncated vertical dashed line `y2` from `540` to `420` so it terminates cleanly inside the green active level button with zero pixels peeking out underneath.
+  - Adjusted footer spacing (`-mt-8 pb-10`), cutting the vertical dead space between the green button and the Star Count panel in half (~50% reduction) and lifting the PLAY button away from the bottom of the screen with comfortable breathing room.
+- [x] **Splash Screen Loader Label Simplification (`src/components/SplashScreen.tsx`)**:
+  - Simplified splash progress status from `'LOADING CARTRIDGE...'` / `'CARTRIDGE READY'` to clean `'LOADING...'` and `'READY'`.
+- [x] **Store (`🛒`) & Settings (`⚙️`) Button Polish (`src/components/PixelIcons.tsx`, `MainMenuView.tsx`, `SettingsModal.tsx`)**:
+  - Replaced Store icon with `🛒` shopping cart emoji and matched the button background to dark arcade charcoal (`#2C2523`) with crisp white `STORE` text (`text-white`) to match the Settings button.
+  - Made the Settings button background dark arcade charcoal (`#2C2523`) so the metallic silver `⚙️` gear stands out with high contrast.
+  - Removed the gear emoji from the Settings modal gold header ribbon so it cleanly displays just the text `SETTINGS`.

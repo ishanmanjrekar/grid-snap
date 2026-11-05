@@ -52,16 +52,16 @@ Every screen and popup in the game maps to a reference asset or folder in `./ui-
 
 | Screen / Modal | Source Reference / Asset | View Type | Key UI Responsibilities & Locked Overrides |
 | :--- | :--- | :---: | :--- |
-| **Boot Splash Screen** | `itch-assets/splash.png` → `public/splash.webp` | Full-Screen Boot Overlay (`SplashScreen`) | Full-bleed cover artwork (`900×1650` optimized WebP), `0%–100%` loading progress bar (`LOADING CARTRIDGE...` → `CARTRIDGE READY`), and pulsing `TAP TO CONTINUE` prompt (or `Space`/`Enter`) that fades/scales out (`450ms`) and unlocks WebAudio. |
-| **Main Menu & Level Path** | `color_shift_retro_main_menu_difficulty_tags` | Full Screen (`menu`) | Top Coin/Heart HUD capsules (**Override**: displays `FULL` with no timer when `lives >= 5`), `STORE` & `⚙` buttons, vertical Level Path (`unlockedLevel` at bottom, no replay of cleared levels, loops last 10 levels past `N`), `STAR COUNT` vanity bar + Share button, and Gold `▶ PLAY` CTA. |
-| **In-Game (`3×3`–`4×4`)** | `color_shift_pastel_minimalist_game_ui` | Full Screen (`playing`) | Top Bar (`$` pill, `LVL. X`, `⏸`), `⏳ MM:SS` timer pill, 3-Star progress bar (**Override**: star `left: %` driven by `economy.json`), central arcade bezel (**Override**: `▲▼◄►` arrows are visual-only `pointer-events: none`; input is drag-only), bottom **`💡 HINT ($50)`** (**Override**: replaces `REWIND`) & **`+5S EXTRA TIME ($100)`** units. |
+| **Boot Splash Screen** | `itch-assets/splash.png` → `public/splash.webp` | Full-Screen Boot Overlay (`SplashScreen`) | Full-bleed cover artwork (`900×1650` optimized WebP), `0%–100%` loading progress bar (`LOADING...` → `READY`), and pulsing `TAP TO CONTINUE` prompt (or `Space`/`Enter`) that fades/scales out (`450ms`) and unlocks WebAudio. |
+| **Main Menu & Level Path** | `color_shift_retro_main_menu_difficulty_tags` | Full Screen (`menu`) | Top Coin (`🪙`)/Heart (`❤️`) HUD capsules (**Override**: displays `FULL` with no timer when `lives >= 5`), dark charcoal (`#2C2523`) `🛒 STORE` (white text) & `⚙️ SETTINGS` buttons, vertical Level Path with dashed line terminating inside the green active level block without underhang, rescaled `HARD` (+50%) / `SUPER HARD` tags, elevated `STAR COUNT` (`⭐`) vanity bar + Share button, and Gold `▶ PLAY` CTA with balanced 50% reduced spacing. |
+| **In-Game (`3×3`–`4×4`)** | `color_shift_pastel_minimalist_game_ui` | Full Screen (`playing`) | Top Bar (`🪙` pill, `LVL. X`, `⏸`), `⏳ MM:SS` timer pill, 3-Star progress bar with `⭐` icons (**Override**: star `left: %` driven by `economy.json`), central arcade bezel (**Override**: `▲▼◄►` arrows are visual-only `pointer-events: none`; input is drag-only), bottom **`💡 HINT (🪙 50)`** & **`+5S EXTRA TIME (🪙 100)`** units. |
 | **In-Game (`4×5`–`4×8`)** | `color_shift_4x8_grid_pixel_art_puzzle_ui` | Full Screen (`playing`) | Same bolted top HUD and bottom powerup footer, with the central `flex-1 min-h-0` stage auto-scaling the taller `4×8` (32-tile) bezel and 8-row decorative side arrows cleanly without scrolling. |
 | **Tutorial Intro Overlay** | `color_shift_tutorial_intro_overlay_ui` | Scrim Overlay | Dark scrim (`#2C2523/70`), dark charcoal card (`#2C2523`) with cream border (`#F4EFE0`), overhanging gold `TUTORIAL` badge, instruction text, and blinking `TAP TO CONTINUE ▼` prompt. |
 | **Pause Modal** | `color_shift_pause_menu_popup_ui` | Modal Overlay | Dark scrim (`bg-black/60`), overhanging gold `PAUSED` badge, inset `||` icon box, green `RESUME` button, cream `QUIT` button with `YOU WILL LOSE 1 ❤️` warning below. |
-| **Level Complete Modal** | `color_shift_level_complete_popup_x_close` | Modal Overlay | Overhanging gold `LEVEL X CLEAR!` banner, top-right red `✕` close button, 3 chunky pixel stars, status pill, inset stats box (`TIME` [**Override**: no `BEST!` badge], `SHIFTS`, `COINS: +200`), green `NEXT LEVEL ▶` CTA. |
-| **Out of Time Modal** | `color_shift_out_of_time_popup_x_close` | Modal Overlay | Overhanging crimson `TIME'S UP!` banner, top-right red `✕` close button with `-1 ❤️` badge directly underneath, pixel hourglass box, `! YOU RAN OUT OF TIME !` alert, stats box (`TIME`, `MOVES`, `SOLVED X/Y SLOTS`), green `+30 SECONDS ▶ ($200)` button (**Override**: disabled with crimson `#EF4444` `$ 200` text when `coins < 200`). |
-| **Settings Modal** | `color_shift_settings_popup_ui` | Modal Overlay | Overhanging gold `⚙ SETTINGS` banner, top-right red `✕` close button, `MUSIC` (`ON`/`OFF`), `SFX` (`ON`/`OFF`), ** plus `COLORBLIND` (`ON`/`OFF`)** segmented toggles, dashed divider, `⚠ RESET PROGRESS` button with double-tap `TAP AGAIN TO CONFIRM` safety prompt. |
-| **In-Game Item Store** | `color_shift_in_game_store_balanced_spacing` | Full Screen (`store`) | Top Coin/Heart HUD capsules, gold `ITEM STORE` header banner, `GET LIVES` 3-pack grid (`5`, `10`, `20` Lives), `GET COINS` 3-pack grid (`500`, `1,200`, `5,000` C) (**Override**: drop the `EXTRA TRY` and `SPECIALS` header badges), inline `#toast` banner, and bottom `◀ BACK TO MENU` button. |
+| **Level Complete Modal** | `color_shift_level_complete_popup_x_close` | Modal Overlay | Overhanging gold `LEVEL X CLEAR!` banner, top-right red `✕` close button, 3 chunky animated `⭐` stars, status pill, inset stats box (`TIME` [**Override**: no `BEST!` badge], `SHIFTS`, `COINS: +200 🪙`), green `NEXT LEVEL ▶` CTA. |
+| **Out of Time Modal** | `color_shift_out_of_time_popup_x_close` | Modal Overlay | Overhanging crimson `TIME'S UP!` banner, top-right red `✕` close button with `-1 ❤️` badge directly underneath, pixel hourglass box, `! YOU RAN OUT OF TIME !` alert, stats box (`TIME`, `MOVES`, `SOLVED X/Y SLOTS`), green `+30 SECONDS ▶ (200 🪙)` rescue button. |
+| **Settings Modal** | `color_shift_settings_popup_ui` | Modal Overlay | Overhanging gold `SETTINGS` text banner (clean, without emoji), top-right red `✕` close button, `MUSIC` (`ON`/`OFF`), `SFX` (`ON`/`OFF`), `COLORBLIND` (`ON`/`OFF`) toggles, dashed divider, `⚠️ RESET PROGRESS` button with double-tap confirm. |
+| **In-Game Item Store** | `color_shift_in_game_store_balanced_spacing` | Full Screen (`store`) | Top Coin (`🪙`)/Heart (`❤️`) HUD capsules, gold `🛒 ITEM STORE` header banner, `GET LIVES` 3-pack grid with side-by-side hearts (1x `❤️`, 2x `❤️`, 3x `❤️`), `GET COINS` 3-pack grid with side-by-side coins (1x `🪙`, 2x `🪙`, 3x `🪙`), inline `#toast` banner, and bottom `◀ BACK TO MENU` button. |
 
 ---
 
@@ -75,7 +75,7 @@ Modelled after the `SplashScreen.tsx` implementation in `topdown-2d-car-engine` 
 - **Progress Loader (`0%` → `100%`)**:
   - Advances smoothly from `0%` to `100%` on a `30ms` interval (`+4%` while `< 60%`, `+2.5%` while `< 85%`, `+5%` to `100%`), then sets `isLoaded = true` after `150ms`.
 - **Loader HUD Overlay (Positioned Below the Central `"GRID SNAP"` Artwork, `top: 63%`)**:
-  - **Status & Percentage Header**: Left label (`LOADING CARTRIDGE...` while loading → `CARTRIDGE READY` when `isLoaded`) and right percentage (`{Math.floor(progress)}%`) in `--font-pixel` / `--font-retro` with hard dark text shadow.
+  - **Status & Percentage Header**: Left label (`LOADING...` while loading → `READY` when `isLoaded`) and right percentage (`{Math.floor(progress)}%`) in `--font-pixel` / `--font-retro` with hard dark text shadow.
   - **16-Bit Progress Bar Track**: Framed in a heavy `#2C2523` (`3px solid`) container with hard offset shadow (`4px 4px 0 #2C2523`) and warm cream/dark recessed interior, filled by an animated gold-to-emerald bar (`#FBBF24` → `#22C55E`).
   - **Interactive Prompt**:
     - While loading (`!isLoaded`): Displays `PLEASE WAIT...`.
@@ -87,21 +87,22 @@ Modelled after the `SplashScreen.tsx` implementation in `topdown-2d-car-engine` 
 
 ### 3.1 Main Menu Screen
 - **Top HUD (`flex-none`)**:
-  - **Left (Coin Capsule)**: Cream counter (`#FFFDF8`) with gold `$` icon + tabular coin readout, seamlessly joined to a gold `+` button (`#FFCC00`) that opens the **Item Store**.
+  - **Left (Coin Capsule)**: Cream counter (`#FFFDF8`) with `🪙` coin icon + tabular coin readout, seamlessly joined to a gold `+` button (`#FFCC00`) that opens the **Item Store**.
   - **Right (Lives Capsule)**: Cream counter (`#FFFDF8`) with crimson heart `❤️`, current life count (`4` or `14`), vertical divider (`|`), and status text:
     - When `lives >= 5`: Displays **`FULL`** (countdown timer is hidden).
     - When `lives < 5`: Displays the `MM:SS` countdown (`24:15`) until the next heart regenerates.
     - Seamlessly joined to an emerald `+` button (`#28C76F`) that opens the **Item Store**.
 - **Floating Utility Buttons**:
-  - **Top-Left (`STORE`)**: `56×56px` (`w-14 h-14`) Mint Cyan (`#5EEAD4`) square button with inline pixel storefront awning SVG and `STORE` label.
-  - **Top-Right (`SETTINGS`)**: `56×56px` (`w-14 h-14`) Cream (`#FFFDF8`) square button with inline pixel gear SVG (`⚙`).
+  - **Top-Left (`STORE`)**: `56×56px` (`w-14 h-14`) Dark Charcoal (`#2C2523`) square button with `🛒` shopping cart emoji and white pixel `STORE` label (`text-white`).
+  - **Top-Right (`SETTINGS`)**: `56×56px` (`w-14 h-14`) Dark Charcoal (`#2C2523`) square button with metallic silver `⚙️` gear emoji.
 - **Center Stage (`flex-1 min-h-0`) — Vertical Level Path**:
-  - Centered vertical dashed ink line (`stroke="#1E1B18" stroke-dasharray="6 7"`).
-  - **Bottom Node (Current Active Level — `unlockedLevel`)**: Large `144×144px` (`w-36 h-36`) Emerald Green (`#28C76F`) beveled square with `4px` ink border and large white pixel level number (`25`). Cleared levels below `unlockedLevel` are not shown and cannot be replayed.
-  - **Middle Nodes (`unlockedLevel + 1`, `unlockedLevel + 2`)**: Locked cream squares (`#FFFDF8`) with level numbers (`26`, `27`) and optional cosmetic difficulty tag pills (`HARD` in `#EF4444`, `SUPER HARD` in `#9333EA`).
+  - Centered vertical dashed ink line (`stroke="#1E1B18" stroke-dasharray="6 7" y2="420"`) that terminates safely inside the active level block with zero overhang.
+  - **Bottom Node (Current Active Level — `unlockedLevel`)**: Large `144×144px` (`w-36 h-36`) Emerald Green (`#28C76F`) beveled square with `4px` ink border, large white pixel level number (`25`), and optional rescaled difficulty badge. Cleared levels below `unlockedLevel` are not shown and cannot be replayed.
+  - **Middle Nodes (`unlockedLevel + 1`, `unlockedLevel + 2`)**: Locked cream squares (`#FFFDF8`) with level numbers (`26`, `27`) and rescaled difficulty tag pills (`HARD` in `#EF4444` at `text-[10.5px] px-3.5 py-1`, `SUPER HARD` in `#9333EA` at `text-[9px] px-3 py-1`).
   - **Top Node (`unlockedLevel + 3`)**: Partially visible dashed preview square (`#EDE5D3`, `opacity-60`).
 - **Bottom Action Panel (`flex-none`)**:
-  - **Star Count Row**: Full-width row combining a `STAR COUNT` vanity bar (`⭐ STAR COUNT` left, total stars right) and a square `44×44px` (`w-11 h-11`) Share button (inline pixel share SVG).
+  - **Elevated Spacing (`-mt-8 pb-10`)**: Vertically balanced with ~50% reduced empty space between the green level block and the Star Count panel, lifting the primary CTA away from the bottom of the screen.
+  - **Star Count Row**: Full-width row combining a `STAR COUNT` vanity bar (`⭐ STAR COUNT` left, total stars right) and a square `44×44px` (`w-11 h-11`) Share button (inline pixel share icon).
   - **Primary CTA**: Full-width `56px`-tall (`h-14`) Arcade Gold (`#FFC021`) button reading `▶ PLAY`.
 
 ---

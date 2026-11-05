@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { CloseXIcon, HourglassIcon, PixelStarIcon } from '../PixelIcons';
+import { CloseXIcon, CoinIcon, HourglassIcon, PixelStarIcon } from '../PixelIcons';
 
 function formatClearTime(seconds: number): string {
   const safe = Math.max(1, Math.round(seconds));
@@ -126,9 +126,7 @@ export const LevelCompleteModal: React.FC = () => {
           {/* Stat 3: Coins Reward (+200) */}
           <div className="flex items-center justify-between bg-[#FFFBEA] px-2 py-1.5 border border-[#2C2523]">
             <div className="flex items-center gap-1.5">
-              <div className="w-3.5 h-3.5 bg-[#F8B800] border border-[#2C2523] flex items-center justify-center text-[7px] font-pixel text-[#614500] font-bold">
-                $
-              </div>
+              <CoinIcon size={16} />
               <span className="font-pixel text-[8px] text-[#2C2523]">
                 COINS
               </span>

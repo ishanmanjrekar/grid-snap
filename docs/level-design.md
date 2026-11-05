@@ -55,6 +55,10 @@ Matching the clean workflow from `loop-game`, the Level Editor is a standalone i
   - `POST /api/save-level`: Inserts a new level or overwrites an existing **Level No. `X`** inside `src/config/levels.json` (sorted by `id: number`) and formats the JSON cleanly on disk.
   - `POST /api/insert-level`: Inserts the level at **Level No. `X`** and shifts all existing levels with `id >= X` up by `+1`.
   - `DELETE /api/level/:id`: Deletes **Level No. `X`** and re-indexes remaining levels sequentially (`1 .. N`).
+- **Live Remote Level & Economy Sync (`src/utils/remoteData.ts`)**:
+  - In production builds (Web, Itch.io, and Android APK), `SplashScreen.tsx` invokes `syncRemoteConfigs()` on boot to fetch the latest `levels.json` and `economy.json` from `https://raw.githubusercontent.com/ishanmanjrekar/grid-snap/main/src/config/` (`cache: 'no-cache'`, `3000ms` `AbortController` timeout, runtime schema validation via `isValidLevelsConfig` and `isValidEconomyConfig`).
+  - If the device is offline, slow, or the fetch fails validation, the game transparently uses the bundled `src/config/levels.json` and `src/config/economy.json` fallbacks with zero downtime.
+  - During local development (`npm run dev`, where `import.meta.env.DEV === true`), remote fetching is skipped by default (unless `VITE_FORCE_REMOTE_CONFIG=true`) so levels saved in the Level Editor (`npm run dev:editor`) can be tested locally before pushing to GitHub.
 
 ### 3.2 Level Editor UI & Step-by-Step Workflow
 

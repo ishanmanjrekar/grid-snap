@@ -171,7 +171,7 @@ body {
 /* 8-Color + Neutral 3D Beveled Puzzle Blocks */
 .pixel-tile-neutral {
   background-color: #F8F5EB;
-  border: 2px solid #332B25;
+  border: 1.5px solid #332B25;
   box-shadow:
     inset 2px 2px 0 0 #FFFFFF,
     inset -2px -2px 0 0 #DDD2BA,
@@ -180,115 +180,115 @@ body {
 
 .pixel-tile-ruby {
   background-color: #EF4444;
-  border: 2px solid #2B1810;
+  border: 1.5px solid #2B1810;
   box-shadow:
-    inset 2.5px 2.5px 0 0 #FFA3A8,
-    inset -2.5px -2.5px 0 0 #B91C1C,
+    inset 2px 2px 0 0 #FFA3A8,
+    inset -2px -2px 0 0 #B91C1C,
     0 2.5px 0 0 #7F1D1D;
 }
 
 .pixel-tile-emerald {
   background-color: #22C55E;
-  border: 2px solid #14281A;
+  border: 1.5px solid #14281A;
   box-shadow:
-    inset 2.5px 2.5px 0 0 #86EFAC,
-    inset -2.5px -2.5px 0 0 #15803D,
+    inset 2px 2px 0 0 #86EFAC,
+    inset -2px -2px 0 0 #15803D,
     0 2.5px 0 0 #14532D;
 }
 
 .pixel-tile-cobalt {
   background-color: #3B82F6;
-  border: 2px solid #132238;
+  border: 1.5px solid #132238;
   box-shadow:
-    inset 2.5px 2.5px 0 0 #93C5FD,
-    inset -2.5px -2.5px 0 0 #1D4ED8,
+    inset 2px 2px 0 0 #93C5FD,
+    inset -2px -2px 0 0 #1D4ED8,
     0 2.5px 0 0 #1E3A8A;
 }
 
 .pixel-tile-yellow {
   background-color: #F59E0B;
-  border: 2px solid #78350F;
+  border: 1.5px solid #78350F;
   box-shadow:
-    inset 2.5px 2.5px 0 0 #FDE68A,
-    inset -2.5px -2.5px 0 0 #B45309,
+    inset 2px 2px 0 0 #FDE68A,
+    inset -2px -2px 0 0 #B45309,
     0 2.5px 0 0 #451A03;
 }
 
 .pixel-tile-purple {
   background-color: #A855F7;
-  border: 2px solid #581C87;
+  border: 1.5px solid #581C87;
   box-shadow:
-    inset 2.5px 2.5px 0 0 #D8B4FE,
-    inset -2.5px -2.5px 0 0 #7E22CE,
+    inset 2px 2px 0 0 #D8B4FE,
+    inset -2px -2px 0 0 #7E22CE,
     0 2.5px 0 0 #3B0764;
 }
 
 .pixel-tile-cyan {
   background-color: #06B6D4;
-  border: 2px solid #164E63;
+  border: 1.5px solid #164E63;
   box-shadow:
-    inset 2.5px 2.5px 0 0 #A5F3FC,
-    inset -2.5px -2.5px 0 0 #0891B2,
+    inset 2px 2px 0 0 #A5F3FC,
+    inset -2px -2px 0 0 #0891B2,
     0 2.5px 0 0 #155E75;
 }
 
 .pixel-tile-tangerine {
   background-color: #F97316;
-  border: 2px solid #431407;
+  border: 1.5px solid #431407;
   box-shadow:
-    inset 2.5px 2.5px 0 0 #FDBA74,
-    inset -2.5px -2.5px 0 0 #C2410C,
+    inset 2px 2px 0 0 #FDBA74,
+    inset -2px -2px 0 0 #C2410C,
     0 2.5px 0 0 #7C2D12;
 }
 
 .pixel-tile-magenta {
   background-color: #EC4899;
-  border: 2px solid #500724;
+  border: 1.5px solid #500724;
   box-shadow:
-    inset 2.5px 2.5px 0 0 #F9A8D4,
-    inset -2.5px -2.5px 0 0 #BE185D,
+    inset 2px 2px 0 0 #F9A8D4,
+    inset -2px -2px 0 0 #BE185D,
     0 2.5px 0 0 #831843;
 }
 
 /* Fixed Target Frame Wireframes (8 Colors) */
 .slot-ruby {
-  border: 2.5px dashed #DC2626;
-  background-color: rgba(239, 68, 68, 0.14);
+  border: 2px dashed #DC2626;
+  background-color: rgba(239, 68, 68, 0.12);
 }
 
 .slot-emerald {
-  border: 2.5px dashed #16A34A;
-  background-color: rgba(34, 197, 94, 0.14);
+  border: 2px dashed #16A34A;
+  background-color: rgba(34, 197, 94, 0.12);
 }
 
 .slot-cobalt {
-  border: 2.5px dashed #2563EB;
-  background-color: rgba(59, 130, 246, 0.14);
+  border: 2px dashed #2563EB;
+  background-color: rgba(59, 130, 246, 0.12);
 }
 
 .slot-yellow {
-  border: 2.5px dashed #D97706;
-  background-color: rgba(245, 158, 11, 0.14);
+  border: 2px dashed #D97706;
+  background-color: rgba(245, 158, 11, 0.12);
 }
 
 .slot-purple {
-  border: 2.5px dashed #9333EA;
-  background-color: rgba(168, 85, 247, 0.14);
+  border: 2px dashed #9333EA;
+  background-color: rgba(168, 85, 247, 0.12);
 }
 
 .slot-cyan {
-  border: 2.5px dashed #0891B2;
-  background-color: rgba(6, 182, 212, 0.14);
+  border: 2px dashed #0891B2;
+  background-color: rgba(6, 182, 212, 0.12);
 }
 
 .slot-tangerine {
-  border: 2.5px dashed #EA580C;
-  background-color: rgba(249, 115, 22, 0.14);
+  border: 2px dashed #EA580C;
+  background-color: rgba(249, 115, 22, 0.12);
 }
 
 .slot-magenta {
-  border: 2.5px dashed #DB2777;
-  background-color: rgba(236, 72, 153, 0.14);
+  border: 2px dashed #DB2777;
+  background-color: rgba(236, 72, 153, 0.12);
 }
 
 /* Stepped Keyframe Animations */

@@ -16,8 +16,12 @@ import {
   lineCoverHeuristic,
   solveIDAStar,
 } from '../solver';
-import type { BlockColor, CellBlock, LevelConfig } from '../types';
+import type { BlockColor, CellBlock, EconomyConfig, LevelConfig } from '../types';
 import { autoUnsolve, mulberry32 } from '../unsolve';
+import {
+  isValidEconomyConfig,
+  isValidLevelsConfig,
+} from '../../utils/remoteData';
 
 describe('Grid Snap Toroidal Engine', () => {
   it('shifts rows left and right with cyclic toroidal wrap-around for distance >= 1', () => {
@@ -215,5 +219,21 @@ describe('Grid Snap Toroidal Engine', () => {
     if (updated) {
       fs.writeFileSync(levelsPath, JSON.stringify(rawLevels, null, 2) + '\n', 'utf-8');
     }
+  });
+
+  it('validates remote config schemas for levels.json and economy.json', () => {
+    const levelsPath = path.resolve(process.cwd(), 'src/config/levels.json');
+    const economyPath = path.resolve(process.cwd(), 'src/config/economy.json');
+    const rawLevels: unknown = JSON.parse(fs.readFileSync(levelsPath, 'utf-8'));
+    const rawEconomy: unknown = JSON.parse(fs.readFileSync(economyPath, 'utf-8'));
+
+    expect(isValidLevelsConfig(rawLevels)).toBe(true);
+    expect(isValidEconomyConfig(rawEconomy as EconomyConfig)).toBe(true);
+
+    // Reject empty or malformed payloads
+    expect(isValidLevelsConfig([])).toBe(false);
+    expect(isValidLevelsConfig([{ id: 1 }])).toBe(false);
+    expect(isValidEconomyConfig(null)).toBe(false);
+    expect(isValidEconomyConfig({ maxLives: 0 })).toBe(false);
   });
 });

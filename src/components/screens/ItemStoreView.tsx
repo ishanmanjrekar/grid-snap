@@ -1,13 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { HeartIcon, StorefrontIcon } from '../PixelIcons';
+import { CoinIcon, HeartIcon, StorefrontIcon } from '../PixelIcons';
 import { useLifeRegenDisplay } from './MainMenuView';
 
 export const ItemStoreView: React.FC = () => {
   const coins = useGameStore((s) => s.coins);
   const lives = useGameStore((s) => s.lives);
+  const storePacks = useGameStore((s) => s.economy.storePacks);
   const claimKoFiStorePack = useGameStore((s) => s.claimKoFiStorePack);
   const navigateTo = useGameStore((s) => s.navigateTo);
+
+  const getPackLabel = (id: string, fallback: string) =>
+    storePacks.find((p) => p.id === id)?.label ?? fallback;
 
   const { isFull, timerText } = useLifeRegenDisplay();
   const [toastText, setToastText] = useState<string | null>(null);
@@ -45,9 +49,7 @@ export const ItemStoreView: React.FC = () => {
         {/* Coin Capsule */}
         <div className="flex items-center">
           <div className="flex items-center gap-1.5 bg-[#FFFFFF] px-2.5 py-1.5 border-[2.5px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523]">
-            <div className="w-4 h-4 bg-[#FBBF24] border-[1.5px] border-[#2C2523] flex items-center justify-center text-[8px] font-pixel font-bold text-[#2C2523] leading-none">
-              $
-            </div>
+            <CoinIcon size={16} />
             <span
               id="player-coins"
               className="font-pixel text-[10px] text-[#2C2523] tracking-tight"
@@ -134,23 +136,11 @@ export const ItemStoreView: React.FC = () => {
           <div className="bg-[#FFFFFF] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] p-1.5 flex flex-col justify-between items-center text-center pt-2">
             <div className="h-4 flex items-center">
               <span className="font-pixel text-[8px] text-[#2C2523] leading-none font-bold">
-                5 LIVES
+                {getPackLabel('lives_5', '5 LIVES')}
               </span>
             </div>
             <div className="my-2 h-10 flex items-center justify-center">
-              <svg
-                className="drop-shadow-[1px_1px_0_#2C2523]"
-                fill="none"
-                height="26"
-                viewBox="0 0 14 13"
-                width="28"
-              >
-                <path
-                  d="M2 1h3v1h1v1h2V2h1V1h3v1h1v3h-1v2h-1v1h-1v1h-1v1h-1v1h-2v-1H5v-1H4V8H3V7H2V5H1V2h1V1z"
-                  fill="#EF4444"
-                />
-                <path d="M3 2h2v1H3V2zm6 0h2v1H9V2z" fill="#FCA5A5" />
-              </svg>
+              <HeartIcon size={26} />
             </div>
             <button
               type="button"
@@ -165,36 +155,12 @@ export const ItemStoreView: React.FC = () => {
           <div className="bg-[#FFFFFF] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] p-1.5 flex flex-col justify-between items-center text-center pt-2">
             <div className="h-4 flex items-center">
               <span className="font-pixel text-[8px] text-[#2C2523] leading-none font-bold">
-                10 LIVES
+                {getPackLabel('lives_10', '10 LIVES')}
               </span>
             </div>
-            <div className="my-2 h-10 flex items-center justify-center relative">
-              <svg
-                className=" -translate-x-1.5"
-                fill="none"
-                height="22"
-                viewBox="0 0 14 13"
-                width="24"
-              >
-                <path
-                  d="M2 1h3v1h1v1h2V2h1V1h3v1h1v3h-1v2h-1v1h-1v1h-1v1h-1v1h-2v-1H5v-1H4V8H3V7H2V5H1V2h1V1z"
-                  fill="#EF4444"
-                />
-                <path d="M3 2h2v1H3V2z" fill="#FCA5A5" />
-              </svg>
-              <svg
-                className="relative z-10 -ml-3 drop-shadow-[1px_1px_0_#2C2523]"
-                fill="none"
-                height="24"
-                viewBox="0 0 14 13"
-                width="26"
-              >
-                <path
-                  d="M2 1h3v1h1v1h2V2h1V1h3v1h1v3h-1v2h-1v1h-1v1h-1v1h-1v1h-2v-1H5v-1H4V8H3V7H2V5H1V2h1V1z"
-                  fill="#DC2626"
-                />
-                <path d="M3 2h2v1H3V2zm6 0h2v1H9V2z" fill="#FCA5A5" />
-              </svg>
+            <div className="my-2 h-10 flex items-center justify-center gap-1.5">
+              <HeartIcon size={22} />
+              <HeartIcon size={22} />
             </div>
             <button
               type="button"
@@ -209,24 +175,13 @@ export const ItemStoreView: React.FC = () => {
           <div className="bg-[#FFFFFF] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] p-1.5 flex flex-col justify-between items-center text-center pt-2">
             <div className="h-4 flex items-center">
               <span className="font-pixel text-[8px] text-[#2C2523] leading-none font-bold">
-                20 LIVES
+                {getPackLabel('lives_20', '20 LIVES')}
               </span>
             </div>
-            <div className="my-2 h-10 flex items-center justify-center relative">
-              <div className="absolute w-8 h-8 bg-[#FEF08A] opacity-40" />
-              <svg
-                className="relative z-10 drop-shadow-[1px_1px_0_#2C2523]"
-                fill="none"
-                height="24"
-                viewBox="0 0 14 13"
-                width="26"
-              >
-                <path
-                  d="M2 1h3v1h1v1h2V2h1V1h3v1h1v3h-1v2h-1v1h-1v1h-1v1h-1v1h-2v-1H5v-1H4V8H3V7H2V5H1V2h1V1z"
-                  fill="#B91C1C"
-                />
-                <path d="M3 2h2v1H3V2zm6 0h2v1H9V2z" fill="#FCA5A5" />
-              </svg>
+            <div className="my-2 h-10 flex items-center justify-center gap-1">
+              <HeartIcon size={20} />
+              <HeartIcon size={20} />
+              <HeartIcon size={20} />
             </div>
             <button
               type="button"
@@ -243,9 +198,7 @@ export const ItemStoreView: React.FC = () => {
       <div className="w-full bg-[#FBF2EE] border-[3px] border-[#2C2523] shadow-[3px_3px_0_0_#2C2523] p-2.5 flex flex-col gap-2">
         <div className="flex items-center bg-[#FBBF24] text-[#2C2523] px-2 py-1.5 border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523]">
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 bg-[#2C2523] flex items-center justify-center font-pixel text-[8px] font-bold text-[#FBBF24] leading-none">
-              $
-            </div>
+            <CoinIcon size={16} />
             <span className="font-pixel text-[10px] font-bold tracking-wide leading-none">
               GET COINS
             </span>
@@ -258,24 +211,11 @@ export const ItemStoreView: React.FC = () => {
           <div className="bg-[#FFFFFF] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] p-1.5 flex flex-col justify-between items-center text-center pt-2">
             <div className="h-4 flex items-center">
               <span className="font-pixel text-[8px] text-[#2C2523] leading-none font-bold">
-                500 C
+                {getPackLabel('coins_500', '500 C')}
               </span>
             </div>
             <div className="my-2 h-10 flex items-center justify-center">
-              <svg
-                className="drop-shadow-[1px_1px_0_#2C2523]"
-                fill="none"
-                height="28"
-                viewBox="0 0 16 16"
-                width="28"
-              >
-                <rect fill="#FBBF24" height="12" width="8" x="4" y="2" />
-                <rect fill="#F59E0B" height="10" width="6" x="5" y="3" />
-                <rect fill="#FBBF24" height="6" width="4" x="6" y="5" />
-                <rect fill="#2C2523" height="4" width="2" x="7" y="6" />
-                <rect fill="#D97706" height="2" width="12" x="2" y="5" />
-                <rect fill="#2C2523" height="2" width="8" x="4" y="1" />
-              </svg>
+              <CoinIcon size={26} />
             </div>
             <button
               type="button"
@@ -290,28 +230,12 @@ export const ItemStoreView: React.FC = () => {
           <div className="bg-[#FFFFFF] border-[2px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] p-1.5 flex flex-col justify-between items-center text-center pt-2">
             <div className="h-4 flex items-center">
               <span className="font-pixel text-[8px] text-[#2C2523] leading-none font-bold">
-                1,200 C
+                {getPackLabel('coins_1200', '1,200 C')}
               </span>
             </div>
-            <div className="my-2 h-10 flex items-center justify-center">
-              <svg
-                className="drop-shadow-[1px_1px_0_#2C2523]"
-                fill="none"
-                height="28"
-                viewBox="0 0 16 16"
-                width="30"
-              >
-                <rect fill="#FBBF24" height="7" width="6" x="1" y="7" />
-                <rect fill="#2C2523" height="1" width="6" x="1" y="9" />
-                <rect fill="#2C2523" height="1" width="6" x="1" y="11" />
-                <rect fill="#F59E0B" height="10" width="6" x="9" y="4" />
-                <rect fill="#2C2523" height="1" width="6" x="9" y="6" />
-                <rect fill="#2C2523" height="1" width="6" x="9" y="8" />
-                <rect fill="#2C2523" height="1" width="6" x="9" y="10" />
-                <rect fill="#2C2523" height="1" width="6" x="9" y="12" />
-                <rect fill="#FDE047" height="4" width="6" x="5" y="10" />
-                <rect fill="#2C2523" height="1" width="6" x="5" y="12" />
-              </svg>
+            <div className="my-2 h-10 flex items-center justify-center gap-1.5">
+              <CoinIcon size={22} />
+              <CoinIcon size={22} />
             </div>
             <button
               type="button"
@@ -326,27 +250,13 @@ export const ItemStoreView: React.FC = () => {
           <div className="bg-[#FFFFFF] border-[2.5px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] p-1.5 flex flex-col justify-between items-center text-center pt-2">
             <div className="h-4 flex items-center">
               <span className="font-pixel text-[8px] text-[#2C2523] leading-none font-bold">
-                5,000 C
+                {getPackLabel('coins_5000', '5,000 C')}
               </span>
             </div>
-            <div className="my-2 h-10 flex items-center justify-center">
-              <svg
-                className="drop-shadow-[1px_1px_0_#2C2523]"
-                fill="none"
-                height="28"
-                viewBox="0 0 16 16"
-                width="32"
-              >
-                <rect fill="#B45309" height="11" width="12" x="2" y="3" />
-                <rect fill="#D97706" height="4" width="14" x="1" y="2" />
-                <rect fill="#2C2523" height="2" width="12" x="2" y="6" />
-                <rect fill="#FBBF24" height="4" width="2" x="7" y="5" />
-                <rect fill="#FBBF24" height="3" width="2" x="4" y="3" />
-                <rect fill="#FBBF24" height="3" width="2" x="10" y="3" />
-                <rect fill="#FBBF24" height="5" width="2" x="4" y="8" />
-                <rect fill="#FBBF24" height="5" width="2" x="10" y="8" />
-                <rect fill="#FDE047" height="2" width="4" x="6" y="1" />
-              </svg>
+            <div className="my-2 h-10 flex items-center justify-center gap-1">
+              <CoinIcon size={20} />
+              <CoinIcon size={20} />
+              <CoinIcon size={20} />
             </div>
             <button
               type="button"

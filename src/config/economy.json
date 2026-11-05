@@ -1,20 +1,20 @@
 {
   "maxLives": 5,
   "startingLives": 5,
-  "lifeRegenIntervalSeconds": 1800,
-  "startingCoins": 250,
-  "levelClearReward": 200,
+  "lifeRegenIntervalSeconds": 300,
+  "startingCoins": 500,
+  "levelClearReward": 500,
   "campaignLoopSize": 10,
   "starThresholds": {
     "threeStarMinRatio": 0.50,
     "twoStarMinRatio": 0.15
   },
   "boosters": {
-    "hintCostCoins": 50,
-    "extraTimeCostCoins": 100,
+    "hintCostCoins": 20,
+    "extraTimeCostCoins": 10,
     "extraTimeSeconds": 5,
     "extraTimeCapToLimit": true,
-    "reviveCostCoins": 200,
+    "reviveCostCoins": 100,
     "reviveSeconds": 30
   },
   "storePacks": [
@@ -68,4 +68,3 @@
     }
   ]
 }
-

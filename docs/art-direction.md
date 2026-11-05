@@ -57,19 +57,19 @@ The project uses **Tailwind CSS v4 (`@tailwindcss/vite`)** with native container
 
 ## 3. Puzzle Block, Target Frame & Colorblind Shape Palette (8 Arcade Colors)
 
-Every movable color block uses a 4-part 3D pixel bevel (`background-color`, top-left inner highlight `inset 2px 2px 0`, bottom-right inner shade `inset -2px -2px 0`, bottom lip `0 2.5px 0`, and `1.5px–2px solid` border). Every fixed target frame uses a matching `2px–3px dashed` border, `12%` alpha background tint, and a centered indicator pip (`#slot-pip`):
+Every movable color block uses a 4-part 3D pixel bevel (`background-color`, top-left inner highlight `inset 2px 2px 0`, bottom-right inner shade `inset -2px -2px 0`, bottom lip `0 2.5px 0`, and `1.5px solid` border). Every fixed target frame cell (`slot-*`) renders an outer `2px dashed` colored border with a `12%` alpha background tint and inner padding (`~3px–4px` inset) that wraps a **smaller inner `.pixel-tile-*` square** inside the frame. When unoccupied (`block === 'neutral'`), the center of that smaller inner square renders a colored square pip (`pipFill` background + `1.5px solid pipBorder`):
 
-| Color ID | Base Hex | Top-Left Highlight | Bottom-Right Shade | Bottom Lip / Border | Target Frame (`slot-*`) Border & Tint | Colorblind Shape Symbol |
+| Color ID | Base Hex | Top-Left Highlight | Bottom-Right Shade | Bottom Lip / Border | Target Frame (`slot-*`) Border, Tint & Center Pip (`pipFill` / `pipBorder`) | Colorblind Shape Symbol |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **`neutral`** *(Filler)* | `#F8F5EB` | `#FFFFFF` | `#DDD2BA` | `#9E937D` / `#332B25` | N/A *(Center dot: `#BCB199`)* | None |
-| **`ruby`** *(Crimson Red)* | `#EF4444` | `#FFA3A8` | `#B91C1C` | `#7F1D1D` / `#2B1810` | `dashed #DC2626` / `rgba(239, 68, 68, 0.12)` | **Circle (`●`)** |
-| **`emerald`** *(Green)* | `#22C55E` | `#86EFAC` | `#15803D` | `#14532D` / `#14281A` | `dashed #16A34A` / `rgba(34, 197, 94, 0.12)` | **Triangle (`▲`)** |
-| **`cobalt`** *(Blue)* | `#3B82F6` | `#93C5FD` | `#1D4ED8` | `#1E3A8A` / `#132238` | `dashed #2563EB` / `rgba(59, 130, 246, 0.12)` | **Square (`■`)** |
-| **`yellow`** *(Amber Gold)* | `#F59E0B` | `#FDE68A` | `#B45309` | `#451A03` / `#78350F` | `dashed #D97706` / `rgba(245, 158, 11, 0.12)` | **Diamond (`◆`)** |
-| **`purple`** *(Vivid Violet)* | `#A855F7` | `#D8B4FE` | `#7E22CE` | `#3B0764` / `#581C87` | `dashed #9333EA` / `rgba(168, 85, 247, 0.12)` | **Star (`★`)** |
-| **`cyan`** *(Turquoise)* | `#06B6D4` | `#A5F3FC` | `#0891B2` | `#155E75` / `#164E63` | `dashed #0891B2` / `rgba(6, 182, 212, 0.12)` | **Cross (`✚`)** |
-| **`tangerine`** *(Orange)* | `#F97316` | `#FDBA74` | `#C2410C` | `#7C2D12` / `#431407` | `dashed #EA580C` / `rgba(249, 115, 22, 0.12)` | **Pentagon (`⬟`)** |
-| **`magenta`** *(Rose Pink)* | `#EC4899` | `#F9A8D4` | `#BE185D` | `#831843` / `#500724` | `dashed #DB2777` / `rgba(236, 72, 153, 0.12)` | **Heart (`♥`)** |
+| **`ruby`** *(Crimson Red)* | `#EF4444` | `#FFA3A8` | `#B91C1C` | `#7F1D1D` / `#2B1810` | `dashed #DC2626` / `rgba(239, 68, 68, 0.12)` / Pip `#FCA5A5` (`#B91C1C` border) | **Circle (`●`)** |
+| **`emerald`** *(Green)* | `#22C55E` | `#86EFAC` | `#15803D` | `#14532D` / `#14281A` | `dashed #16A34A` / `rgba(34, 197, 94, 0.12)` / Pip `#86EFAC` (`#15803D` border) | **Triangle (`▲`)** |
+| **`cobalt`** *(Blue)* | `#3B82F6` | `#93C5FD` | `#1D4ED8` | `#1E3A8A` / `#132238` | `dashed #2563EB` / `rgba(59, 130, 246, 0.12)` / Pip `#93C5FD` (`#1D4ED8` border) | **Square (`■`)** |
+| **`yellow`** *(Amber Gold)* | `#F59E0B` | `#FDE68A` | `#B45309` | `#451A03` / `#78350F` | `dashed #D97706` / `rgba(245, 158, 11, 0.12)` / Pip `#FDE68A` (`#D97706` border) | **Diamond (`◆`)** |
+| **`purple`** *(Vivid Violet)* | `#A855F7` | `#D8B4FE` | `#7E22CE` | `#3B0764` / `#581C87` | `dashed #9333EA` / `rgba(168, 85, 247, 0.12)` / Pip `#E9D5FF` (`#9333EA` border) | **Star (`★`)** |
+| **`cyan`** *(Turquoise)* | `#06B6D4` | `#A5F3FC` | `#0891B2` | `#155E75` / `#164E63` | `dashed #0891B2` / `rgba(6, 182, 212, 0.12)` / Pip `#A5F3FC` (`#0891B2` border) | **Cross (`✚`)** |
+| **`tangerine`** *(Orange)* | `#F97316` | `#FDBA74` | `#C2410C` | `#7C2D12` / `#431407` | `dashed #EA580C` / `rgba(249, 115, 22, 0.12)` / Pip `#FDBA74` (`#C2410C` border) | **Pentagon (`⬟`)** |
+| **`magenta`** *(Rose Pink)* | `#EC4899` | `#F9A8D4` | `#BE185D` | `#831843` / `#500724` | `dashed #DB2777` / `rgba(236, 72, 153, 0.12)` / Pip `#F9A8D4` (`#BE185D` border) | **Heart (`♥`)** |
 
 ### 3.1 Colorblind Mode Symbol Overlay (`settings.colorblindMode`)
 - **Default (`OFF`)**: Colored blocks render with clean bevel faces and no inner symbol; unoccupied target frames show a simple square colored center pip.
@@ -126,7 +126,7 @@ To guarantee 100% offline reliability in Android APKs and zero CDN latency on It
 1. **Live Toroidal Drag & Wrap-Around Ghost Tiles**:
    - While dragging row `r` or column `c`, the displaced line renders **1 cloned wrap-around tile on each end** (`index - 1` and `index + L`) inside the recessed matrix tray's `overflow: hidden` mask.
    - As the pointer drags across cells, the tile strip translates 1:1 with the pointer offset (`offsetPx mod (L * cellSizePx)`), so tiles sliding off one edge simultaneously enter from the opposite edge without visual popping.
-   - On pointer release, the strip animates smoothly to the nearest snapped cell multiple over **`110ms`** (`easeOut`), commits the board state, and processes any buffered drag input (up to `2` queued gestures).
+   - On pointer release, `commitBaseCells` locks the pre-release integer cell index (`Math.trunc(offsetPx / stepSizePx)`) while `remainderPx` animates smoothly to the nearest snapped cell multiple (`±stepSizePx` or `0`) over **`110ms`** (`easeOut`), ensuring the snap animation always continues in the direction of the drag before committing the board state.
 2. **HINT Booster Visual Overlay (`activeHint`)**:
    - When `HINT ($50)` is activated, the recommended row or column is framed by a pulsing bright gold/cyan pixel outline (`2px solid #FBBF24`, pulsing opacity/scale), and an animated pixel **ghost hand icon** slides along that row or column in the hint's `direction` across `distance` cells on a `650ms` repeating loop until the player performs their next move.
 3. **Frame Snap Lock-In Pulse**:
@@ -136,11 +136,27 @@ To guarantee 100% offline reliability in Android APKs and zero CDN latency on It
 5. **Victory Celebration**:
    - Upon solving the final frame, all matched frames flash in unison before the **Level Complete** modal zooms in (`scale: 0.9 -> 1.0`, `duration: 180ms`) with sequential pixel star pop-ins.
 6. **Boot Splash Screen & Loading Bar (`SplashScreen.tsx` & `public/splash.webp`)**:
-   - On initial boot, `SplashScreen.tsx` displays the optimized `public/splash.webp` cover illustration (`900×1650` WebP generated from `itch-assets/splash.png`) with a tactile 16-bit progress bar (`LOADING CARTRIDGE...` → `CARTRIDGE READY`, `#2C2523` hard ink border, `#FBBF24` → `#22C55E` fill) and a pulsing `TAP TO CONTINUE` prompt positioned below the `"GRID SNAP"` title (`top: 63%`). Tapping scales and fades the splash screen out (`scale(1.04)`, `opacity: 0` over `450ms`) while unlocking WebAudio.
+   - On initial boot, `SplashScreen.tsx` displays the optimized `public/splash.webp` cover illustration (`900×1650` WebP generated from `itch-assets/splash.png`) with a tactile 16-bit progress bar (`LOADING...` → `READY`, `#2C2523` hard ink border, `#FBBF24` → `#22C55E` fill) and a pulsing `TAP TO CONTINUE` prompt positioned below the `"GRID SNAP"` title (`top: 63%`). Tapping scales and fades the splash screen out (`scale(1.04)`, `opacity: 0` over `450ms`) while unlocking WebAudio.
 
 ---
 
-## 7. Audio Direction (16-Bit Chiptune SFX & Music)
+## 7. Universal Emoji Icon System
+
+To ensure bold contrast, high-DPI scaling across web & mobile, and authentic playful arcade aesthetics, the game uses native scalable Unicode emoji glyphs wrapped in centered flex containers:
+
+| Semantic Purpose | Emoji | Key Locations |
+| :--- | :---: | :--- |
+| **Coins & Currency** | `🪙` | Main Menu HUD capsule, In-Game HUD capsule, Hint & Extra Time booster costs, Shop pack cards (`1x`, `2x`, `3x`), and Level Complete rewards. |
+| **Lives & Escrow** | `❤️` | Main Menu lives capsule, Shop header capsule, Shop lives pack cards (`1x`, `2x`, `3x`), Pause forfeiture notice, and Out-of-Time penalty badge. |
+| **Settings** | `⚙️` | Main Menu top-right dark charcoal button (`#2C2523`) with high contrast against the metallic gear. |
+| **Store** | `🛒` | Main Menu top-left dark charcoal button (`#2C2523`) with crisp white `STORE` label text. |
+| **Settings Warning** | `⚠️` | Settings Modal "RESET PROGRESS" button. |
+| **Hint Guide** | `💡` | In-Game booster bar Hint button. |
+| **Stars & Ratings** | `⭐` | Victory Level Complete modal (3 large animated stars), in-game timer threshold markers, and Main Menu star stats vanity pill. Lit stars render in full color; unearned stars render in dimmed grayscale (`grayscale opacity-30`). |
+
+---
+
+## 8. Audio Direction (16-Bit Chiptune SFX & Music)
 
 ### 7.1 Sound Effects (`SFX` — WebAudio Synthesized Placeholders + Optional Asset Overrides)
 All sound effects follow a crisp 16-bit handheld console aesthetic (square/triangle/noise channel synthesis via WebAudio API in `src/audio/sfx.ts`, with automatic override support if a matching `.ogg`/`.mp3` file is placed in `public/audio/sfx/`):

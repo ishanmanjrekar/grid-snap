@@ -28,7 +28,9 @@
 │  • Persisted (`grid-snap-save` v1):       │ │    (src/engine/solver.ts) │
 │    coins, lives, lastLifeRegenAt,         │ └───────────────────────────┘
 │    unlockedLevel, levelStars, settings    │
-│  • Ephemeral Session Slice:               │
+│  • Ephemeral Session & Live Config Slice: │
+│    levels, economy (synced from GitHub    │
+│    main w/ bundled fallback),             │
 │    isGameStarted, activeScreen,           │
 │    activeModal, grid, frames,             │
 │    escrowActive, cachedSolution,          │
@@ -37,8 +39,8 @@
                 │ Hydrates From / Reads Configs
                 ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│             localStorage + Static JSON Configurations                   │
-│           (src/config/economy.json, src/config/levels.json)             │
+│    localStorage + Live GitHub Remote Sync (`src/utils/remoteData.ts`)   │
+│         + Bundled Fallbacks (`economy.json`, `levels.json`)             │
 └─────────────────────────────────────────────────────────────────────────┘
   *DebugPanel is dynamically imported and tree-shaken out of Itch builds.
 ```

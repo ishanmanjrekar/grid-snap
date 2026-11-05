@@ -49,6 +49,8 @@ export const COLOR_HEX_MAP: Record<
     border: string;
     slotBorder: string;
     slotTint: string;
+    pipFill: string;
+    pipBorder: string;
   }
 > = {
   ruby: {
@@ -57,7 +59,9 @@ export const COLOR_HEX_MAP: Record<
     shade: '#B91C1C',
     border: '#2B1810',
     slotBorder: '#DC2626',
-    slotTint: 'rgba(239, 68, 68, 0.14)',
+    slotTint: 'rgba(239, 68, 68, 0.12)',
+    pipFill: '#FCA5A5',
+    pipBorder: '#B91C1C',
   },
   emerald: {
     base: '#22C55E',
@@ -65,7 +69,9 @@ export const COLOR_HEX_MAP: Record<
     shade: '#15803D',
     border: '#14281A',
     slotBorder: '#16A34A',
-    slotTint: 'rgba(34, 197, 94, 0.14)',
+    slotTint: 'rgba(34, 197, 94, 0.12)',
+    pipFill: '#86EFAC',
+    pipBorder: '#15803D',
   },
   cobalt: {
     base: '#3B82F6',
@@ -73,7 +79,9 @@ export const COLOR_HEX_MAP: Record<
     shade: '#1D4ED8',
     border: '#132238',
     slotBorder: '#2563EB',
-    slotTint: 'rgba(59, 130, 246, 0.14)',
+    slotTint: 'rgba(59, 130, 246, 0.12)',
+    pipFill: '#93C5FD',
+    pipBorder: '#1D4ED8',
   },
   yellow: {
     base: '#F59E0B',
@@ -81,7 +89,9 @@ export const COLOR_HEX_MAP: Record<
     shade: '#B45309',
     border: '#78350F',
     slotBorder: '#D97706',
-    slotTint: 'rgba(245, 158, 11, 0.14)',
+    slotTint: 'rgba(245, 158, 11, 0.12)',
+    pipFill: '#FDE68A',
+    pipBorder: '#D97706',
   },
   purple: {
     base: '#A855F7',
@@ -89,7 +99,9 @@ export const COLOR_HEX_MAP: Record<
     shade: '#7E22CE',
     border: '#581C87',
     slotBorder: '#9333EA',
-    slotTint: 'rgba(168, 85, 247, 0.14)',
+    slotTint: 'rgba(168, 85, 247, 0.12)',
+    pipFill: '#E9D5FF',
+    pipBorder: '#9333EA',
   },
   cyan: {
     base: '#06B6D4',
@@ -97,7 +109,9 @@ export const COLOR_HEX_MAP: Record<
     shade: '#0891B2',
     border: '#164E63',
     slotBorder: '#0891B2',
-    slotTint: 'rgba(6, 182, 212, 0.14)',
+    slotTint: 'rgba(6, 182, 212, 0.12)',
+    pipFill: '#A5F3FC',
+    pipBorder: '#0891B2',
   },
   tangerine: {
     base: '#F97316',
@@ -105,7 +119,9 @@ export const COLOR_HEX_MAP: Record<
     shade: '#C2410C',
     border: '#431407',
     slotBorder: '#EA580C',
-    slotTint: 'rgba(249, 115, 22, 0.14)',
+    slotTint: 'rgba(249, 115, 22, 0.12)',
+    pipFill: '#FDBA74',
+    pipBorder: '#C2410C',
   },
   magenta: {
     base: '#EC4899',
@@ -113,7 +129,9 @@ export const COLOR_HEX_MAP: Record<
     shade: '#BE185D',
     border: '#500724',
     slotBorder: '#DB2777',
-    slotTint: 'rgba(236, 72, 153, 0.14)',
+    slotTint: 'rgba(236, 72, 153, 0.12)',
+    pipFill: '#F9A8D4',
+    pipBorder: '#BE185D',
   },
 };
 
@@ -145,4 +163,36 @@ export interface LevelConfig {
   parMoves?: number; // Optimal solve move count computed by IDA* solver
   scrambleSeed?: number; // Optional PRNG seed used by Auto-Unsolve
 }
+
+export interface StorePackConfig {
+  id: string;
+  type: 'lives' | 'coins';
+  label: string;
+  amount: number;
+  kofiUrl: string;
+  toastMessage: string;
+}
+
+export interface EconomyConfig {
+  maxLives: number;
+  startingLives: number;
+  lifeRegenIntervalSeconds: number;
+  startingCoins: number;
+  levelClearReward: number;
+  campaignLoopSize: number;
+  starThresholds: {
+    threeStarMinRatio: number;
+    twoStarMinRatio: number;
+  };
+  boosters: {
+    hintCostCoins: number;
+    extraTimeCostCoins: number;
+    extraTimeSeconds: number;
+    extraTimeCapToLimit: boolean;
+    reviveCostCoins: number;
+    reviveSeconds: number;
+  };
+  storePacks: StorePackConfig[];
+}
+
 

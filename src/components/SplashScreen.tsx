@@ -5,14 +5,17 @@ import { AssetLoader } from '../utils/AssetLoader';
 export const SplashScreen: React.FC = () => {
   const isGameStarted = useGameStore((s) => s.isGameStarted);
   const startGame = useGameStore((s) => s.startGame);
+  const syncRemoteConfigs = useGameStore((s) => s.syncRemoteConfigs);
 
   const [progress, setProgress] = useState<number>(0);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [isDismissing, setIsDismissing] = useState<boolean>(false);
 
-  // Smooth 0% -> 100% cartridge loader
+  // Smooth 0% -> 100% cartridge loader + parallel remote config sync
   useEffect(() => {
     if (isGameStarted) return;
+
+    void syncRemoteConfigs();
 
     let loadedTimer: number | null = null;
     const interval = window.setInterval(() => {
@@ -106,7 +109,7 @@ export const SplashScreen: React.FC = () => {
           {/* Status & Percentage Header */}
           <div className="w-full flex items-center justify-between">
             <span className="font-pixel text-[8px] text-[#2C2523] tracking-wider">
-              {isLoaded ? 'CARTRIDGE READY' : 'LOADING CARTRIDGE...'}
+              {isLoaded ? 'READY' : 'LOADING...'}
             </span>
             <span className="font-pixel text-[9px] text-[#2C2523] font-bold">
               {Math.floor(progress)}%

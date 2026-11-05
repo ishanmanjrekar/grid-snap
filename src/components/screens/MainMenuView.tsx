@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { audioManager } from '../../audio/AudioManager';
-import economyConfig from '../../config/economy.json';
-import levelsData from '../../config/levels.json';
 import { getLevelConfig } from '../../engine/grid';
-import type { DifficultyTier, LevelConfig } from '../../engine/types';
+import type { DifficultyTier } from '../../engine/types';
 import { useGameStore } from '../../store/gameStore';
 import {
+  CoinIcon,
   HeartIcon,
   PixelStarIcon,
   SettingsGearIcon,
@@ -13,26 +12,28 @@ import {
   StorefrontIcon,
 } from '../PixelIcons';
 
-const typedLevels = levelsData as unknown as LevelConfig[];
-
 export function useLifeRegenDisplay(): { isFull: boolean; timerText: string } {
   const lives = useGameStore((s) => s.lives);
   const lastLifeRegenAt = useGameStore((s) => s.lastLifeRegenAt);
+  const maxLives = useGameStore((s) => s.economy.maxLives);
+  const lifeRegenIntervalSeconds = useGameStore(
+    (s) => s.economy.lifeRegenIntervalSeconds
+  );
   const [now, setNow] = useState<number>(() => Date.now());
 
   useEffect(() => {
-    if (lives >= economyConfig.maxLives) return;
+    if (lives >= maxLives) return;
     const id = window.setInterval(() => {
       setNow(Date.now());
     }, 1000);
     return () => window.clearInterval(id);
-  }, [lives]);
+  }, [lives, maxLives]);
 
-  if (lives >= economyConfig.maxLives) {
+  if (lives >= maxLives) {
     return { isFull: true, timerText: 'FULL' };
   }
 
-  const intervalMs = economyConfig.lifeRegenIntervalSeconds * 1000;
+  const intervalMs = lifeRegenIntervalSeconds * 1000;
   const elapsed = Math.max(0, now - lastLifeRegenAt);
   const remainingSec = Math.max(0, Math.ceil((intervalMs - (elapsed % intervalMs)) / 1000));
   const mins = Math.floor(remainingSec / 60);
@@ -47,16 +48,16 @@ function renderDifficultyBadge(difficulty: DifficultyTier) {
   if (difficulty === 'normal') return null;
   if (difficulty === 'hard') {
     return (
-      <div className="mt-1.5 bg-[#EF4444] text-white border-2 border-[#1E1B18] px-2 py-0.5 shadow-[2px_2px_0_#1E1B18] flex items-center justify-center">
-        <span className="font-pixel text-[7px] font-bold tracking-tight text-white leading-none whitespace-nowrap">
+      <div className="mt-2 bg-[#EF4444] text-white border-[2.5px] border-[#1E1B18] px-3.5 py-1 shadow-[2.5px_2.5px_0_#1E1B18] flex items-center justify-center">
+        <span className="font-pixel text-[10.5px] font-bold tracking-tight text-white leading-none whitespace-nowrap">
           HARD
         </span>
       </div>
     );
   }
   return (
-    <div className="mt-1.5 bg-[#9333EA] text-white border-2 border-[#1E1B18] px-2 py-0.5 shadow-[2px_2px_0_#1E1B18] flex items-center justify-center">
-      <span className="font-pixel text-[6.5px] font-bold tracking-tight text-white leading-none whitespace-nowrap">
+    <div className="mt-2 bg-[#9333EA] text-white border-[2.5px] border-[#1E1B18] px-3 py-1 shadow-[2.5px_2.5px_0_#1E1B18] flex items-center justify-center">
+      <span className="font-pixel text-[9px] font-bold tracking-tight text-white leading-none whitespace-nowrap">
         SUPER HARD
       </span>
     </div>
@@ -68,6 +69,8 @@ export const MainMenuView: React.FC = () => {
   const lives = useGameStore((s) => s.lives);
   const unlockedLevel = useGameStore((s) => s.unlockedLevel);
   const levelStars = useGameStore((s) => s.levelStars);
+  const levels = useGameStore((s) => s.levels);
+  const campaignLoopSize = useGameStore((s) => s.economy.campaignLoopSize);
 
   const navigateTo = useGameStore((s) => s.navigateTo);
   const openModal = useGameStore((s) => s.openModal);
@@ -83,9 +86,9 @@ export const MainMenuView: React.FC = () => {
   const lvl2 = unlockedLevel + 2;
   const lvl3 = unlockedLevel + 3;
 
-  const cfg0 = getLevelConfig(lvl0, typedLevels, economyConfig.campaignLoopSize);
-  const cfg1 = getLevelConfig(lvl1, typedLevels, economyConfig.campaignLoopSize);
-  const cfg2 = getLevelConfig(lvl2, typedLevels, economyConfig.campaignLoopSize);
+  const cfg0 = getLevelConfig(lvl0, levels, campaignLoopSize);
+  const cfg1 = getLevelConfig(lvl1, levels, campaignLoopSize);
+  const cfg2 = getLevelConfig(lvl2, levels, campaignLoopSize);
 
   const handleOpenSettings = () => {
     audioManager.playSfx('button_tap');
@@ -114,10 +117,8 @@ export const MainMenuView: React.FC = () => {
       <header className="w-full px-4 pt-3 pb-2 flex items-center justify-between relative z-30 flex-none">
         {/* Left: Coin Capsule */}
         <div className="flex items-center">
-          <div className="flex items-center bg-[#FFFDF8] border-[3px] border-r-0 border-[#1E1B18] shadow-[3px_3px_0_#1E1B18] h-11 pl-1.5 pr-2.5 gap-2">
-            <div className="w-7 h-7 bg-[#FFCC00] border-2 border-[#1E1B18] flex items-center justify-center font-pixel font-bold text-[#1E1B18] text-[10px] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
-              $
-            </div>
+          <div className="flex items-center bg-[#FFFDF8] border-[3px] border-r-0 border-[#1E1B18] shadow-[3px_3px_0_#1E1B18] h-11 pl-2 pr-2.5 gap-1.5">
+            <CoinIcon size={20} />
             <span className="font-pixel text-[10px] font-bold tracking-tight text-[#1E1B18]">
               {coins.toLocaleString()}
             </span>
@@ -167,10 +168,10 @@ export const MainMenuView: React.FC = () => {
             type="button"
             aria-label="Store"
             onClick={() => navigateTo('store')}
-            className="w-14 h-14 bg-[#5EEAD4] border-[3px] border-[#1E1B18] pixel-btn flex flex-col items-center justify-center gap-1 p-1"
+            className="w-14 h-14 bg-[#2C2523] border-[3px] border-[#1E1B18] pixel-btn flex flex-col items-center justify-center gap-1 p-1"
           >
             <StorefrontIcon size={24} />
-            <span className="font-pixel text-[7.5px] font-bold tracking-tight text-[#1E1B18] leading-none">
+            <span className="font-pixel text-[7.5px] font-bold tracking-tight text-white leading-none">
               STORE
             </span>
           </button>
@@ -182,7 +183,7 @@ export const MainMenuView: React.FC = () => {
             type="button"
             aria-label="Settings"
             onClick={handleOpenSettings}
-            className="w-14 h-14 bg-[#FFFDF8] border-[3px] border-[#1E1B18] pixel-btn flex flex-col items-center justify-center p-1"
+            className="w-14 h-14 bg-[#2C2523] border-[3px] border-[#1E1B18] pixel-btn flex flex-col items-center justify-center p-1"
           >
             <SettingsGearIcon size={26} />
           </button>
@@ -203,7 +204,7 @@ export const MainMenuView: React.FC = () => {
             x1="160"
             x2="160"
             y1="0"
-            y2="540"
+            y2="420"
           />
         </svg>
 
@@ -261,7 +262,7 @@ export const MainMenuView: React.FC = () => {
       </div>
 
       {/* 3. BOTTOM ACTION PANEL (flex-none) */}
-      <footer className="w-full px-6 pt-2 pb-5 flex flex-col items-center relative z-30 flex-none">
+      <footer className="w-full px-6 -mt-8 pb-10 flex flex-col items-center relative z-30 flex-none">
         {/* Star Count Vanity Row + Share Button */}
         <div className="w-full max-w-xs flex items-center justify-between gap-2.5 mb-3">
           <div className="flex-1 h-11 bg-[#FFFDF8] border-2 border-[#1E1B18] shadow-[2px_2px_0_#1E1B18] flex items-center justify-between px-3">

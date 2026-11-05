@@ -1,21 +1,21 @@
 import React from 'react';
-import economyConfig from '../../config/economy.json';
 import { getSnapProgress } from '../../engine/grid';
 import { useGameStore } from '../../store/gameStore';
-import { CloseXIcon, HeartIcon, HourglassIcon } from '../PixelIcons';
+import { CloseXIcon, CoinIcon, HeartIcon, HourglassIcon } from '../PixelIcons';
 
 export const OutOfTimeModal: React.FC = () => {
   const coins = useGameStore((s) => s.coins);
   const shiftsCount = useGameStore((s) => s.shiftsCount);
   const grid = useGameStore((s) => s.grid);
   const frames = useGameStore((s) => s.frames);
+  const boosters = useGameStore((s) => s.economy.boosters);
 
   const useOutOfTimeRescue = useGameStore((s) => s.useOutOfTimeRescue);
   const forfeitAndReturnToMenu = useGameStore((s) => s.forfeitAndReturnToMenu);
 
   const snapProgress = getSnapProgress(grid, frames);
-  const reviveCost = economyConfig.boosters.reviveCostCoins;
-  const reviveSeconds = economyConfig.boosters.reviveSeconds;
+  const reviveCost = boosters.reviveCostCoins;
+  const reviveSeconds = boosters.reviveSeconds;
   const canAffordRevive = coins >= reviveCost;
 
   const handleRescueClick = () => {
@@ -123,9 +123,7 @@ export const OutOfTimeModal: React.FC = () => {
               </span>
             </div>
             <div className="flex items-center bg-[#FFECA8] border border-[#2C2523] px-1.5 py-0.5 gap-1 shadow-[inset_1px_1px_0_#FFF]">
-              <div className="w-3 h-3 bg-[#F8B800] border border-[#2C2523] flex items-center justify-center text-[7px] font-pixel text-[#614500] font-bold">
-                $
-              </div>
+              <CoinIcon size={13} />
               <span
                 className={`font-pixel text-[8px] font-bold ${
                   !canAffordRevive ? 'text-[#EF4444]' : 'text-[#2C2523]'

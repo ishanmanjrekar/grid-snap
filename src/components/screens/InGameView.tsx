@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import { audioManager } from '../../audio/AudioManager';
-import economyConfig from '../../config/economy.json';
 import { useGameStore } from '../../store/gameStore';
 import {
+  CoinIcon,
   HourglassIcon,
   LightbulbIcon,
   PauseBarsIcon,
@@ -29,6 +29,7 @@ export const InGameView: React.FC = () => {
   const activeModal = useGameStore((s) => s.activeModal);
   const activeHint = useGameStore((s) => s.activeHint);
   const colorblindMode = useGameStore((s) => s.settings.colorblindMode);
+  const economy = useGameStore((s) => s.economy);
 
   const openModal = useGameStore((s) => s.openModal);
   const performShift = useGameStore((s) => s.performShift);
@@ -55,8 +56,8 @@ export const InGameView: React.FC = () => {
       : 0;
   const fillPercent = ratio * 100;
 
-  const twoStarRatio = economyConfig.starThresholds.twoStarMinRatio;
-  const threeStarRatio = economyConfig.starThresholds.threeStarMinRatio;
+  const twoStarRatio = economy.starThresholds.twoStarMinRatio;
+  const threeStarRatio = economy.starThresholds.threeStarMinRatio;
 
   const star1Lit = timeRemaining > 0;
   const star2Lit = ratio >= twoStarRatio && timeRemaining > 0;
@@ -66,8 +67,8 @@ export const InGameView: React.FC = () => {
 
   const isLowTime = timeRemaining > 0 && timeRemaining <= 10;
 
-  const hintCost = economyConfig.boosters.hintCostCoins;
-  const extraTimeCost = economyConfig.boosters.extraTimeCostCoins;
+  const hintCost = economy.boosters.hintCostCoins;
+  const extraTimeCost = economy.boosters.extraTimeCostCoins;
 
   const canAffordHint = coins >= hintCost;
   const isHintDisabled = activeHint !== null || !canAffordHint;
@@ -97,9 +98,7 @@ export const InGameView: React.FC = () => {
         <div className="w-full flex items-center justify-between mb-2">
           {/* Pixel Coin Counter Pill */}
           <div className="flex items-center bg-[#FFFBEA] px-2.5 py-1.5 border-2 border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] gap-2">
-            <div className="w-4 h-4 bg-[#F8B800] border border-[#2C2523] flex items-center justify-center text-[8px] font-pixel text-[#614500] font-bold">
-              $
-            </div>
+            <CoinIcon size={16} />
             <span className="font-pixel text-[10px] text-[#2C2523] tracking-tight">
               {coins.toLocaleString()}
             </span>
@@ -244,9 +243,7 @@ export const InGameView: React.FC = () => {
               isHintDisabled ? 'opacity-65' : ''
             }`}
           >
-            <span className="w-3.5 h-3.5 bg-[#F8B800] border border-[#2C2523] flex items-center justify-center text-[7px] font-pixel font-bold text-[#614500]">
-              $
-            </span>
+            <CoinIcon size={13} />
             <span
               className={`font-pixel text-[8px] font-bold ${
                 !canAffordHint ? 'text-[#EF4444]' : 'text-[#2C2523]'
@@ -285,9 +282,7 @@ export const InGameView: React.FC = () => {
               isExtraTimeDisabled ? 'opacity-65' : ''
             }`}
           >
-            <span className="w-3.5 h-3.5 bg-[#F8B800] border border-[#2C2523] flex items-center justify-center text-[7px] font-pixel font-bold text-[#614500]">
-              $
-            </span>
+            <CoinIcon size={13} />
             <span
               className={`font-pixel text-[8px] font-bold ${
                 !canAffordExtraTime ? 'text-[#EF4444]' : 'text-[#2C2523]'

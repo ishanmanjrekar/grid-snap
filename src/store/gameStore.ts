@@ -15,9 +15,11 @@ import { solveIDAStar } from '../engine/solver';
 import type {
   BlockColor,
   CellBlock,
+  EconomyConfig,
   LevelConfig,
   ShiftAction,
 } from '../engine/types';
+import { fetchLiveGameConfigs } from '../utils/remoteData';
 
 export type ScreenView = 'menu' | 'playing' | 'store';
 
@@ -42,6 +44,10 @@ export interface GameState {
     sfxEnabled: boolean;
     colorblindMode: boolean;
   };
+
+  // Live Remote-Hydrated Configs (Initialized to bundled JSON fallbacks; never persisted to localStorage)
+  levels: LevelConfig[];
+  economy: EconomyConfig;
 
   // Ephemeral Navigation & Active Level Session (Never persisted to localStorage)
   isGameStarted: boolean;
@@ -69,6 +75,7 @@ export interface GameState {
 
 export interface GameActions {
   // Navigation & Lifecycle
+  syncRemoteConfigs: () => Promise<void>;
   startGame: () => void;
   navigateTo: (screen: ScreenView) => void;
   openModal: (modal: ModalType) => void;
@@ -108,7 +115,8 @@ export interface GameActions {
 
 export type GameStore = GameState & GameActions;
 
-const typedLevels = levelsData as unknown as LevelConfig[];
+const bundledLevels = levelsData as unknown as LevelConfig[];
+const bundledEconomy = economyConfig as unknown as EconomyConfig;
 
 export function openExternalUrl(url: string): void {
   if (Capacitor.isNativePlatform()) {
@@ -118,19 +126,22 @@ export function openExternalUrl(url: string): void {
   }
 }
 
-export function evaluateStarsFromRatio(ratio: number): 1 | 2 | 3 {
-  if (ratio > economyConfig.starThresholds.threeStarMinRatio) {
+export function evaluateStarsFromRatio(
+  ratio: number,
+  thresholds = bundledEconomy.starThresholds
+): 1 | 2 | 3 {
+  if (ratio > thresholds.threeStarMinRatio) {
     return 3;
   }
-  if (ratio >= economyConfig.starThresholds.twoStarMinRatio) {
+  if (ratio >= thresholds.twoStarMinRatio) {
     return 2;
   }
   return 1;
 }
 
 const initialPersistedSlice = {
-  coins: economyConfig.startingCoins,
-  lives: economyConfig.startingLives,
+  coins: bundledEconomy.startingCoins,
+  lives: bundledEconomy.startingLives,
   lastLifeRegenAt: Date.now(),
   unlockedLevel: 1,
   levelStars: {} as Record<number, 1 | 2 | 3>,
@@ -146,6 +157,10 @@ export const useGameStore = create<GameStore>()(
   persist(
     (set, get) => ({
       ...initialPersistedSlice,
+
+      // Live remote-hydrated configs (immediately available via bundled fallbacks)
+      levels: bundledLevels,
+      economy: bundledEconomy,
 
       // Ephemeral state
       isGameStarted: false,
@@ -168,13 +183,25 @@ export const useGameStore = create<GameStore>()(
       timeRemaining: 30,
       shiftsCount: 0,
       escrowActive: false,
-      livesBeforeStart: economyConfig.startingLives,
+      livesBeforeStart: bundledEconomy.startingLives,
       cachedSolution: [],
       activeHint: null,
-      lastRewardCoins: economyConfig.levelClearReward,
+      lastRewardCoins: bundledEconomy.levelClearReward,
       lastEarnedStars: 3,
       isDebugOpen: false,
       isTimerFrozen: false,
+
+      syncRemoteConfigs: async () => {
+        const { levels, economy } = await fetchLiveGameConfigs(
+          bundledLevels,
+          bundledEconomy
+        );
+        set({
+          levels,
+          economy,
+          lastRewardCoins: economy.levelClearReward,
+        });
+      },
 
       startGame: () => {
         const state = get();
@@ -227,6 +254,7 @@ export const useGameStore = create<GameStore>()(
         const state = get();
         state.syncLifeRegeneration();
         const refreshed = get();
+        const eco = refreshed.economy;
 
         if (refreshed.lives <= 0) {
           audioManager.playSfx('error_buzz');
@@ -237,8 +265,8 @@ export const useGameStore = create<GameStore>()(
         const targetId = levelId ?? refreshed.unlockedLevel;
         const levelCfg = getLevelConfig(
           targetId,
-          typedLevels,
-          economyConfig.campaignLoopSize
+          refreshed.levels,
+          eco.campaignLoopSize
         );
         const hydrated = hydrateLevelColors(levelCfg);
         const initialSolve = solveIDAStar(hydrated.grid, hydrated.frames, 120, 6);
@@ -246,7 +274,7 @@ export const useGameStore = create<GameStore>()(
         const livesBefore = refreshed.lives;
         const nextLives = Math.max(0, livesBefore - 1);
         const nextRegenAt =
-          livesBefore >= economyConfig.maxLives && nextLives < economyConfig.maxLives
+          livesBefore >= eco.maxLives && nextLives < eco.maxLives
             ? Date.now()
             : refreshed.lastLifeRegenAt;
 
@@ -298,6 +326,7 @@ export const useGameStore = create<GameStore>()(
         const state = get();
         if (state.activeScreen !== 'playing' || state.activeModal !== 'none') return;
 
+        const eco = state.economy;
         const prevSnap = getSnapProgress(state.grid, state.frames);
         const nextGrid = applyShiftAction(state.grid, action);
         const nextSnap = getSnapProgress(nextGrid, state.frames);
@@ -306,11 +335,11 @@ export const useGameStore = create<GameStore>()(
         if (nextSnap.isSolved && state.timeRemaining > 0) {
           // Win! Refund escrowed heart up to max(maxLives, livesBeforeStart) and award +200 Coins
           const ratio = state.timeRemaining / Math.max(1, state.timeLimitSeconds);
-          const earnedStars = evaluateStarsFromRatio(ratio);
-          const rewardCoins = economyConfig.levelClearReward;
+          const earnedStars = evaluateStarsFromRatio(ratio, eco.starThresholds);
+          const rewardCoins = eco.levelClearReward;
           const refundedLives = state.escrowActive
             ? Math.min(
-                Math.max(economyConfig.maxLives, state.livesBeforeStart),
+                Math.max(eco.maxLives, state.livesBeforeStart),
                 state.lives + 1
               )
             : state.lives;
@@ -431,7 +460,7 @@ export const useGameStore = create<GameStore>()(
 
       useHintBooster: () => {
         const state = get();
-        const cost = economyConfig.boosters.hintCostCoins;
+        const cost = state.economy.boosters.hintCostCoins;
         if (state.activeHint !== null || state.coins < cost) {
           audioManager.playSfx('error_buzz');
           return false;
@@ -459,7 +488,7 @@ export const useGameStore = create<GameStore>()(
 
       useExtraTimeBooster: () => {
         const state = get();
-        const cost = economyConfig.boosters.extraTimeCostCoins;
+        const cost = state.economy.boosters.extraTimeCostCoins;
         if (
           state.coins < cost ||
           state.timeRemaining >= state.timeLimitSeconds
@@ -470,7 +499,7 @@ export const useGameStore = create<GameStore>()(
 
         const nextTime = Math.min(
           state.timeLimitSeconds,
-          state.timeRemaining + economyConfig.boosters.extraTimeSeconds
+          state.timeRemaining + state.economy.boosters.extraTimeSeconds
         );
         audioManager.playSfx('extra_time');
         set({
@@ -482,14 +511,14 @@ export const useGameStore = create<GameStore>()(
 
       useOutOfTimeRescue: () => {
         const state = get();
-        const cost = economyConfig.boosters.reviveCostCoins;
+        const cost = state.economy.boosters.reviveCostCoins;
         if (state.coins < cost) {
           audioManager.playSfx('error_buzz');
           return false;
         }
 
         const restoredTime = Math.min(
-          economyConfig.boosters.reviveSeconds,
+          state.economy.boosters.reviveSeconds,
           state.timeLimitSeconds
         );
         audioManager.playSfx('extra_time');
@@ -509,8 +538,8 @@ export const useGameStore = create<GameStore>()(
       syncLifeRegeneration: () => {
         const state = get();
         const now = Date.now();
-        const maxLives = economyConfig.maxLives;
-        const intervalMs = economyConfig.lifeRegenIntervalSeconds * 1000;
+        const maxLives = state.economy.maxLives;
+        const intervalMs = state.economy.lifeRegenIntervalSeconds * 1000;
 
         if (state.lives >= maxLives) {
           set({ lastLifeRegenAt: now });
@@ -531,15 +560,16 @@ export const useGameStore = create<GameStore>()(
       },
 
       claimKoFiStorePack: (packId) => {
-        const pack = economyConfig.storePacks.find((p) => p.id === packId);
+        const state = get();
+        const pack = state.economy.storePacks.find((p) => p.id === packId);
         if (!pack) return null;
 
         openExternalUrl(pack.kofiUrl);
         audioManager.playSfx('store_buy');
 
-        set((state) => ({
-          lives: pack.type === 'lives' ? state.lives + pack.amount : state.lives,
-          coins: pack.type === 'coins' ? state.coins + pack.amount : state.coins,
+        set((s) => ({
+          lives: pack.type === 'lives' ? s.lives + pack.amount : s.lives,
+          coins: pack.type === 'coins' ? s.coins + pack.amount : s.coins,
         }));
 
         return { label: pack.toastMessage };
@@ -586,9 +616,12 @@ export const useGameStore = create<GameStore>()(
       },
 
       resetAllProgress: () => {
+        const state = get();
         audioManager.playSfx('button_tap');
         set({
           ...initialPersistedSlice,
+          coins: state.economy.startingCoins,
+          lives: state.economy.startingLives,
           lastLifeRegenAt: Date.now(),
           activeScreen: 'menu',
           activeModal: 'none',
@@ -605,12 +638,13 @@ export const useGameStore = create<GameStore>()(
         if (import.meta.env.VITE_DISABLE_DEBUG === 'true') return;
         const state = get();
         if (state.activeScreen !== 'playing') return;
+        const eco = state.economy;
         const solvedGrid: CellBlock[][] = state.frames.map((row) =>
           row.map((f) => (f === null ? 'neutral' : f))
         );
         const refundedLives = state.escrowActive
           ? Math.min(
-              Math.max(economyConfig.maxLives, state.livesBeforeStart),
+              Math.max(eco.maxLives, state.livesBeforeStart),
               state.lives + 1
             )
           : state.lives;
@@ -621,10 +655,10 @@ export const useGameStore = create<GameStore>()(
           grid: solvedGrid,
           escrowActive: false,
           lives: refundedLives,
-          coins: state.coins + economyConfig.levelClearReward,
+          coins: state.coins + eco.levelClearReward,
           levelStars: { ...state.levelStars, [state.activeLevelId]: 3 },
           unlockedLevel: nextUnlocked,
-          lastRewardCoins: economyConfig.levelClearReward,
+          lastRewardCoins: eco.levelClearReward,
           lastEarnedStars: 3,
           activeModal: 'level_complete',
           isDebugOpen: false,

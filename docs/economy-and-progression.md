@@ -30,16 +30,17 @@ To prevent players from bypassing life penalties by refreshing the browser tab, 
 
 ---
 
-### 1.2 Coin Currency (`$` / `C`)
+### 1.2 Coin Currency (`🪙` Coins)
 Coins are the primary soft currency used for tactical in-game boosters (`HINT`, `EXTRA TIME`) and emergency `Out-of-Time` rescues.
 
 #### Coin Sources
-1. **Flat Level Completion Reward (`+200 C`)**:
+1. **Flat Level Completion Reward (`+200 🪙`)**:
    - Every completed level awards a flat **`+200 Coins`** (`levelClearReward: 200` in `src/config/economy.json`), regardless of star tier or stage difficulty tag (`NORMAL`, `HARD`, `SUPER HARD`).
    - **Losing / Timing Out**: Awards **`0 Coins`**.
-   - **No Replay Farming**: Because completed levels cannot be replayed by design, every level clear is a first-time progression clear that awards the full `+200 Coins`. Stage difficulty tags (`HARD`, `SUPER HARD`) are purely visual milestones on the Main Menu level path.
+   - **No Replay Farming**: Because completed levels cannot be replayed by design, every level clear is a first-time progression clear that awards the full `+200 Coins`. Stage difficulty tags (`HARD`, `SUPER HARD`) are visual milestones on the Main Menu level path.
 2. **Starting Wallet Balance**: Configurable in `src/config/economy.json` (`startingCoins: 250`, giving new players enough coins to sample `HINT` and `EXTRA TIME`).
-3. **Item Store Coin Packs**: Instant `+500 C`, `+1,200 C`, or `+5,000 C` bundles via the frictionless Ko-fi store flow.
+4. **Live Remote Economy & Store Sync (`src/utils/remoteData.ts`)**:
+   - All economy parameters (`maxLives`, `lifeRegenIntervalSeconds`, `levelClearReward`, `starThresholds`, `boosters`, and `storePacks`) are initialized in `useGameStore` from the bundled `src/config/economy.json` and refreshed on boot in production builds from `https://raw.githubusercontent.com/ishanmanjrekar/grid-snap/main/src/config/economy.json` (with a `3000ms` timeout and schema validation fallback). Pushing changes to `src/config/economy.json` on the `main` branch updates deployed Itch.io and Android APK builds automatically without rebuilding.
 
 ---
 
@@ -49,9 +50,9 @@ During an active match, the bottom HUD features two dedicated rectangular arcade
 
 | Booster / Action | Coin Cost | Effect | Availability & Constraints |
 | :--- | :---: | :--- | :--- |
-| **HINT (`💡 HINT`)** | **`$50`** | Queries the hybrid IDA\* + cached-path solver for the optimal next move from the current board state and highlights the target row or column with a pulsing frame outline and an animated ghost hand showing the exact slide direction and cell distance. The visual hint remains active until the player commits their next move. | Unlimited uses per level. Disabled when `activeHint !== null`, `isSolved`, or `coins < 50`. When `coins < 50`, the `$ 50` cost label renders in crimson red (`#EF4444`). Deducts `50` Coins when the hint is displayed. |
-| **EXTRA TIME (`+5S`)** | **`$100`** | Immediately adds **`+5 seconds`** to `timeRemaining` on the active countdown clock (`timeRemaining = Math.min(timeLimitSeconds, timeRemaining + 5)`). | Can be used multiple times per stage. Capped at `timeLimitSeconds` so the 3-Star progress bar never overflows `100%`. **Intentionally restores star rating potential** if `timeRemaining` crosses back above the `15%` (2★) or `50%` (3★) thresholds. Disabled (with crimson `$ 100` text) when `coins < 100` or `timeRemaining >= timeLimitSeconds`. |
-| **OUT-OF-TIME RESCUE (`+30 SECONDS ▶`)** | **`$200`** | Offered on the **`TIME'S UP!`** modal when `timeRemaining` hits `00:00`. Deducts `200` Coins, sets `timeRemaining = Math.min(30, timeLimitSeconds)`, closes the modal, and resumes the current board state while preserving the escrowed `1 ❤️`. | **Disabled when `coins < 200`**, with the `$ 200` cost badge text rendered in **crimson red (`#EF4444`)** to signify insufficient funds (does not navigate away mid-level). **No star cap**: because levels cannot be replayed, rescuing is a valid way to save 2★ or 3★ if the player finishes while `timeRemaining / timeLimitSeconds` is still above the star thresholds. |
+| **HINT (`💡 HINT`)** | **`50 🪙`** | Queries the hybrid IDA\* + cached-path solver for the optimal next move from the current board state and highlights the target row or column with a pulsing frame outline and an animated ghost hand showing the exact slide direction and cell distance. The visual hint remains active until the player commits their next move. | Unlimited uses per level. Disabled when `activeHint !== null`, `isSolved`, or `coins < 50`. When `coins < 50`, the `50` cost label renders in crimson red (`#EF4444`). Deducts `50` Coins when the hint is displayed. |
+| **EXTRA TIME (`+5S`)** | **`100 🪙`** | Immediately adds **`+5 seconds`** to `timeRemaining` on the active countdown clock (`timeRemaining = Math.min(timeLimitSeconds, timeRemaining + 5)`). | Can be used multiple times per stage. Capped at `timeLimitSeconds` so the 3-Star progress bar never overflows `100%`. **Intentionally restores star rating potential** if `timeRemaining` crosses back above the `15%` (2★) or `50%` (3★) thresholds. Disabled (with crimson `100` text) when `coins < 100` or `timeRemaining >= timeLimitSeconds`. |
+| **OUT-OF-TIME RESCUE (`+30 SECONDS ▶`)** | **`200 🪙`** | Offered on the **`TIME'S UP!`** modal when `timeRemaining` hits `00:00`. Deducts `200` Coins, sets `timeRemaining = Math.min(30, timeLimitSeconds)`, closes the modal, and resumes the current board state while preserving the escrowed `1 ❤️`. | **Disabled when `coins < 200`**, with the `200` cost badge text rendered in **crimson red (`#EF4444`)** to signify insufficient funds (does not navigate away mid-level). **No star cap**: because levels cannot be replayed, rescuing is a valid way to save 2★ or 3★ if the player finishes while `timeRemaining / timeLimitSeconds` is still above the star thresholds. |
 
 ---
 

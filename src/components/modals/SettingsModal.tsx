@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { CloseXIcon, SettingsGearIcon, WarningIcon } from '../PixelIcons';
+import { CloseXIcon, WarningIcon } from '../PixelIcons';
 
 export const SettingsModal: React.FC = () => {
   const settings = useGameStore((s) => s.settings);
@@ -47,8 +47,7 @@ export const SettingsModal: React.FC = () => {
     >
       <div className="relative w-full max-w-xs bg-[#FFFDF8] border-[4px] border-[#1E1B18] shadow-[4px_4px_0px_#1E1B18] pt-7 pb-5 px-5 flex flex-col items-center">
         {/* Overhanging Gold SETTINGS Ribbon */}
-        <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#FFCC00] border-[3px] border-[#1E1B18] shadow-[3px_3px_0px_#1E1B18] px-4 py-1.5 flex items-center gap-1.5 whitespace-nowrap">
-          <SettingsGearIcon size={16} />
+        <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#FFCC00] border-[3px] border-[#1E1B18] shadow-[3px_3px_0px_#1E1B18] px-4 py-1.5 flex items-center justify-center whitespace-nowrap">
           <span className="font-pixel font-bold text-[12px] text-[#1E1B18] tracking-wider">
             SETTINGS
           </span>

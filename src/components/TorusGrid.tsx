@@ -35,6 +35,7 @@ interface DragState {
   offsetPx: number;
   lastTickSlot: number;
   isCommitting: boolean;
+  commitBaseCells?: number;
 }
 
 export const TorusGrid: React.FC<TorusGridProps> = ({
@@ -254,6 +255,7 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
       return;
     }
 
+    const preCommitBaseCells = Math.trunc(current.offsetPx / stepSizePx);
     const netCells = Math.round(current.offsetPx / stepSizePx);
     const targetOffsetPx = netCells * stepSizePx;
 
@@ -261,6 +263,7 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
       ...current,
       offsetPx: targetOffsetPx,
       isCommitting: true,
+      commitBaseCells: preCommitBaseCells,
     };
     dragRef.current = committingState;
     setDrag(committingState);
@@ -274,29 +277,52 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
     }, 110);
   };
 
-  const renderBlockTile = (
+  const renderCenterPip = (targetColor: BlockColor, sizePx: number) => {
+    if (colorblindMode) {
+      return (
+        <ColorblindShapeIcon
+          color={targetColor}
+          fill={COLOR_HEX_MAP[targetColor].pipBorder}
+          size="38%"
+        />
+      );
+    }
+    const pipSize = Math.max(6, Math.round(sizePx * 0.13));
+    return (
+      <span
+        style={{
+          width: pipSize,
+          height: pipSize,
+          backgroundColor: COLOR_HEX_MAP[targetColor].pipFill,
+          border: `1.5px solid ${COLOR_HEX_MAP[targetColor].pipBorder}`,
+        }}
+        className="block shrink-0"
+      />
+    );
+  };
+
+  const renderTileFace = (
     block: CellBlock,
-    isMatched: boolean,
-    key: string,
-    extraStyle?: React.CSSProperties
+    targetColor: BlockColor | null,
+    isMatched: boolean
   ) => {
     const isNeutral = block === 'neutral';
     const tileClass = isNeutral ? 'pixel-tile-neutral' : `pixel-tile-${block}`;
+    const neutralDotSize = Math.max(5, Math.round(cellSize * 0.1));
 
     return (
       <div
-        key={key}
-        style={{
-          width: cellSize,
-          height: cellSize,
-          ...extraStyle,
-        }}
-        className={`relative flex items-center justify-center rounded-[2px] select-none ${tileClass} ${
-          isMatched ? 'animate-snap-pop' : ''
-        }`}
+        className={`w-full h-full relative flex items-center justify-center select-none ${tileClass}`}
       >
         {isNeutral ? (
-          <div className="w-2 h-2 bg-[#BCB199] rounded-[1px]" />
+          targetColor !== null ? (
+            renderCenterPip(targetColor, cellSize)
+          ) : (
+            <span
+              style={{ width: neutralDotSize, height: neutralDotSize }}
+              className="block bg-[#BCB199]"
+            />
+          )
         ) : (
           <>
             {colorblindMode && (
@@ -306,12 +332,16 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
                 size="42%"
               />
             )}
+            {!isMatched && targetColor !== null && (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                {renderCenterPip(targetColor, cellSize)}
+              </div>
+            )}
             {isMatched && (
               <div
-                className="pointer-events-none absolute inset-0 rounded-[2px]"
+                className="pointer-events-none absolute inset-0"
                 style={{
-                  border: '2px solid #FFFFFF',
-                  boxShadow: 'inset 0 0 0 1px rgba(44,37,35,0.4)',
+                  boxShadow: 'inset 0 0 0 1.5px rgba(255, 255, 255, 0.85)',
                 }}
               >
                 <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-white" />
@@ -323,11 +353,59 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
     );
   };
 
+  const renderCell = (
+    block: CellBlock,
+    targetColor: BlockColor | null,
+    isMatched: boolean,
+    key: string,
+    extraStyle?: React.CSSProperties
+  ) => {
+    const frameInsetPx = Math.max(2, Math.round(cellSize * 0.05));
+
+    if (targetColor !== null) {
+      return (
+        <div
+          key={key}
+          style={{
+            width: cellSize,
+            height: cellSize,
+            padding: frameInsetPx,
+            borderStyle: isMatched ? 'solid' : 'dashed',
+            borderWidth: isMatched ? '2.5px' : '2px',
+            borderColor: COLOR_HEX_MAP[targetColor].slotBorder,
+            backgroundColor: COLOR_HEX_MAP[targetColor].slotTint,
+            ...extraStyle,
+          }}
+          className={`relative flex items-center justify-center select-none slot-${targetColor} ${
+            isMatched ? 'animate-snap-pop' : ''
+          }`}
+        >
+          {renderTileFace(block, targetColor, isMatched)}
+        </div>
+      );
+    }
+
+    return (
+      <div
+        key={key}
+        style={{
+          width: cellSize,
+          height: cellSize,
+          ...extraStyle,
+        }}
+        className="relative flex items-center justify-center select-none"
+      >
+        {renderTileFace(block, null, false)}
+      </div>
+    );
+  };
+
   // Compute active line drag decomposition (base integer cell shift + fractional remainder in (-stepSizePx, +stepSizePx))
   const getActiveLineRenderData = () => {
     if (!drag || !drag.axis) return null;
     const L = drag.axis === 'row' ? cols : rows;
-    const baseCells = Math.trunc(drag.offsetPx / stepSizePx);
+    const baseCells =
+      drag.commitBaseCells ?? Math.trunc(drag.offsetPx / stepSizePx);
     const remainderPx = drag.offsetPx - baseCells * stepSizePx;
 
     const getShiftedBlockAt = (slotIdx: number): CellBlock => {
@@ -424,67 +502,7 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
               editorPaintMode ? 'cursor-crosshair' : disabled ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'
             }`}
           >
-            {/* Layer 1: Static Target Frames (Always Fixed in Place) */}
-            {Array.from({ length: rows }).map((_, r) =>
-              Array.from({ length: cols }).map((__, c) => {
-                const targetColor = frames[r]?.[c] ?? null;
-                const currentBlock = grid[r]?.[c] ?? 'neutral';
-                const isLineDragging =
-                  (drag?.axis === 'row' && drag.lineIndex === r) ||
-                  (drag?.axis === 'col' && drag.lineIndex === c);
-                const isMatched =
-                  !isLineDragging && targetColor !== null && currentBlock === targetColor;
-
-                const left = 6 + c * stepSizePx;
-                const top = 6 + r * stepSizePx;
-
-                return (
-                  <div
-                    key={`frame-${r}-${c}`}
-                    style={{
-                      position: 'absolute',
-                      left,
-                      top,
-                      width: cellSize,
-                      height: cellSize,
-                    }}
-                    className="pointer-events-none flex items-center justify-center"
-                  >
-                    {targetColor !== null && (
-                      <div
-                        className={`w-full h-full flex items-center justify-center rounded-[2px] slot-${targetColor}`}
-                        style={{
-                          borderStyle: isMatched ? 'solid' : 'dashed',
-                          borderWidth: isMatched ? '3px' : '2.5px',
-                          borderColor: COLOR_HEX_MAP[targetColor].slotBorder,
-                          backgroundColor: COLOR_HEX_MAP[targetColor].slotTint,
-                          zIndex: 5,
-                        }}
-                      >
-                        {/* Center target pip when unoccupied */}
-                        {!isMatched &&
-                          (colorblindMode ? (
-                            <ColorblindShapeIcon
-                              color={targetColor}
-                              fill={COLOR_HEX_MAP[targetColor].slotBorder}
-                              size="34%"
-                            />
-                          ) : (
-                            <div
-                              className="w-2.5 h-2.5 rounded-[1px]"
-                              style={{
-                                backgroundColor: COLOR_HEX_MAP[targetColor].slotBorder,
-                              }}
-                            />
-                          ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            )}
-
-            {/* Layer 2A: Non-Dragging Movable Blocks */}
+            {/* Layer 1: Non-Dragging Cells (Normal Squares & Framed Smaller-Square Targets) */}
             {Array.from({ length: rows }).map((_, r) =>
               Array.from({ length: cols }).map((__, c) => {
                 const isLineDragging =
@@ -510,25 +528,13 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
                       zIndex: 10,
                     }}
                   >
-                    {renderBlockTile(block, isMatched, `tile-${r}-${c}`)}
-                    {/* Target Frame Overlay Ring so fixed frame dashed outline stays visible over blocks */}
-                    {targetColor !== null && (
-                      <div
-                        className="pointer-events-none absolute inset-0 rounded-[2px]"
-                        style={{
-                          border: isMatched
-                            ? `3px solid ${COLOR_HEX_MAP[targetColor].slotBorder}`
-                            : `2.5px dashed ${COLOR_HEX_MAP[targetColor].slotBorder}`,
-                          boxShadow: isMatched ? '0 0 0 1.5px #FFFFFF inset' : 'none',
-                        }}
-                      />
-                    )}
+                    {renderCell(block, targetColor, isMatched, `tile-${r}-${c}`)}
                   </div>
                 );
               })
             )}
 
-            {/* Layer 2B: Active Dragging Row or Column Strip with Wrap-Around Ghost Tiles (-1 .. L) */}
+            {/* Layer 2: Active Dragging Row or Column Strip with Wrap-Around Ghost Tiles (-1 .. L) */}
             {drag && drag.axis && activeLineData && (
               <div
                 style={{
@@ -573,30 +579,43 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
                             : 'none',
                         }}
                       >
-                        {renderBlockTile(block, false, `drag-tile-${slotIdx}`)}
+                        {renderCell(block, null, false, `drag-tile-${slotIdx}`)}
                       </div>
                     );
                   }
                 )}
 
-                {/* Keep fixed target frame wireframes visible above the sliding blocks */}
+                {/* Keep fixed target frame + inset inner square outline visible above the sliding blocks */}
                 {Array.from({ length: activeLineData.L }).map((_, idx) => {
                   const r = drag.axis === 'row' ? drag.lineIndex : idx;
                   const c = drag.axis === 'row' ? idx : drag.lineIndex;
                   const targetColor = frames[r]?.[c] ?? null;
                   if (targetColor === null) return null;
+                  const frameInsetPx = Math.max(2, Math.round(cellSize * 0.05));
                   return (
                     <div
                       key={`drag-frame-top-${idx}`}
-                      className="pointer-events-none absolute rounded-[2px]"
+                      className="pointer-events-none absolute flex items-center justify-center"
                       style={{
                         left: 6 + c * stepSizePx,
                         top: 6 + r * stepSizePx,
                         width: cellSize,
                         height: cellSize,
-                        border: `2.5px dashed ${COLOR_HEX_MAP[targetColor].slotBorder}`,
+                        padding: frameInsetPx,
+                        border: `2px dashed ${COLOR_HEX_MAP[targetColor].slotBorder}`,
+                        boxShadow: `inset 0 0 0 ${frameInsetPx}px #D1C6A5`,
                       }}
-                    />
+                    >
+                      <div
+                        className="w-full h-full flex items-center justify-center"
+                        style={{
+                          border: '1.5px solid #332B25',
+                          boxShadow: `inset 0 0 0 999px ${COLOR_HEX_MAP[targetColor].slotTint}`,
+                        }}
+                      >
+                        {renderCenterPip(targetColor, cellSize)}
+                      </div>
+                    </div>
                   );
                 })}
               </div>
