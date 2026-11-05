@@ -14,9 +14,9 @@
 
 | Field | Current Value |
 | :--- | :--- |
-| **Current Batch / Phase** | **All Web & Itch.io Phases Complete (Phases 1–9.2 `[x]` + Post-Phase Refinements `[x]`; Phase 9.3 Android APK Deferred by User)** |
-| **Last Verified Milestone** | **Documentation Hub Synchronized (`progress.md`, `art-direction.md`, `ui-ux-and-flows.md`, `economy-and-progression.md`)** |
-| **Next Immediate Action** | Ready for local playtesting (`npm run dev`), level authoring (`npm run dev:editor`), or Itch.io deployment (`dump/grid-snap-*-itch.zip`). Android APK (`npm run build:apk`) deferred until explicitly requested. |
+| **Current Batch / Phase** | **All Phases 1–9.3 Complete (`[x]` Web, Itch.io & Android APK Fully Verified)** |
+| **Last Verified Milestone** | **Native Android Debug APK Compiled & Saved to `dump/grid-snap-051126-0156-android.apk` (5.41 MB)** |
+| **Next Immediate Action** | Ready for local playtesting (`npm run dev`), level authoring (`npm run dev:editor`), Itch.io deployment (`dump/grid-snap-*-itch.zip`), or Android APK installation. |
 
 > **Agent Harness Rule (Mandatory End-of-Task Doc Sync)**:
 > 1. Whenever starting or resuming work on **Grid Snap**, read this file first to determine the active phase or maintenance task, mark tasks `[/]` when starting and `[x]` when verified, and update the **Live Harness Status** table above.
@@ -129,8 +129,8 @@
   - Run `npm test` (Vitest) and `npm run build` (`tsc -b && vite build`).
 - [x] **9.2 Itch.io Build & Sentinel Verification**:
   - Run `npm run build:itch` and verify `'__GRID_SNAP_DEBUG_PANEL__'` is absent from `dist/assets/*.js` and `dump/grid-snap-*-itch.zip` is generated.
-- [ ] **9.3 Android APK Build** *(Deferred per user request — do not run until explicitly requested)*:
-  - Run `npm run build:apk` and verify `dump/grid-snap-*-android.apk` is generated with custom launcher icons.
+- [x] **9.3 Android APK Build**:
+  - Run `npm run build:apk` (bootstrapped portable JDK 21 & Android SDK in `~/.portable-android-env`, synced 9:20 splash & launcher icons, compiled debug APK via Gradle). Output saved to `dump/grid-snap-051126-0156-android.apk` (5.41 MB).
 
 ---
 
