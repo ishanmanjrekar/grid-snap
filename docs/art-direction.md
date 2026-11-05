@@ -93,8 +93,18 @@ To guarantee 100% offline reliability in Android APKs and zero CDN latency on It
     - **Secondary Retro UI (`--font-retro`)**: `'Silkscreen', 'Space Mono', monospace` (`Silkscreen-Regular.woff2`, `Silkscreen-Bold.woff2`, `SpaceMono-Bold.woff2`) — used for supporting labels, tabular stats, and compact descriptions.
 - **Standalone Level Editor Typography Override (`editor/index.html` & `editor/EditorApp.tsx`)**:
   - Because the standalone Level Editor (`npm run dev:editor`) is a local desktop authoring tool with dense controls, it uses **`Be Vietnam Pro`** (`'Be Vietnam Pro', system-ui, -apple-system, sans-serif`) for all body text, labels, inputs, dropdowns, and buttons while keeping `'Press Start 2P'` (`font-pixel`) exclusively on the top `GRID SNAP // LEVEL EDITOR` title.
-- **Inline Pixel Art SVGs (Replacing Material Symbols)**:
-  - All icons that used `material-symbols-outlined` in the `ui-refs/` prototypes (`storefront`, `settings`, `share`, `warning`, `close`, `lightbulb`, `hourglass`) must be implemented as crisp inline pixel-grid `<svg>` components with `shape-rendering="crispEdges"`.
+- **Custom 128×128 Transparent Pixel Sprites (`public/assets/icons/`)**:
+  - To prevent device-specific emoji font fragmentation across iOS, Android, and Windows, UI icons are rendered via custom 128×128 transparent PNG sprites loaded through `AssetLoader.resolvePath('assets/icons/[name].png')` with `image-rendering: pixelated`:
+    - `coin.png`: Gold Coin (`🪙`) for coin capsules, shop packs, and victory rewards.
+    - `heart.png`: Crimson Heart (`❤️`) for lives counter, refill timer, and modals.
+    - `star.png` & `star-empty.png`: Rating Stars (`⭐`) for lit and unlit star thresholds.
+    - `store.png`: Shopping Cart (`🛒`) for the store button.
+    - `gear.png`: Settings Gear (`⚙️`) for the settings modal trigger.
+    - `hint.png`: Lightbulb (`💡`) for the in-game hint booster.
+    - `hourglass.png`: Hourglass (`⏳`) for stage timers and time extensions.
+    - `warning.png`: Warning sign (`⚠️`) for reset confirmations.
+- **Inline Pixel Art SVGs (Structural & Assistive Controls)**:
+  - Vector pixel-grid SVGs with `shapeRendering="crispEdges"` are retained for `ColorblindShapeIcon` (8 geometric shapes), `CloseXIcon`, `PauseBarsIcon`, `ShareIcon`, and `GhostHandIcon`.
 - **Formatting Rules**:
   - All button labels, badges, and headers use `text-transform: uppercase`.
   - Use container-query-relative font sizes (`clamp(8px, 2.5cqw, 12px)`) so text never overflows inside the `450×800` `BoundingBox`.

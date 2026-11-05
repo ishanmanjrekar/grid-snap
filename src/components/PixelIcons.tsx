@@ -1,11 +1,15 @@
 import React from 'react';
 import { COLOR_SHAPE_MAP, type BlockColor, type ColorShape } from '../engine/types';
+import { AssetLoader } from '../utils/AssetLoader';
 
 interface IconProps {
   className?: string;
-  size?: number;
+  size?: number | string;
   color?: string;
 }
+
+const toDim = (size?: number | string, fallback = 18): string =>
+  size === undefined ? `${fallback}px` : typeof size === 'number' ? `${size}px` : size;
 
 export const ColorblindShapeIcon: React.FC<{
   color: BlockColor;
@@ -67,78 +71,76 @@ export const ColorblindShapeIcon: React.FC<{
 
 export const PixelStarIcon: React.FC<{
   lit?: boolean;
-  size?: number;
+  size?: number | string;
   className?: string;
-}> = ({ lit = true, size = 18, className = '' }) => (
-  <span
-    style={{
-      fontSize: typeof size === 'number' ? `${size}px` : size,
-      width: typeof size === 'number' ? `${size}px` : size,
-      height: typeof size === 'number' ? `${size}px` : size,
-    }}
-    className={`inline-flex items-center justify-center leading-none select-none transition-all ${
-      lit ? 'filter-none' : 'grayscale opacity-30'
-    } ${className}`}
-  >
-    ⭐
-  </span>
-);
+}> = ({ lit = true, size = 18, className = '' }) => {
+  const dim = toDim(size, 18);
+  return (
+    <img
+      src={AssetLoader.resolvePath(lit ? 'assets/icons/star.png' : 'assets/icons/star-empty.png')}
+      alt={lit ? 'Star' : 'Empty Star'}
+      style={{ width: dim, height: dim, imageRendering: 'pixelated' }}
+      className={`inline-block select-none pointer-events-none object-contain flex-none transition-all ${className}`}
+      draggable={false}
+    />
+  );
+};
 
-export const HeartIcon: React.FC<IconProps> = ({ size = 18, className = '' }) => (
-  <span
-    style={{
-      fontSize: typeof size === 'number' ? `${size}px` : size,
-      width: typeof size === 'number' ? `${size}px` : size,
-      height: typeof size === 'number' ? `${size}px` : size,
-    }}
-    className={`inline-flex items-center justify-center leading-none select-none ${className}`}
-  >
-    ❤️
-  </span>
-);
+export const HeartIcon: React.FC<IconProps> = ({ size = 18, className = '' }) => {
+  const dim = toDim(size, 18);
+  return (
+    <img
+      src={AssetLoader.resolvePath('assets/icons/heart.png')}
+      alt="Life"
+      style={{ width: dim, height: dim, imageRendering: 'pixelated' }}
+      className={`inline-block select-none pointer-events-none object-contain flex-none ${className}`}
+      draggable={false}
+    />
+  );
+};
 
-export const CoinIcon: React.FC<IconProps> = ({ size = 18, className = '' }) => (
-  <span
-    style={{
-      fontSize: typeof size === 'number' ? `${size}px` : size,
-      width: typeof size === 'number' ? `${size}px` : size,
-      height: typeof size === 'number' ? `${size}px` : size,
-    }}
-    className={`inline-flex items-center justify-center leading-none select-none ${className}`}
-  >
-    🪙
-  </span>
-);
+export const CoinIcon: React.FC<IconProps> = ({ size = 18, className = '' }) => {
+  const dim = toDim(size, 18);
+  return (
+    <img
+      src={AssetLoader.resolvePath('assets/icons/coin.png')}
+      alt="Coin"
+      style={{ width: dim, height: dim, imageRendering: 'pixelated' }}
+      className={`inline-block select-none pointer-events-none object-contain flex-none ${className}`}
+      draggable={false}
+    />
+  );
+};
 
 export const Coin = CoinIcon;
 
-export const StorefrontIcon: React.FC<IconProps> = ({ size = 22, className = '' }) => (
-  <span
-    style={{
-      fontSize: typeof size === 'number' ? `${size}px` : size,
-      width: typeof size === 'number' ? `${size}px` : size,
-      height: typeof size === 'number' ? `${size}px` : size,
-    }}
-    className={`inline-flex items-center justify-center leading-none select-none ${className}`}
-  >
-    🛒
-  </span>
-);
+export const StorefrontIcon: React.FC<IconProps> = ({ size = 22, className = '' }) => {
+  const dim = toDim(size, 22);
+  return (
+    <img
+      src={AssetLoader.resolvePath('assets/icons/store.png')}
+      alt="Store"
+      style={{ width: dim, height: dim, imageRendering: 'pixelated' }}
+      className={`inline-block select-none pointer-events-none object-contain flex-none ${className}`}
+      draggable={false}
+    />
+  );
+};
 
 export const Cart = StorefrontIcon;
 
-export const SettingsGearIcon: React.FC<IconProps> = ({ size = 22, className = '' }) => (
-  <span
-    style={{
-      fontSize: typeof size === 'number' ? `${size}px` : size,
-      width: typeof size === 'number' ? `${size}px` : size,
-      height: typeof size === 'number' ? `${size}px` : size,
-    }}
-    className={`inline-flex items-center justify-center leading-none select-none ${className}`}
-  >
-    ⚙️
-  </span>
-);
+export const SettingsGearIcon: React.FC<IconProps> = ({ size = 22, className = '' }) => {
+  const dim = toDim(size, 22);
+  return (
+    <img
+      src={AssetLoader.resolvePath('assets/icons/gear.png')}
+      alt="Settings"
+      style={{ width: dim, height: dim, imageRendering: 'pixelated' }}
+      className={`inline-block select-none pointer-events-none object-contain flex-none ${className}`}
+      draggable={false}
+    />
+  );
+};
 
 export const ArticleMultiple = SettingsGearIcon;
 
@@ -189,49 +191,44 @@ export const CloseXIcon: React.FC<IconProps> = ({
   </svg>
 );
 
-export const LightbulbIcon: React.FC<IconProps> = ({ size = 18, className = '' }) => (
-  <span
-    style={{
-      fontSize: typeof size === 'number' ? `${size}px` : size,
-      width: typeof size === 'number' ? `${size}px` : size,
-      height: typeof size === 'number' ? `${size}px` : size,
-    }}
-    className={`inline-flex items-center justify-center leading-none select-none ${className}`}
-  >
-    💡
-  </span>
-);
-
-export const HourglassIcon: React.FC<IconProps> = ({ size = 16, className = '' }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 16 16"
-    className={`select-none ${className}`}
-    shapeRendering="crispEdges"
-  >
-    <rect x="2" y="1" width="12" height="2" fill="#2C2523" />
-    <rect x="2" y="13" width="12" height="2" fill="#2C2523" />
-    <path
-      fill="#2C2523"
-      d="M3 3h10v3h-2v2H9v1h2v2h2v2H3v-2h2V9h2V8H5V6H3V3z"
+export const LightbulbIcon: React.FC<IconProps> = ({ size = 18, className = '' }) => {
+  const dim = toDim(size, 18);
+  return (
+    <img
+      src={AssetLoader.resolvePath('assets/icons/hint.png')}
+      alt="Hint"
+      style={{ width: dim, height: dim, imageRendering: 'pixelated' }}
+      className={`inline-block select-none pointer-events-none object-contain flex-none ${className}`}
+      draggable={false}
     />
-    <path fill="#FBBF24" d="M5 4h6v2H9v1H7V6H5V4zm2 6h2v1h2v2H5v-2h2v-1z" />
-  </svg>
-);
+  );
+};
 
-export const WarningIcon: React.FC<IconProps> = ({ size = 16, className = '' }) => (
-  <span
-    style={{
-      fontSize: typeof size === 'number' ? `${size}px` : size,
-      width: typeof size === 'number' ? `${size}px` : size,
-      height: typeof size === 'number' ? `${size}px` : size,
-    }}
-    className={`inline-flex items-center justify-center leading-none select-none ${className}`}
-  >
-    ⚠️
-  </span>
-);
+export const HourglassIcon: React.FC<IconProps> = ({ size = 16, className = '' }) => {
+  const dim = toDim(size, 16);
+  return (
+    <img
+      src={AssetLoader.resolvePath('assets/icons/hourglass.png')}
+      alt="Time"
+      style={{ width: dim, height: dim, imageRendering: 'pixelated' }}
+      className={`inline-block select-none pointer-events-none object-contain flex-none ${className}`}
+      draggable={false}
+    />
+  );
+};
+
+export const WarningIcon: React.FC<IconProps> = ({ size = 16, className = '' }) => {
+  const dim = toDim(size, 16);
+  return (
+    <img
+      src={AssetLoader.resolvePath('assets/icons/warning.png')}
+      alt="Warning"
+      style={{ width: dim, height: dim, imageRendering: 'pixelated' }}
+      className={`inline-block select-none pointer-events-none object-contain flex-none ${className}`}
+      draggable={false}
+    />
+  );
+};
 
 export const GhostHandIcon: React.FC<{ size?: number; className?: string }> = ({
   size = 28,

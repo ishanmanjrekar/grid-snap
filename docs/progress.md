@@ -178,3 +178,9 @@
   - Replaced Store icon with `🛒` shopping cart emoji and matched the button background to dark arcade charcoal (`#2C2523`) with crisp white `STORE` text (`text-white`) to match the Settings button.
   - Made the Settings button background dark arcade charcoal (`#2C2523`) so the metallic silver `⚙️` gear stands out with high contrast.
   - Removed the gear emoji from the Settings modal gold header ribbon so it cleanly displays just the text `SETTINGS`.
+- [x] **Custom Pixel Sprite PNG Icon System (`public/assets/icons/`, `src/components/PixelIcons.tsx`, `src/components/SplashScreen.tsx`)**:
+  - Replaced OS/device emoji dependencies with custom 128×128 transparent PNG sprites in `public/assets/icons/` (`coin.png`, `heart.png`, `star.png`, `star-empty.png`, `store.png`, `gear.png`, `hint.png`, `hourglass.png`, `warning.png`).
+  - Losslessly optimized all PNG sprites (saved metadata bloat).
+  - Wired `AssetLoader.resolvePath(...)` with `image-rendering: pixelated` across all icon components in `PixelIcons.tsx` for consistent, crisp rendering across Android, iOS, Windows, Mac, and Linux.
+  - Added sprite preloading in `SplashScreen.tsx` during boot to ensure instant, zero-flicker icon display upon entering the main menu.
+  - Verified 9/9 passing Vitest tests (`npm test`) and production build (`npm run build`).

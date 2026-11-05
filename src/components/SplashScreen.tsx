@@ -2,6 +2,18 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { AssetLoader } from '../utils/AssetLoader';
 
+const ICON_ASSETS = [
+  'assets/icons/coin.png',
+  'assets/icons/gear.png',
+  'assets/icons/heart.png',
+  'assets/icons/hint.png',
+  'assets/icons/hourglass.png',
+  'assets/icons/star.png',
+  'assets/icons/star-empty.png',
+  'assets/icons/store.png',
+  'assets/icons/warning.png',
+];
+
 export const SplashScreen: React.FC = () => {
   const isGameStarted = useGameStore((s) => s.isGameStarted);
   const startGame = useGameStore((s) => s.startGame);
@@ -10,6 +22,13 @@ export const SplashScreen: React.FC = () => {
   const [progress, setProgress] = useState<number>(0);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [isDismissing, setIsDismissing] = useState<boolean>(false);
+
+  // Preload UI icon sprites
+  useEffect(() => {
+    ICON_ASSETS.forEach((path) => {
+      void AssetLoader.loadImage(path);
+    });
+  }, []);
 
   // Smooth 0% -> 100% cartridge loader + parallel remote config sync
   useEffect(() => {
