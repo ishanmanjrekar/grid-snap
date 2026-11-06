@@ -50,7 +50,7 @@ Created for **GitHub Game Off 2026** (Theme: **SHIFT**).
 * **About Description:**
   > A casual 2D torus puzzle game built for GitHub Game Off 2026 (Theme: SHIFT). Simple shifting mechanics—slide rows and columns to snap colors into their matching frames on the grid!
 * **GitHub Repository Topics:**
-  `game-off-2026`, `shift`, `puzzle`, `torus`, `casual`, `game-jam`, `grid-puzzle`, `html5`, `web-game`, `react`, `typescript`, `vite`, `colorblind-friendly`, `open-source`
+  `game-off-2026`, `shift`, `puzzle`, `torus`, `casual`, `game-jam`, `grid-puzzle`, `html5`, `web-game`, `react`, `typescript`, `vite`, `colorblind-friendly`, `gplv3`, `open-source`
 
 ---
 
@@ -84,11 +84,7 @@ Created for **GitHub Game Off 2026** (Theme: **SHIFT**).
 * ☑ **Code:** AI pair programming & scaffolding (Google Antigravity & Gemini)
 
 ### Statement of AI Usage (Textarea)
-> I am a game designer with 16+ years of experience, but without a traditional coding background. I built Grid Snap as an experiment to explore how modern AI tools can help game designers bridge the gap between design intent and playable reality.
-> 
-> Rather than treating AI as a single-prompt "slot machine", I used Google Antigravity, Gemini, and Google Stitch as collaborative design and execution partners. This allowed me to focus on what game design is actually about: defining mechanics, tuning tactile game feel, pacing puzzles, and quickly testing a playable prototype with real players.
-> 
-> I document my learnings and practical AI prototyping workflows on my Substack, [Game Design Bites](https://gamedesignbites.substack.com/).
+> Used Google Antigravity, Gemini, and Google Stitch as collaborative design and coding partners to rapidly prototype this puzzle without a programming background. Focus remained entirely on game feel and mechanics.
 
 ---
 
@@ -100,18 +96,11 @@ Created for **GitHub Game Off 2026** (Theme: **SHIFT**).
 
 <blockquote>A casual 2D torus puzzle where you shift rows and columns to snap colors into their frames on the grid. Built for GitHub Game Off 2026 (Theme: SHIFT).</blockquote>
 
-<h2>🏷️ Recommended Tags</h2>
-<p><code>game-off-2026</code>, <code>shift</code>, <code>puzzle</code>, <code>casual</code>, <code>logic</code>, <code>html5</code>, <code>pixel-art</code>, <code>colorblind-friendly</code></p>
-
 <h2>📝 Introduction</h2>
 
-<p>I built <strong>Grid Snap</strong> as an entry for the <strong><a href="https://itch.io/jam/game-off-2026" target="_blank" rel="noopener">GitHub Game Off 2026</a></strong> game jam, centered around the theme: <strong>SHIFT</strong>.</p>
+<p>I built <strong>Grid Snap</strong> for the <strong><a href="https://itch.io/jam/game-off-2026" target="_blank" rel="noopener">GitHub Game Off 2026</a></strong> game jam (Theme: <strong>SHIFT</strong>). It’s a casual 2D torus puzzle where shifting entire rows and columns wraps tiles seamlessly around the edges. The goal is simple: shift the grid to snap every colored block into its matching target frame before time runs out.</p>
 
-<p>When thinking about the theme, I wanted to explore a casual, satisfying spatial mechanic: a <strong>2D torus puzzle</strong> where shifting entire rows and columns wraps tiles seamlessly around the edges. The objective is simple: shift the grid until every colored block snaps into its matching target frame before time runs out.</p>
-
-<p>Like some of my previous experiments, I designed the core loop around an anxiety-free "no move limits" flow. You're never penalized for exploratory moves or experimenting with shifts; you can slide tiles back and forth as much as you like at your own pace, with a stage timer for players who enjoy chasing 3-star clears.</p>
-
-<p>Visually, the game leans into a <strong>chunky, tactile feeling with a pixel-art-inspired style</strong>—solid ink outlines, beveled blocks, and snappy retro sound effects generated right in the browser. The stages are handmade and carefully paced, but also backed by an intelligent level editor that makes authoring and testing new puzzle layouts quick and scalable.</p>
+<p>There are no move limits, so you can freely experiment and slide tiles as you hunt for solutions—just solve it within the time limit to collect all 3 stars! Visually, it features a chunky, tactile pixel-art style with crisp outlines, beveled blocks, and snappy retro sound effects. Stages are handcrafted and progressive, supported by an editor that makes authoring and testing new puzzle layouts quick and scalable.</p>
 
 <h2>🕹️ Controls</h2>
 
@@ -149,6 +138,11 @@ Created for **GitHub Game Off 2026** (Theme: **SHIFT**).
 <p>Rather than using AI as a "slot machine" for single-prompt disposable games, I treat tools like <strong>Google Antigravity</strong> and <strong>Gemini</strong> as collaborative pair programmers. The AI handles code execution and scaffolding, freeing me to focus entirely on the craft of game design: spatial rules, tactile feel, puzzle pacing, and quick playable prototyping.</p>
 
 <p>I write about this process, practical non-coder workflows, and game design philosophy on my Substack: <strong><a href="https://gamedesignbites.substack.com/" target="_blank" rel="noopener">Game Design Bites</a></strong>.</p>
+
+<h2>📂 Source Code (GitHub)</h2>
+
+<p>As part of the GitHub Game Off jam, the project repository is public on GitHub and licensed under the <strong>GNU General Public License v3.0 (GPLv3)</strong>:</p>
+<p>👉 <strong><a href="https://github.com/ishanmanjrekar/grid-snap" target="_blank" rel="noopener">https://github.com/ishanmanjrekar/grid-snap</a></strong></p>
 
 <h2>🛠️ Credits &amp; Tech</h2>
 
