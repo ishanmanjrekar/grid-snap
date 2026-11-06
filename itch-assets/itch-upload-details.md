@@ -17,32 +17,40 @@ Created for **GitHub Game Off 2026** (Theme: **SHIFT**).
   * ✅ *Mobile friendly* (Orientation: Portrait)
 
 ### Page Color Theme (Itch.io Theme Customizer)
-* **16-Bit Warm Arcade Theme (Recommended — Matches in-game cartridge aesthetic):**
+* **Warm Arcade Theme (Recommended — Matches in-game palette):**
   * **Background (BG):** `#1E1B18` (Deep arcade charcoal)
   * **Card / Secondary Background (BG 2):** `#F4EFE6` (Vintage warm cream)
   * **Text:** `#F4EFE6` (Cream on dark page) or `#2C2523` (Deep ink on cards)
   * **Link / Accent:** `#F59E0B` (Amber Gold)
   * **Button / Active Accent:** `#22C55E` (Emerald Green)
 
+### Typography / Fonts (Itch.io Theme Customizer Dropdown)
+* **Headers Font:** **`Press Start 2P`** *(Matches the in-game arcade pixel title and modal banners)*
+  * *Fallback if unavailable in your list:* **`Lucida Console`** or **`Courier New`**
+* **Body Font:** **`Open Sans`** or **`Roboto`** *(Clean, relaxed sans-serif for comfortable reading of the long description)*
+  * *Alternative:* **`Verdana`**
+
 ---
 
-## 2. Short Description / Tagline Options (Itch.io Tagline Field)
+## 2. Short Description / Tagline Options (Itch.io Tagline Field — Under 120 chars)
 
-* **Option 1 (Recommended — Theme-focused & Clear):**
-  > A tactile 16-bit toroidal grid puzzle where you shift rows and columns to snap colors into place. Built for GitHub Game Off 2026 (Theme: SHIFT).
-* **Option 2 (Gameplay-Focused):**
-  > Shift rows, slide columns, and wrap around edges to snap colored blocks into matching frames before time runs out. Unlimited moves, pure flow!
-* **Option 3 (Short & Casual):**
-  > A nostalgic handheld puzzle game about shifting toroidal grids. No move penalties, just clock-beating spatial fun.
+* **Option 1 (Recommended — 107 chars):**
+  > A casual 2D torus puzzle. Shift rows and columns to snap colors into place! Built for GitHub Game Off 2026.
+* **Option 2 (Mechanics & Jam — 114 chars):**
+  > Shift rows, slide columns, and wrap around edges to snap colors into their frames. Built for GitHub Game Off 2026.
+* **Option 3 (Casual & Direct — 105 chars):**
+  > A simple 2D torus grid puzzle. Shift rows and columns, wrap around edges, and snap the colors into place.
+* **Option 4 (Punchy & Short — 91 chars):**
+  > Shift rows, wrap around edges, and snap colored blocks into place. Simple, satisfying flow!
 
 ---
 
 ## 3. GitHub Repository About Description & Topics
 
 * **About Description:**
-  > A tactile 16-bit toroidal grid puzzle built for GitHub Game Off 2026 (Theme: SHIFT). Shift rows and columns to snap colored blocks into matching target frames before time runs out.
+  > A casual 2D torus puzzle game built for GitHub Game Off 2026 (Theme: SHIFT). Simple shifting mechanics—slide rows and columns to snap colors into their matching frames on the grid!
 * **GitHub Repository Topics:**
-  `game-off-2026`, `shift`, `puzzle`, `game-jam`, `toroidal`, `retro`, `16-bit`, `arcade`, `react`, `typescript`, `vite`, `tailwindcss`, `web-game`, `html5`, `colorblind-friendly`, `open-source`
+  `game-off-2026`, `shift`, `puzzle`, `torus`, `casual`, `game-jam`, `grid-puzzle`, `html5`, `web-game`, `react`, `typescript`, `vite`, `colorblind-friendly`, `open-source`
 
 ---
 
@@ -51,13 +59,11 @@ Created for **GitHub Game Off 2026** (Theme: **SHIFT**).
 * `game-off-2026`
 * `shift`
 * `puzzle`
-* `retro`
-* `pixel-art`
-* `arcade`
+* `casual`
 * `tactile`
 * `logic`
-* `casual`
 * `html5`
+* `pixel-art`
 * `mobile-friendly`
 * `colorblind-friendly`
 * `open-source`
@@ -68,67 +74,93 @@ Created for **GitHub Game Off 2026** (Theme: **SHIFT**).
 
 ---
 
-## 5. Description (HTML Code for Itch.io Editor)
+## 5. Statement on AI Usage (Itch.io Metadata Field)
+*(Short, crisp version formatted for the Itch.io project settings dialog)*
+
+### AI-Generated Content Classification (Checkboxes)
+* ☑ **Graphics:** Concept art & splash visuals (Gemini)
+* ☑ **Sounds:** Audio & music generation assistance (Gemini)
+* ☑ **Text & Dialog:** Tutorial copy assistance
+* ☑ **Code:** AI pair programming & scaffolding (Google Antigravity & Gemini)
+
+### Statement of AI Usage (Textarea)
+> I am a game designer with 16+ years of experience, but without a traditional coding background. I built Grid Snap as an experiment to explore how modern AI tools can help game designers bridge the gap between design intent and playable reality.
+> 
+> Rather than treating AI as a single-prompt "slot machine", I used Google Antigravity, Gemini, and Google Stitch as collaborative design and execution partners. This allowed me to focus on what game design is actually about: defining mechanics, tuning tactile game feel, pacing puzzles, and quickly testing a playable prototype with real players.
+> 
+> I document my learnings and practical AI prototyping workflows on my Substack, [Game Design Bites](https://gamedesignbites.substack.com/).
+
+---
+
+## 6. Description (HTML Code for Itch.io Editor)
 *Copy and paste the HTML block below directly into the Itch.io game page description field in HTML editing mode (`</>` toggle).*
 
 ```html
 <h1>🎮 Grid Snap 🎮</h1>
 
-<blockquote>Shift rows, slide columns, and wrap around edges to snap colored blocks into matching frames before the clock runs out.</blockquote>
+<blockquote>A casual 2D torus puzzle where you shift rows and columns to snap colors into their frames on the grid. Built for GitHub Game Off 2026 (Theme: SHIFT).</blockquote>
 
 <h2>🏷️ Recommended Tags</h2>
-<p><code>game-off-2026</code>, <code>shift</code>, <code>puzzle</code>, <code>retro</code>, <code>pixel-art</code>, <code>arcade</code>, <code>tactile</code>, <code>logic</code>, <code>casual</code>, <code>html5</code>, <code>colorblind-friendly</code></p>
+<p><code>game-off-2026</code>, <code>shift</code>, <code>puzzle</code>, <code>casual</code>, <code>logic</code>, <code>html5</code>, <code>pixel-art</code>, <code>colorblind-friendly</code></p>
 
 <h2>📝 Introduction</h2>
 
 <p>I built <strong>Grid Snap</strong> as an entry for the <strong><a href="https://itch.io/jam/game-off-2026" target="_blank" rel="noopener">GitHub Game Off 2026</a></strong> game jam, centered around the theme: <strong>SHIFT</strong>.</p>
 
-<p>When thinking about the theme, I wanted to explore a spatial puzzle mechanic: shifting entire rows and columns on a toroidal grid (where tiles that slide off one edge wrap around seamlessly to the opposite side). The goal is simple—rearrange the colored blocks until every fixed wireframe slot is matched before the stage timer runs out.</p>
+<p>When thinking about the theme, I wanted to explore a casual, satisfying spatial mechanic: a <strong>2D torus puzzle</strong> where shifting entire rows and columns wraps tiles seamlessly around the edges. The objective is simple: shift the grid until every colored block snaps into its matching target frame before time runs out.</p>
 
-<p>Like some of my previous experiments, I designed the core loop around an anxiety-free "no move limits" flow. You're never punished for trying out exploratory shifts or figuring out a pattern; you can slide tiles back and forth as much as you like, as long as you keep an eye on the clock for a 3-star clear.</p>
+<p>Like some of my previous experiments, I designed the core loop around an anxiety-free "no move limits" flow. You're never penalized for exploratory moves or experimenting with shifts; you can slide tiles back and forth as much as you like at your own pace, with a stage timer for players who enjoy chasing 3-star clears.</p>
 
-<p>On the design and technical side, I wanted to capture the chunky, tactile feel of vintage 90s handheld consoles—complete with 3D beveled blocks, microswitch button presses, and procedural sound effects generated entirely with the WebAudio API (no heavy audio files to load). To help when things get tricky on larger boards, the game includes a built-in hint system powered by an IDA* pathfinding solver running directly in a Web Worker.</p>
+<p>Visually, the game leans into a <strong>chunky, tactile feeling with a pixel-art-inspired style</strong>—solid ink outlines, beveled blocks, and snappy retro sound effects generated right in the browser. The stages are handmade and carefully paced, but also backed by an intelligent level editor that makes authoring and testing new puzzle layouts quick and scalable.</p>
 
 <h2>🕹️ Controls</h2>
 
 <ul>
     <li><strong>Shift Row / Column:</strong> Click, tap, or drag horizontally or vertically along any row or column. Release to snap it into place.</li>
-    <li><strong>Wrap Around:</strong> Blocks pushed past the edge will wrap around to the other side automatically.</li>
-    <li><strong>Boosters:</strong> Tap the <strong>HINT</strong> or <strong>+5S</strong> buttons at the bottom if you need a hand on a tight stage.</li>
+    <li><strong>Wrap Around:</strong> Blocks pushed past an edge wrap seamlessly around to the other side (like a 2D torus).</li>
+    <li><strong>Boosters:</strong> Tap the <strong>HINT</strong> or <strong>+5S</strong> buttons at the bottom if you need a quick nudge on a tight stage.</li>
 </ul>
 
 <h2>✨ Features</h2>
 
 <ul>
-    <li><strong>16-Bit Handheld Feel:</strong> Chunky beveled blocks, dark ink outlines, and tactile microswitch button presses inspired by 90s portable consoles.</li>
-    <li><strong>Toroidal Wrap-Around Mechanics:</strong> Puzzles scale from quick 3&times;3 introductory stages up to dense 4&times;8 matrices.</li>
-    <li><strong>Freeform Experimentation:</strong> No move counters or strike limits—shift tiles as often as you want while chasing 3-star clear times.</li>
-    <li><strong>In-Browser AI Solver:</strong> An IDA* optimal solver runs in a Web Worker to provide smart hints whenever you're stuck.</li>
-    <li><strong>Procedural Audio:</strong> Pure WebAudio synthesis for tile slides, clicks, and snaps, plus an optional background theme.</li>
-    <li><strong>Colorblind Accessibility:</strong> Toggle Colorblind Mode in Settings to overlay geometric shape symbols on blocks and target slots.</li>
-    <li><strong>Custom Level Editor:</strong> Includes a standalone browser-based editor (<code>npm run dev:editor</code>) with auto-unsolve algorithms and solver par checks.</li>
+    <li><strong>Chunky &amp; Tactile Pixel-Art Style:</strong> Beveled blocks, physical button clicks, and satisfying snap animations that give every slide a crisp, tangible feel.</li>
+    <li><strong>Simple Shifting Mechanics:</strong> Intuitive drag-and-snap controls that feel natural on a desktop mouse or mobile touchscreen.</li>
+    <li><strong>Handmade &amp; Scalable Levels:</strong> Thoughtfully handcrafted puzzle stages ranging from quick 3&times;3 introductions to denser 4&times;8 challenge boards, backed by an authoring editor that makes creating and scaling new layouts easy.</li>
+    <li><strong>Live Remote Balancing:</strong> Level curves, difficulty tuning, and the coin economy can be updated on the fly via remote config without needing a whole new game update.</li>
+    <li><strong>Smart In-Game Hints:</strong> If you get stuck on a tricky matrix, tap the Hint booster to highlight the best next shift.</li>
+    <li><strong>No Move Limits:</strong> Experiment freely with shifts without move counters or strike penalties while chasing 3-star clear times.</li>
+    <li><strong>Colorblind Accessibility:</strong> Toggle Colorblind Mode in Settings to display distinct geometric shape symbols on blocks and target frames.</li>
 </ul>
 
 <h2>📜 Rules / How to Play</h2>
 
 <ul>
-    <li><strong>The Goal:</strong> Match every colored target frame on the board by shifting the corresponding colored blocks into position.</li>
-    <li><strong>Cyclic Movement:</strong> Moving a row or column shifts every block in that line together. Blocks that slide off an edge wrap around to the other side.</li>
-    <li><strong>Fixed Target Slots:</strong> Target wireframes remain anchored in place—only the colored blocks move.</li>
+    <li><strong>Snap the Colors:</strong> Match every colored target frame on the grid by shifting matching colored blocks into place.</li>
+    <li><strong>Cyclic Shifting:</strong> Shifting a row or column moves all blocks in that line together. Blocks that slide off an edge wrap around to the opposite side.</li>
+    <li><strong>Anchored Target Frames:</strong> Target frames remain fixed on the grid—only the colored blocks shift around them.</li>
     <li><strong>3-Star Ratings:</strong> Clear the level before the milestone timer runs down to earn up to 3 stars and coins for boosters.</li>
-    <li><strong>Heart Escrow:</strong> Entering a level holds 1 heart. Clear the board to get it back; running out of time forfeits it.</li>
 </ul>
 
-<h2>🤖 Disclaimer / Credits</h2>
+<h2>🤖 AI Usage &amp; Prototyping</h2>
 
-<p>This project was developed with the assistance of agentic AI workflows:</p>
+<p>I’m a game designer with 16+ years of industry experience, but without a traditional coding background. I built <strong>Grid Snap</strong> as an ongoing experiment in using modern AI tools to bridge the gap between <em>design intent</em> and <em>playable reality</em>.</p>
+
+<p>Rather than using AI as a "slot machine" for single-prompt disposable games, I treat tools like <strong>Google Antigravity</strong> and <strong>Gemini</strong> as collaborative pair programmers. The AI handles code execution and scaffolding, freeing me to focus entirely on the craft of game design: spatial rules, tactile feel, puzzle pacing, and quick playable prototyping.</p>
+
+<p>I write about this process, practical non-coder workflows, and game design philosophy on my Substack: <strong><a href="https://gamedesignbites.substack.com/" target="_blank" rel="noopener">Game Design Bites</a></strong>.</p>
+
+<h2>🛠️ Credits &amp; Tech</h2>
+
 <ul>
-    <li><strong>AI Pair Programming:</strong> Built using <strong>Google Antigravity</strong> and Gemini.</li>
-    <li><strong>Tech Stack:</strong> React 19, TypeScript, Vite, and Tailwind CSS v4.</li>
+    <li><strong>AI Pair Programming &amp; IDE:</strong> Built with <strong>Google Antigravity</strong> and <strong>Gemini</strong>.</li>
+    <li><strong>UI Design &amp; Interfaces:</strong> Designed with <strong>Google Stitch</strong>.</li>
+    <li><strong>Art &amp; Sound Assets:</strong> Concept art and audio generation with <strong>Gemini</strong>, paired with procedural in-browser sound synthesis.</li>
+    <li><strong>Framework &amp; Styling:</strong> React 19, TypeScript, Vite, and Tailwind CSS.</li>
     <li><strong>Typography:</strong> <i>Press Start 2P</i>, <i>Silkscreen</i>, and <i>Space Mono</i>.</li>
 </ul>
 
-<p>I hope you enjoy solving these puzzles as much as I enjoyed building the system behind them!</p>
+<p>I hope you enjoy solving these puzzles as much as I enjoyed designing and prototyping them!</p>
 
 <hr>
 
@@ -136,7 +168,7 @@ Created for **GitHub Game Off 2026** (Theme: **SHIFT**).
 
 <p>If you find value in these experiments, feel free to show some love on <a href="https://ko-fi.com/ishanmanjrekar/tip" target="_blank" rel="noopener">Ko-fi</a>.</p>
 
-<p>You can also subscribe to my blog, <a href="https://gamedesignbites.substack.com/" target="_blank" rel="noopener">Game Design Bites</a>, where I write about game mechanics, interactive design, and AI-assisted workflows.</p>
+<p>You can also subscribe to my newsletter, <a href="https://gamedesignbites.substack.com/" target="_blank" rel="noopener">Game Design Bites</a>, where I write about game mechanics, interactive design, and AI-assisted workflows.</p>
 
 <hr>
 

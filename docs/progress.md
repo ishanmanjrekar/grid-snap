@@ -238,7 +238,12 @@
   - Verified with 19/19 Vitest tests passing and clean Vite production build.
 - [x] **Itch.io Marketing Documentation & Upload Details (`itch-assets/itch-upload-details.md`, `dump/itch-upload-details.md`)**:
   - Authored comprehensive Itch.io upload marketing document tailored for **GitHub Game Off 2026** (Theme: **SHIFT**) in humble solo-creator tone.
-  - Included project classification, theme customizer color tokens, punchy taglines/short descriptions, GitHub repo topics, recommended tags, and full HTML-formatted page description matching the tactile 16-bit arcade tone of the game.
+  - Refined copy to focus accurately on casual, simple shifting mechanics, 2D torus puzzle gameplay, and snapping colors to their matching frames without "16-bit" misnomers.
+  - Trimmed all tagline options strictly under 120 characters to fit the Itch.io tagline field limit.
+  - Added Itch.io theme customizer font recommendations (`Press Start 2P` for headers, `Open Sans`/`Roboto` for body).
+  - Stripped engineering-heavy jargon (APIs, Web Workers, etc.) in favor of product/design-centric highlights: chunky tactile pixel-art styling, handcrafted yet scalable levels with editor logic, and live remote configuration support.
+  - Formatted a dedicated, crisp **Statement on AI Usage** specifically sized for the Itch.io metadata dialog and a streamlined HTML section reflecting the *Making Playable Things* design philosophy.
+  - Credited Gemini for art assets & sound and Google Stitch for UI layouts in the Credits and classification checklists.
   - Saved in both `itch-assets/` and `dump/`.
 - [x] **Expanded Click Target for HUD Coins & Lives Capsules (`src/components/screens/MainMenuView.tsx`, `src/components/screens/ItemStoreView.tsx`, `docs/ui-ux-and-flows.md`)**:
   - Unified the split container (`<div>` readout + `<button>` plus) into a single cohesive `<button className="... pixel-btn">` control for both Coins and Lives.
