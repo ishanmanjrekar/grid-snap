@@ -2,17 +2,17 @@
   "maxLives": 5,
   "startingLives": 5,
   "lifeRegenIntervalSeconds": 300,
-  "startingCoins": 500,
-  "levelClearReward": 500,
-  "campaignLoopSize": 10,
+  "startingCoins": 100,
+  "levelClearReward": 100,
+  "fallbackEndgameLoopSize": 10,
   "starThresholds": {
-    "threeStarMinRatio": 0.50,
-    "twoStarMinRatio": 0.15
+    "threeStarMinRatio": 0.70,
+    "twoStarMinRatio": 0.20
   },
   "boosters": {
-    "hintCostCoins": 20,
-    "extraTimeCostCoins": 10,
-    "extraTimeSeconds": 5,
+    "hintCostCoins": 30,
+    "extraTimeCostCoins": 20,
+    "extraTimeSeconds": 10,
     "extraTimeCapToLimit": true,
     "reviveCostCoins": 100,
     "reviveSeconds": 30
@@ -45,7 +45,7 @@
     {
       "id": "coins_500",
       "type": "coins",
-      "label": "500 C",
+      "label": "500 COINS",
       "amount": 500,
       "kofiUrl": "https://ko-fi.com/ishanmanjrekar/2",
       "toastMessage": "ADDED 500 COINS!"
@@ -53,7 +53,7 @@
     {
       "id": "coins_1200",
       "type": "coins",
-      "label": "1,200 C",
+      "label": "1,200 COINS",
       "amount": 1200,
       "kofiUrl": "https://ko-fi.com/ishanmanjrekar/5",
       "toastMessage": "ADDED 1,200 COINS!"
@@ -61,7 +61,7 @@
     {
       "id": "coins_5000",
       "type": "coins",
-      "label": "5,000 C",
+      "label": "5,000 COINS",
       "amount": 5000,
       "kofiUrl": "https://ko-fi.com/ishanmanjrekar/10",
       "toastMessage": "ADDED 5,000 COINS!"

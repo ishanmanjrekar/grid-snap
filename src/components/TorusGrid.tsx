@@ -15,6 +15,8 @@ export interface TorusGridProps {
   colorblindMode?: boolean;
   disabled?: boolean;
   activeHint?: ShiftAction | null;
+  restrictedHint?: ShiftAction | null;
+  onInvalidInteraction?: () => void;
   onCommitShift?: (action: ShiftAction) => void;
   onDragTick?: () => void;
   /** Optional Level Editor Paint Mode */
@@ -46,6 +48,8 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
   colorblindMode = false,
   disabled = false,
   activeHint = null,
+  restrictedHint = null,
+  onInvalidInteraction,
   onCommitShift,
   onDragTick,
   editorPaintMode = false,
@@ -61,6 +65,24 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
   const commitTimeoutRef = useRef<number | null>(null);
   const isPaintingRef = useRef<boolean>(false);
   const lastPaintedCellRef = useRef<string | null>(null);
+  const [invalidWiggle, setInvalidWiggle] = useState<boolean>(false);
+  const invalidWiggleTimeoutRef = useRef<number | null>(null);
+  const lastInvalidAudioRef = useRef<number>(0);
+
+  const triggerInvalidFeedback = useCallback(() => {
+    const now = Date.now();
+    if (now - lastInvalidAudioRef.current > 300) {
+      lastInvalidAudioRef.current = now;
+      onInvalidInteraction?.();
+      setInvalidWiggle(true);
+      if (invalidWiggleTimeoutRef.current !== null) {
+        window.clearTimeout(invalidWiggleTimeoutRef.current);
+      }
+      invalidWiggleTimeoutRef.current = window.setTimeout(() => {
+        setInvalidWiggle(false);
+      }, 320);
+    }
+  }, [onInvalidInteraction]);
 
   // Measure available stage container and compute optimal square cell size
   const updateCellSize = useCallback(() => {
@@ -94,6 +116,9 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
     return () => {
       if (commitTimeoutRef.current !== null) {
         window.clearTimeout(commitTimeoutRef.current);
+      }
+      if (invalidWiggleTimeoutRef.current !== null) {
+        window.clearTimeout(invalidWiggleTimeoutRef.current);
       }
     };
   }, []);
@@ -159,6 +184,18 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
       return;
     }
 
+    if (restrictedHint) {
+      const isTargetLine =
+        restrictedHint.axis === 'row'
+          ? row === restrictedHint.index
+          : col === restrictedHint.index;
+
+      if (!isTargetLine) {
+        triggerInvalidFeedback();
+        return;
+      }
+    }
+
     e.currentTarget.setPointerCapture(e.pointerId);
     const nextDrag: DragState = {
       pointerId: e.pointerId,
@@ -209,19 +246,70 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
     let lineIndex = current.lineIndex;
 
     if (!axis) {
-      if (Math.abs(dx) < lockThreshold && Math.abs(dy) < lockThreshold) {
-        return;
-      }
-      if (Math.abs(dx) >= Math.abs(dy)) {
-        axis = 'row';
-        lineIndex = current.startRow;
+      if (restrictedHint) {
+        const isHoriz = Math.abs(dx) >= Math.abs(dy);
+        if (restrictedHint.axis === 'row') {
+          if (!isHoriz && Math.abs(dy) > lockThreshold) {
+            triggerInvalidFeedback();
+            return;
+          }
+          if (Math.abs(dx) >= lockThreshold) {
+            axis = 'row';
+            lineIndex = restrictedHint.index;
+          } else {
+            return;
+          }
+        } else {
+          if (isHoriz && Math.abs(dx) > lockThreshold) {
+            triggerInvalidFeedback();
+            return;
+          }
+          if (Math.abs(dy) >= lockThreshold) {
+            axis = 'col';
+            lineIndex = restrictedHint.index;
+          } else {
+            return;
+          }
+        }
       } else {
-        axis = 'col';
-        lineIndex = current.startCol;
+        if (Math.abs(dx) < lockThreshold && Math.abs(dy) < lockThreshold) {
+          return;
+        }
+        if (Math.abs(dx) >= Math.abs(dy)) {
+          axis = 'row';
+          lineIndex = current.startRow;
+        } else {
+          axis = 'col';
+          lineIndex = current.startCol;
+        }
       }
     }
 
-    const offsetPx = axis === 'row' ? dx : dy;
+    let offsetPx = axis === 'row' ? dx : dy;
+
+    if (restrictedHint) {
+      const expectedPositive =
+        restrictedHint.direction === 'right' || restrictedHint.direction === 'down';
+
+      if (expectedPositive) {
+        if (offsetPx < -8) {
+          triggerInvalidFeedback();
+          offsetPx = 0;
+        } else {
+          const maxAllowed = restrictedHint.distance * stepSizePx + 8;
+          offsetPx = Math.max(0, Math.min(maxAllowed, offsetPx));
+        }
+      } else {
+        if (offsetPx > 8) {
+          triggerInvalidFeedback();
+          offsetPx = 0;
+        } else {
+          const minAllowed = -restrictedHint.distance * stepSizePx - 8;
+          offsetPx = Math.min(0, Math.max(minAllowed, offsetPx));
+        }
+      }
+    }
+
     const currentTickSlot = Math.round(offsetPx / stepSizePx);
 
     if (currentTickSlot !== current.lastTickSlot) {
@@ -255,8 +343,25 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
       return;
     }
 
+    let netCells = Math.round(current.offsetPx / stepSizePx);
+
+    if (restrictedHint) {
+      const expectedPositive =
+        restrictedHint.direction === 'right' || restrictedHint.direction === 'down';
+      if (expectedPositive && netCells <= 0) {
+        netCells = 0;
+      } else if (!expectedPositive && netCells >= 0) {
+        netCells = 0;
+      }
+    }
+
+    if (netCells === 0) {
+      dragRef.current = null;
+      setDrag(null);
+      return;
+    }
+
     const preCommitBaseCells = Math.trunc(current.offsetPx / stepSizePx);
-    const netCells = Math.round(current.offsetPx / stepSizePx);
     const targetOffsetPx = netCells * stepSizePx;
 
     const committingState: DragState = {
@@ -428,6 +533,15 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
       ref={stageRef}
       className="w-full h-full flex items-center justify-center select-none overflow-hidden"
     >
+      <style>{`
+        @keyframes ftueWiggle {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          20% { transform: translate3d(-4px, 0, 0); }
+          40% { transform: translate3d(4px, 0, 0); }
+          60% { transform: translate3d(-3px, 0, 0); }
+          80% { transform: translate3d(3px, 0, 0); }
+        }
+      `}</style>
       {/* Handheld Console Outer Bezel Frame */}
       <div
         className="relative bg-[#EAE2CA] border-[4px] border-[#2C2523] shadow-[5px_5px_0_0_#2C2523] p-5 flex flex-col items-center justify-center"
@@ -497,6 +611,7 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
               width: trayWidth,
               height: trayHeight,
               touchAction: 'none',
+              animation: invalidWiggle ? 'ftueWiggle 320ms ease-in-out' : undefined,
             }}
             className={`relative pixel-tray-inset border-[3px] border-[#2C2523] overflow-hidden ${
               editorPaintMode ? 'cursor-crosshair' : disabled ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'

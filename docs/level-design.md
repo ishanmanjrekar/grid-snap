@@ -50,10 +50,13 @@ Matching the clean workflow from `loop-game`, the Level Editor is a standalone i
 - **Editor Typography (High-Legibility Authoring)**:
   - **Main Header Title**: Uses `font-pixel` (`'Press Start 2P'`) exclusively on the top `GRID SNAP // LEVEL EDITOR` title (`editor/EditorApp.tsx`).
   - **All Body Text, Labels, Inputs, Dropdowns & Buttons**: Uses **`Be Vietnam Pro`** (`'Be Vietnam Pro', system-ui, -apple-system, sans-serif`, loaded in `editor/index.html`) so dense authoring controls, stats, and level lists remain effortless to read during long design sessions.
-- **Direct Disk Read/Write (`saveLevelPlugin` in `vite.editor.config.ts` & `vite.config.ts`)**:
+- **Direct Disk Read/Write (`saveLevelPlugin` in `vite.editor.config.ts`)**:
+  - `server.watch.ignored: ['**/src/config/**', '**/levels.json']`: Configures Vite's server watcher to ignore level config updates on disk, preventing automatic full-page reloads upon saving and preserving the active level draft and stage matrices.
+  - Active Level Persistence (`grid_snap_editor_active_level_id`): Preserves the active stage ID in `localStorage` across saves and manual browser refreshes instead of falling back to Level #1.
   - `GET /api/levels`: Reads and returns the full levels array from `src/config/levels.json`.
   - `POST /api/save-level`: Inserts a new level or overwrites an existing **Level No. `X`** inside `src/config/levels.json` (sorted by `id: number`) and formats the JSON cleanly on disk.
   - `POST /api/insert-level`: Inserts the level at **Level No. `X`** and shifts all existing levels with `id >= X` up by `+1`.
+  - `POST /api/reorder-levels`: Accepts a reordered array of levels, re-indexes their `id` values sequentially (`1 .. N`), and writes the updated order directly to disk.
   - `DELETE /api/level/:id`: Deletes **Level No. `X`** and re-indexes remaining levels sequentially (`1 .. N`).
 - **Live Remote Level & Economy Sync (`src/utils/remoteData.ts`)**:
   - In production builds (Web, Itch.io, and Android APK), `SplashScreen.tsx` invokes `syncRemoteConfigs()` on boot to fetch the latest `levels.json` and `economy.json` from `https://raw.githubusercontent.com/ishanmanjrekar/grid-snap/main/src/config/` (`cache: 'no-cache'`, `3000ms` `AbortController` timeout, runtime schema validation via `isValidLevelsConfig` and `isValidEconomyConfig`).
@@ -75,6 +78,11 @@ flowchart LR
    - **`+ NEW LEVEL`**: Initializes a blank board defaulting to `id = maxLevelId + 1`.
    - **`DUPLICATE`**: Copies the currently loaded level into a new draft with `id = maxLevelId + 1`.
    - **`DELETE LEVEL`**: Deletes the currently loaded level (after confirmation) via `DELETE /api/level/:id` and re-indexes remaining levels.
+   - **`⇄ REORDER LEVELS (N)`**: Opens the interactive level reordering modal dialog allowing drag-and-drop or button-driven reordering of all levels in the campaign.
+     - **Card Display**: Shows new sequence number (`#new`), original ID (`was #old`), grid dimensions (`cols×rows`), difficulty badge, par moves, timer limit, and mini color dot palette indicator.
+     - **Reorder Controls**: Drag handle (`⠿`), `⇪` (move to top), `▲` (move up 1 slot), `▼` (move down 1 slot), and `⇩` (move to bottom).
+     - **Sort Presets**: Quick sort by **Difficulty** (Normal -> Hard -> Super Hard), **Grid Size** (3×3 -> 4×8), **Reverse Order**, or **Reset**.
+     - **Atomic Persistence**: On confirming "Save New Order", posts to `POST /api/reorder-levels`, automatically updates the active level to its new position, and writes `src/config/levels.json`.
 2. **Target Level Number (`id`)**: Numeric input (`1, 2, 3...`) specifying which **Level No. `X`** this puzzle will be saved or inserted as.
 3. **Grid Size Selector**:
    - **Columns (`cols`)**: `3` or `4`
@@ -147,12 +155,30 @@ Because two non-consecutive shifts on parallel lines commute (for example, `Row 
 
 ---
 
-## 5. End-of-Campaign Loop & Future Procedural Generation
+## 5. End-of-Campaign Loop & Deterministic 3-Way Reflections
 
-### 5.1 Active Interim Rule: Repeat Last 10 Levels (`L > N`)
+### 5.1 Editable JSON Campaign Loop (`campaignLoop`) & 3-Way Flip System (`L > N`)
 Until procedural level generation is enabled, hand-crafted campaign levels are authored manually in the Level Editor and saved to `src/config/levels.json` (`1 .. N`):
-- For `1 <= L <= N`, stage `L` loads `levels[L - 1]`.
-- Once the player clears level `N`, any subsequent level `L > N` automatically cycles through the **last `min(10, N)` levels** (`levels[(N - loopSize) + ((L - N - 1) % loopSize)]`), while the player's `unlockedLevel` counter and HUD stage number (`LVL. L`) continue incrementing indefinitely.
+- **Authored Progression (`1 <= L <= N`)**: Stage `L` plays `levels[L - 1]` in its original authored orientation (e.g. Intro Levels 1 to 5 teach core mechanics).
+- **Customizable Looping Sequence (`L > N`)**:
+  - `src/config/levels.json` exposes a top-level `campaignLoop: number[]` array configured by the designer:
+    ```json
+    {
+      "campaignLoop": [6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+      "levels": [ ... ]
+    }
+    ```
+  - **Intro Levels Skipped**: Introductory levels 1–5 are skipped; the loop defaults to repeating stages `6` through `15`.
+  - **Full Designer Control**: Designers can customize the exact sequence and repeat order at any time directly in the JSON file (e.g., `[10, 12, 14, 6, 7, 10, 15, 12, 14, 19, 25, 30]`).
+  - **Infinite Cyclic Offset**: When $L > N$, the stage picks `campaignLoop[(L - N - 1) % campaignLoop.length]`.
+- **Deterministic 3-Way Reflection (`hash(L) % 3`)**:
+  - To prevent repeated levels from looking identical, every repeated level $L$ is deterministically transformed using one of 3 reflection orientations:
+    1. **Horizontal Flip (`0`)**: Left-to-right mirror reflection (`(r, c) => (r, cols - 1 - c)`).
+    2. **Vertical Flip (`1`)**: Up-to-down mirror reflection (`(r, c) => (rows - 1 - r, c)`).
+    3. **Both / 180° Rotation (`2`)**: Combined point reflection / 180° rotation (`(r, c) => (rows - 1 - r, cols - 1 - c)`).
+  - **100% Solvability & Par Invariance**: Reflections on a toroidal grid are graph automorphisms—every valid sequence of row/column shifts maps 1:1 to an equivalent mirrored sequence. The IDA\* solver confirms all 3 orientations preserve the exact original `parMoves`.
+  - **Seed Determinism & Replay Stability**: Derived via an integer hash of $L$, ensuring Level 16 always maintains the exact same orientation across retries and restarts.
+  - **Continuous HUD Counter**: The player's `unlockedLevel` and in-game HUD counter (`LVL. L`) continue incrementing sequentially (`16`, `17`, `18`...) forever.
 
 ### 5.2 Future Procedural Level Generation Hook (Post-Campaign — Rules TBD)
 > [!NOTE]

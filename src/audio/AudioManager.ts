@@ -1,7 +1,16 @@
 import { AssetLoader } from '../utils/AssetLoader';
 import { playSynthesizedSfx, type SfxKey } from './sfx';
 
-export type MusicTrack = 'menu' | 'gameplay';
+export type MusicTrack = 'menu' | 'gameplay' | 'theme';
+
+const MUSIC_VOLUME = 0.36; // Reduced by 20% from 0.45
+const MUSIC_DUCKED_VOLUME = 0.13; // Reduced by 20% from 0.16
+
+const TRACK_ASSET_MAP: Record<MusicTrack, string> = {
+  menu: 'theme',
+  gameplay: 'theme',
+  theme: 'theme',
+};
 
 class AudioManagerController {
   private ctx: AudioContext | null = null;
@@ -13,8 +22,8 @@ class AudioManagerController {
   private isDucked = false;
 
   private currentTrack: MusicTrack | null = null;
-  private musicElements: Partial<Record<MusicTrack, HTMLAudioElement>> = {};
-  private musicLoadFailed: Partial<Record<MusicTrack, boolean>> = {};
+  private musicElements: Partial<Record<string, HTMLAudioElement>> = {};
+  private musicLoadFailed: Partial<Record<string, boolean>> = {};
   private customSfxBuffers: Partial<Record<SfxKey, AudioBuffer | null>> = {};
 
   private ensureContext(): AudioContext | null {
@@ -36,10 +45,17 @@ class AudioManagerController {
     return this.ctx;
   }
 
+  private getActiveMusicElement(): HTMLAudioElement | null {
+    if (!this.currentTrack) return null;
+    const assetKey = TRACK_ASSET_MAP[this.currentTrack] || this.currentTrack;
+    return this.musicElements[assetKey] || null;
+  }
+
   public unlock(): void {
     this.ensureContext();
     if (this.currentTrack && this.musicEnabled) {
-      this.startTrackElement(this.currentTrack);
+      const assetKey = TRACK_ASSET_MAP[this.currentTrack] || this.currentTrack;
+      this.startTrackElement(assetKey);
     }
   }
 
@@ -55,9 +71,9 @@ class AudioManagerController {
     }
     this.updateGainNodes();
 
-    const activeEl = this.currentTrack ? this.musicElements[this.currentTrack] : null;
+    const activeEl = this.getActiveMusicElement();
     if (activeEl) {
-      activeEl.volume = this.musicEnabled ? (this.isDucked ? 0.16 : 0.45) : 0;
+      activeEl.volume = this.musicEnabled ? (this.isDucked ? MUSIC_DUCKED_VOLUME : MUSIC_VOLUME) : 0;
       if (!this.musicEnabled && !activeEl.paused) {
         activeEl.pause();
       } else if (this.musicEnabled && activeEl.paused && this.ctx) {
@@ -114,47 +130,53 @@ class AudioManagerController {
   }
 
   public setMusicTrack(track: MusicTrack): void {
-    if (this.currentTrack === track) {
-      if (this.musicEnabled) {
-        this.startTrackElement(track);
+    const prevAsset = this.currentTrack ? (TRACK_ASSET_MAP[this.currentTrack] || this.currentTrack) : null;
+    const nextAsset = TRACK_ASSET_MAP[track] || track;
+
+    this.currentTrack = track;
+
+    // Continuous playback: if both track roles share the same audio asset, keep playing without interrupting
+    if (prevAsset === nextAsset) {
+      if (this.musicEnabled && this.ctx) {
+        this.startTrackElement(nextAsset);
       }
       return;
     }
 
-    // Pause previous track
-    if (this.currentTrack && this.musicElements[this.currentTrack]) {
-      const prevEl = this.musicElements[this.currentTrack]!;
+    // Pause previous track if switching to a different asset
+    if (prevAsset && this.musicElements[prevAsset]) {
+      const prevEl = this.musicElements[prevAsset]!;
       prevEl.pause();
       prevEl.currentTime = 0;
     }
 
-    this.currentTrack = track;
     if (this.musicEnabled && this.ctx) {
-      this.startTrackElement(track);
+      this.startTrackElement(nextAsset);
     }
   }
 
-  private startTrackElement(track: MusicTrack): void {
-    if (this.musicLoadFailed[track]) return;
+  private startTrackElement(assetKey: string): void {
+    if (typeof Audio === 'undefined') return;
+    if (this.musicLoadFailed[assetKey]) return;
 
-    let el = this.musicElements[track];
+    let el = this.musicElements[assetKey];
     if (!el) {
       el = new Audio();
       el.loop = true;
       el.preload = 'auto';
-      el.src = AssetLoader.resolvePath(`audio/music/${track}.ogg`);
+      el.src = AssetLoader.resolvePath(`audio/music/${assetKey}.ogg`);
       el.onerror = () => {
-        // Fallback probe for .mp3 if .ogg is not supplied yet, otherwise fail silently
+        // Fallback probe for .mp3 if .ogg is not supported or missing
         if (el && el.src.endsWith('.ogg')) {
-          el.src = AssetLoader.resolvePath(`audio/music/${track}.mp3`);
+          el.src = AssetLoader.resolvePath(`audio/music/${assetKey}.mp3`);
         } else {
-          this.musicLoadFailed[track] = true;
+          this.musicLoadFailed[assetKey] = true;
         }
       };
-      this.musicElements[track] = el;
+      this.musicElements[assetKey] = el;
     }
 
-    el.volume = this.musicEnabled ? (this.isDucked ? 0.16 : 0.45) : 0;
+    el.volume = this.musicEnabled ? (this.isDucked ? MUSIC_DUCKED_VOLUME : MUSIC_VOLUME) : 0;
     if (this.musicEnabled && el.paused) {
       void el.play().catch(() => {
         // Ignore NotAllowedError or missing user-supplied track
@@ -166,8 +188,9 @@ class AudioManagerController {
     if (this.ctx && this.ctx.state === 'running') {
       void this.ctx.suspend().catch(() => {});
     }
-    if (this.currentTrack && this.musicElements[this.currentTrack]) {
-      this.musicElements[this.currentTrack]!.pause();
+    const activeEl = this.getActiveMusicElement();
+    if (activeEl) {
+      activeEl.pause();
     }
   }
 
@@ -175,8 +198,9 @@ class AudioManagerController {
     if (this.ctx && this.ctx.state === 'suspended') {
       void this.ctx.resume().catch(() => {});
     }
-    if (this.currentTrack && this.musicEnabled && this.musicElements[this.currentTrack]) {
-      void this.musicElements[this.currentTrack]!.play().catch(() => {});
+    const activeEl = this.getActiveMusicElement();
+    if (activeEl && this.musicEnabled) {
+      void activeEl.play().catch(() => {});
     }
   }
 }

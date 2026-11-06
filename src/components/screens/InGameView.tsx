@@ -8,6 +8,7 @@ import {
   PauseBarsIcon,
   PixelStarIcon,
 } from '../PixelIcons';
+import { CoinCapsule } from '../HudInventoryCapsules';
 import { TorusGrid } from '../TorusGrid';
 
 function formatTimeMMSS(seconds: number): string {
@@ -28,6 +29,7 @@ export const InGameView: React.FC = () => {
   const timeRemaining = useGameStore((s) => s.timeRemaining);
   const activeModal = useGameStore((s) => s.activeModal);
   const activeHint = useGameStore((s) => s.activeHint);
+  const tutorialStep = useGameStore((s) => s.tutorialStep);
   const colorblindMode = useGameStore((s) => s.settings.colorblindMode);
   const economy = useGameStore((s) => s.economy);
 
@@ -67,26 +69,31 @@ export const InGameView: React.FC = () => {
 
   const isLowTime = timeRemaining > 0 && timeRemaining <= 10;
 
+  const isStep1 = activeLevelId === 1 && tutorialStep === 'step1_hint';
+
   const hintCost = economy.boosters.hintCostCoins;
   const extraTimeCost = economy.boosters.extraTimeCostCoins;
 
   const canAffordHint = coins >= hintCost;
-  const isHintDisabled = activeHint !== null || !canAffordHint;
+  const isHintDisabled = activeHint !== null || !canAffordHint || isStep1;
 
   const canAffordExtraTime = coins >= extraTimeCost;
   const isTimeFull = timeRemaining >= timeLimitSeconds;
-  const isExtraTimeDisabled = isTimeFull || !canAffordExtraTime;
+  const isExtraTimeDisabled = isTimeFull || !canAffordExtraTime || isStep1;
 
   const handlePauseClick = () => {
+    if (isStep1) return;
     audioManager.playSfx('button_tap');
     openModal('pause');
   };
 
   const handleHintClick = () => {
+    if (isStep1) return;
     useHintBooster();
   };
 
   const handleExtraTimeClick = () => {
+    if (isStep1) return;
     useExtraTimeBooster();
   };
 
@@ -97,12 +104,7 @@ export const InGameView: React.FC = () => {
         {/* Upper Row: Coin Pill, LVL.X, Pause Button */}
         <div className="w-full flex items-center justify-between mb-2">
           {/* Pixel Coin Counter Pill */}
-          <div className="flex items-center bg-[#FFFBEA] px-2.5 py-1.5 border-2 border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] gap-2">
-            <CoinIcon size={16} />
-            <span className="font-pixel text-[10px] text-[#2C2523] tracking-tight">
-              {coins.toLocaleString()}
-            </span>
-          </div>
+          <CoinCapsule showPlus={false} />
 
           {/* Stage Title */}
           <div className="text-center">
@@ -115,10 +117,15 @@ export const InGameView: React.FC = () => {
           <button
             type="button"
             aria-label="Pause Game"
+            disabled={isStep1}
             onClick={handlePauseClick}
-            className="w-9 h-9 bg-[#FFFDF7] hover:bg-[#F0E8D0] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center justify-center text-[#2C2523] border-2 border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] cursor-pointer"
+            className={`w-11 h-11 bg-[#FFFDF8] border-[3px] border-[#1E1B18] shadow-[3px_3px_0_0_#1E1B18] pixel-btn flex items-center justify-center text-[#1E1B18] ${
+              isStep1
+                ? 'opacity-40 cursor-not-allowed pointer-events-none'
+                : 'cursor-pointer'
+            }`}
           >
-            <PauseBarsIcon size={15} />
+            <PauseBarsIcon size={16} />
           </button>
         </div>
 
@@ -210,6 +217,8 @@ export const InGameView: React.FC = () => {
           colorblindMode={colorblindMode}
           disabled={activeModal !== 'none'}
           activeHint={activeHint}
+          restrictedHint={isStep1 ? activeHint : null}
+          onInvalidInteraction={() => audioManager.playSfx('drag_tick')}
           onCommitShift={performShift}
           onDragTick={() => audioManager.playSfx('drag_tick')}
         />

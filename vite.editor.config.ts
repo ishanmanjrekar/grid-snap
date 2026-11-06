@@ -9,23 +9,48 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const levelsFilePath = path.resolve(__dirname, 'src/config/levels.json');
 
-function readLevelsFromDisk(): any[] {
+interface LevelsPayloadDisk {
+  campaignLoop: number[];
+  levels: any[];
+}
+
+function readLevelsPayloadFromDisk(): LevelsPayloadDisk {
   if (!fs.existsSync(levelsFilePath)) {
-    return [];
+    return { campaignLoop: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15], levels: [] };
   }
   try {
     const raw = fs.readFileSync(levelsFilePath, 'utf-8');
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (Array.isArray(parsed)) {
+      return {
+        campaignLoop: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        levels: parsed,
+      };
+    }
+    return {
+      campaignLoop: Array.isArray(parsed.campaignLoop)
+        ? parsed.campaignLoop
+        : [6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+      levels: Array.isArray(parsed.levels) ? parsed.levels : [],
+    };
   } catch {
-    return [];
+    return { campaignLoop: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15], levels: [] };
   }
 }
 
-function writeLevelsToDisk(levels: any[]): void {
+function readLevelsFromDisk(): any[] {
+  return readLevelsPayloadFromDisk().levels;
+}
+
+function writeLevelsToDisk(levels: any[], campaignLoop?: number[]): void {
+  const current = readLevelsPayloadFromDisk();
   const sorted = [...levels].sort((a, b) => Number(a.id) - Number(b.id));
+  const payload = {
+    campaignLoop: campaignLoop ?? current.campaignLoop,
+    levels: sorted,
+  };
   fs.mkdirSync(path.dirname(levelsFilePath), { recursive: true });
-  fs.writeFileSync(levelsFilePath, JSON.stringify(sorted, null, 2) + '\n', 'utf-8');
+  fs.writeFileSync(levelsFilePath, JSON.stringify(payload, null, 2) + '\n', 'utf-8');
 }
 
 export function saveLevelPlugin(): Plugin {
@@ -36,9 +61,9 @@ export function saveLevelPlugin(): Plugin {
         if (!req.url) return next();
 
         if (req.method === 'GET' && req.url === '/api/levels') {
-          const levels = readLevelsFromDisk();
+          const payload = readLevelsPayloadFromDisk();
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ levels }));
+          res.end(JSON.stringify(payload));
           return;
         }
 
@@ -95,6 +120,33 @@ export function saveLevelPlugin(): Plugin {
           return;
         }
 
+        if (req.method === 'POST' && req.url === '/api/reorder-levels') {
+          let body = '';
+          req.on('data', (chunk) => {
+            body += chunk;
+          });
+          req.on('end', () => {
+            try {
+              const incoming = JSON.parse(body);
+              const list = Array.isArray(incoming.levels) ? incoming.levels : incoming;
+              if (!Array.isArray(list)) {
+                throw new Error('Expected an array of levels');
+              }
+              const reindexed = list.map((lvl: any, idx: number) => ({
+                ...lvl,
+                id: idx + 1,
+              }));
+              writeLevelsToDisk(reindexed);
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ ok: true, levels: readLevelsFromDisk() }));
+            } catch (err: any) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ ok: false, error: err?.message || 'Invalid JSON' }));
+            }
+          });
+          return;
+        }
+
         if (req.method === 'DELETE' && req.url.startsWith('/api/level/')) {
           const idStr = req.url.replace('/api/level/', '');
           const delId = Number(idStr);
@@ -121,6 +173,9 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), saveLevelPlugin()],
   server: {
     port: 5174,
+    watch: {
+      ignored: ['**/src/config/**', '**/levels.json'],
+    },
     fs: {
       allow: [__dirname],
     },

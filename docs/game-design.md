@@ -13,6 +13,8 @@
 ## 1. High Concept & Core Pillars
 
 - **Title**: **Grid Snap** *(Design System: Color Shift 16-Bit Arcade)*
+- **Game Jam Entry**: **[GitHub Game Off 2026](https://itch.io/jam/game-off-2026)** (Theme: **SHIFT**)
+- **Marketing & Itch Spec**: [`itch-assets/itch-upload-details.md`](../itch-assets/itch-upload-details.md)
 - **Genre**: Tactile Toroidal Grid Puzzle / Casual Arcade
 - **Orientation & Target Viewport**: **Portrait (`450×800`)** — Cross-platform Web, Itch.io, and Android APK
 - **Elevator Pitch**: A fast-paced, 16-bit handheld puzzle game where players cyclically shift rows and columns on a toroidal grid (`3×3` up to `4×8`) to snap colored blocks into fixed target wireframes before the clock runs out. With **unlimited moves**, speed is everything—the faster you solve, the more stars you earn.

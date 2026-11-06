@@ -381,7 +381,7 @@ Both the star rating evaluation and the HUD star positions (`left: %`) read dire
   "lifeRegenIntervalSeconds": 1800,
   "startingCoins": 250,
   "levelClearReward": 200,
-  "campaignLoopSize": 10,
+  "fallbackEndgameLoopSize": 10,
   "starThresholds": {
     "threeStarMinRatio": 0.50,
     "twoStarMinRatio": 0.15
@@ -470,25 +470,44 @@ export interface LevelConfig {
 }
 ```
 
-#### Level Lookup with Last-10 Loop (`getLevelConfig(levelId)`)
+#### Level Lookup with Custom Loop & Deterministic 3-Way Flip (`getLevelConfig(levelId)`)
 Until procedural generation is enabled:
 ```typescript
 export function getLevelConfig(
   levelId: number,
   levels: LevelConfig[],
-  loopSize = 10
+  campaignLoop: number[] | number = 10
 ): LevelConfig {
   const N = levels.length;
   if (N === 0) throw new Error('levels.json is empty');
-  if (levelId <= N) {
-    return levels[levelId - 1];
+  const safeId = Math.max(1, Math.floor(levelId));
+  if (safeId <= N) {
+    return levels[safeId - 1];
   }
-  const windowSize = Math.min(loopSize, N);
-  const startIndex = N - windowSize;
-  const offset = (levelId - N - 1) % windowSize;
-  return levels[startIndex + offset];
+
+  let targetLevel: LevelConfig;
+  if (Array.isArray(campaignLoop) && campaignLoop.length > 0) {
+    const offset = (safeId - N - 1) % campaignLoop.length;
+    const targetId = campaignLoop[offset];
+    targetLevel = levels.find((l) => l.id === targetId) ?? levels[((targetId - 1) % N + N) % N];
+  } else {
+    const loopSize = typeof campaignLoop === 'number' && campaignLoop > 0 ? campaignLoop : 10;
+    const windowSize = Math.min(loopSize, N);
+    const startIndex = N - windowSize;
+    const offset = (safeId - N - 1) % windowSize;
+    targetLevel = levels[startIndex + offset];
+  }
+
+  const flipMode = getDeterministicFlipMode(safeId);
+  return flipLevelConfig(targetLevel, flipMode);
 }
 ```
+
+- **Deterministic Reflection**: `getDeterministicFlipMode(safeId)` applies a fast 32-bit integer hash modulo 3:
+  - `0`: `flipGridHorizontal` (left-to-right mirror)
+  - `1`: `flipGridVertical` (up-to-down mirror)
+  - `2`: `flipGridBoth` (180° rotation / central inversion)
+- **Mathematical Invariance**: 100% of levels retain identical IDA\* minimum-move par and solvability.
 
 #### Runtime Palette Mapping (`hydrateLevelColors`)
 When `startLevel()` loads a `LevelConfig`:
@@ -505,10 +524,13 @@ When `startLevel()` loads a `LevelConfig`:
   - Uses an isolated dependency cache (`cacheDir: path.resolve(__dirname, 'node_modules/.vite-editor')`) so `npm run dev` (`:5173`) and `npm run dev:editor` (`:5174`) can run side-by-side without pre-bundled Vite chunk hash conflicts.
   - Shares `src/engine/*` (toroidal math, `autoUnsolve`, IDA\* `solveParMoves`) and `src/components/TorusGrid.tsx` directly with the game, while rendering inside a full-screen desktop layout (outside `<BoundingBox>`).
   - **Editor Typography**: Loads `Be Vietnam Pro` in `editor/index.html` for all body text, controls, inputs, and buttons (`fontFamily: "'Be Vietnam Pro', system-ui, -apple-system, sans-serif"`), while retaining `font-pixel` (`'Press Start 2P'`) exclusively on the top `GRID SNAP // LEVEL EDITOR` title.
-- **Direct Disk Read/Write Middleware (`saveLevelPlugin` exported from `vite.editor.config.ts` and also registered in `vite.config.ts`)**:
+- **Direct Disk Read/Write Middleware (`saveLevelPlugin` in `vite.editor.config.ts`)**:
+  - `server.watch.ignored: ['**/src/config/**', '**/levels.json']`: Prevents Vite from triggering a full page reload when the Level Editor writes updates to disk, keeping the live board, frames, and solver state active in the browser.
+  - Active level persistence via `localStorage` (`grid_snap_editor_active_level_id`): Restores the last active/saved level ID across saves and manual browser refreshes.
   - `GET /api/levels`: Reads `src/config/levels.json` and returns `{ levels: LevelConfig[] }`.
   - `POST /api/save-level`: Upserts a `LevelConfig` for `id: X` (after client-side confirmation if overwriting an existing ID), sorts by `id` ascending, and writes formatted JSON to `src/config/levels.json`.
   - `POST /api/insert-level`: Inserts a level at `id: X`, increments `id` by `+1` for all existing levels with `id >= X`, and writes `src/config/levels.json`.
+  - `POST /api/reorder-levels`: Accepts a reordered array of levels, re-indexes their `id` values sequentially (`1 .. N`), writes `src/config/levels.json`, and returns the updated level sequence.
   - `DELETE /api/level/:id`: Removes level `id` from `src/config/levels.json`, re-indexes subsequent level IDs sequentially (`1 .. N`), and writes `src/config/levels.json`.
 
 ---
@@ -521,10 +543,11 @@ When `startLevel()` loads a `LevelConfig`:
 - **Synthesized Placeholder SFX + Optional Asset Overrides**:
   - All 11 SFX cues (`drag_tick`, `shift_commit`, `frame_snap`, `hint_activate`, `extra_time`, `button_tap`, `error_buzz`, `timer_warn`, `level_win`, `level_timeout`, `store_buy`) are synthesized in `src/audio/sfx.ts` using zero-dependency WebAudio oscillators/noise buffers.
   - If an audio file exists at `AssetLoader.resolvePath('audio/sfx/<key>.ogg')`, `AudioManager` plays the decoded audio buffer instead.
-- **Dual-Track Music Controller (`menu` & `gameplay`)**:
-  - Attempts to load `AssetLoader.resolvePath('audio/music/menu.ogg')` (or `.mp3`) and `AssetLoader.resolvePath('audio/music/gameplay.ogg')` (or `.mp3`).
-  - **Graceful Missing-File Handling**: Because the user will supply the music files, a `404` or missing file fails silently without throwing or blocking gameplay.
-  - Crossfades (`400ms`) between `menu` (active on `MainMenu` and `ItemStore`) and `gameplay` (active on `InGameView`), ducks music volume to `35%` while `activeModal !== 'none'`, and suspends the `AudioContext` on `visibilitychange` when hidden.
+- **Continuous Music Controller (`menu` & `gameplay`)**:
+  - Background track: `Velvet_Tiling.mp3` trimmed to the first `01:05.00` (65.0s) with seamless looping and exported to both `public/audio/music/theme.ogg` (OGG Vorbis, gapless) and `public/audio/music/theme.mp3` (universal fallback), aliased for `menu` and `gameplay`.
+  - **Seamless Continuity**: Both `menu` and `gameplay` track keys route to the underlying `theme` audio asset, allowing music to persist continuously without restarting or stuttering when transitioning between the Main Menu and playing levels.
+  - **Graceful Missing-File Handling**: Loads via `AssetLoader.resolvePath()` and fails silently without throwing or blocking gameplay if an asset is absent.
+  - **Ducking & Background Suspend**: Ducks music gain when modals (`Pause`, `Level Complete`, `Out of Time`, `Settings`, `Store`) are active, and suspends the `AudioContext` and pauses the element on `visibilitychange` when the app is hidden/minimized.
 
 ---
 

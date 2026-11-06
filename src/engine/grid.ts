@@ -3,6 +3,7 @@ import {
   type BlockColor,
   type CellBlock,
   type ColorSlotIndex,
+  type FlipOrientation,
   type LevelConfig,
   type ShiftAction,
 } from './types';
@@ -251,13 +252,83 @@ export function normalizeEditorColors(
 }
 
 /**
+ * Reverses columns in each row (left-to-right reflection).
+ */
+export function flipGridHorizontal<T>(grid: T[][]): T[][] {
+  return grid.map((row) => [...row].reverse());
+}
+
+/**
+ * Reverses order of rows (up-to-down reflection).
+ */
+export function flipGridVertical<T>(grid: T[][]): T[][] {
+  return [...grid].reverse().map((row) => [...row]);
+}
+
+/**
+ * Reverses both rows and columns (180-degree rotation / central inversion).
+ */
+export function flipGridBoth<T>(grid: T[][]): T[][] {
+  return [...grid].reverse().map((row) => [...row].reverse());
+}
+
+/**
+ * Transforms a LevelConfig by flipping both its target frames and initial blocks.
+ * Solvability and par moves remain 100% invariant under all 3 orientations.
+ */
+export function flipLevelConfig(
+  level: LevelConfig,
+  mode: FlipOrientation
+): LevelConfig {
+  let nextFrames: ColorSlotIndex[][];
+  let nextGrid: ColorSlotIndex[][];
+
+  switch (mode) {
+    case 'horizontal':
+      nextFrames = flipGridHorizontal(level.frames);
+      nextGrid = flipGridHorizontal(level.initialGrid);
+      break;
+    case 'vertical':
+      nextFrames = flipGridVertical(level.frames);
+      nextGrid = flipGridVertical(level.initialGrid);
+      break;
+    case 'both':
+      nextFrames = flipGridBoth(level.frames);
+      nextGrid = flipGridBoth(level.initialGrid);
+      break;
+  }
+
+  return {
+    ...level,
+    frames: nextFrames,
+    initialGrid: nextGrid,
+  };
+}
+
+/**
+ * Computes a deterministic pseudo-random flip orientation ('horizontal' | 'vertical' | 'both')
+ * derived from the repeating level's id. Retrying the same level produces the exact same orientation.
+ */
+export function getDeterministicFlipMode(levelId: number): FlipOrientation {
+  let h = Math.imul(Math.max(1, Math.floor(levelId)), 0x5bd1e995);
+  h ^= h >>> 15;
+  h = Math.imul(h, 0x5bd1e995);
+  h ^= h >>> 13;
+  const mod = Math.abs(h % 3);
+  if (mod === 0) return 'horizontal';
+  if (mod === 1) return 'vertical';
+  return 'both';
+}
+
+/**
  * Looks up the LevelConfig for 1-indexed `levelId`.
- * Once `levelId > levels.length`, repeats the last `min(loopSize, levels.length)` levels.
+ * Once `levelId > levels.length`, repeats levels according to `campaignLoop`
+ * (an explicit array of level IDs or numeric window size) and deterministically flips the board.
  */
 export function getLevelConfig(
   levelId: number,
   levels: LevelConfig[],
-  loopSize = 10
+  campaignLoop: number[] | number = 10
 ): LevelConfig {
   const N = levels.length;
   if (N === 0) {
@@ -267,9 +338,29 @@ export function getLevelConfig(
   if (safeId <= N) {
     return levels[safeId - 1];
   }
-  const windowSize = Math.min(loopSize, N);
-  const startIndex = N - windowSize;
-  const offset = (safeId - N - 1) % windowSize;
-  return levels[startIndex + offset];
+
+  let targetLevel: LevelConfig;
+
+  if (Array.isArray(campaignLoop) && campaignLoop.length > 0) {
+    const offset = (safeId - N - 1) % campaignLoop.length;
+    const targetId = campaignLoop[offset];
+    const found = levels.find((l) => l.id === targetId);
+    if (found) {
+      targetLevel = found;
+    } else {
+      const fallbackIdx = ((targetId - 1) % N + N) % N;
+      targetLevel = levels[fallbackIdx];
+    }
+  } else {
+    const loopSize =
+      typeof campaignLoop === 'number' && campaignLoop > 0 ? campaignLoop : 10;
+    const windowSize = Math.min(loopSize, N);
+    const startIndex = N - windowSize;
+    const offset = (safeId - N - 1) % windowSize;
+    targetLevel = levels[startIndex + offset];
+  }
+
+  const flipMode = getDeterministicFlipMode(safeId);
+  return flipLevelConfig(targetLevel, flipMode);
 }
 

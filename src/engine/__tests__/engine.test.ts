@@ -3,6 +3,11 @@ import path from 'path';
 import { describe, expect, it } from 'vitest';
 import {
   applyShiftAction,
+  flipGridBoth,
+  flipGridHorizontal,
+  flipGridVertical,
+  flipLevelConfig,
+  getDeterministicFlipMode,
   getLevelConfig,
   getSnapProgress,
   hydrateLevelColors,
@@ -16,11 +21,18 @@ import {
   lineCoverHeuristic,
   solveIDAStar,
 } from '../solver';
-import type { BlockColor, CellBlock, EconomyConfig, LevelConfig } from '../types';
+import type {
+  BlockColor,
+  CellBlock,
+  EconomyConfig,
+  LevelConfig,
+  LevelsConfigFile,
+} from '../types';
 import { autoUnsolve, mulberry32 } from '../unsolve';
 import {
   isValidEconomyConfig,
   isValidLevelsConfig,
+  parseLevelsPayload,
 } from '../../utils/remoteData';
 
 describe('Grid Snap Toroidal Engine', () => {
@@ -165,29 +177,98 @@ describe('Grid Snap Toroidal Engine', () => {
     expect(computeSuggestedTime(3, 4, 4)).toBe(35);
   });
 
-  it('implements the last-10 campaign loop in getLevelConfig when levelId > N', () => {
-    const mockLevels: LevelConfig[] = Array.from({ length: 12 }, (_, idx) => ({
+  it('flips matrices horizontally, vertically, and both (180 deg)', () => {
+    const matrix = [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9],
+    ];
+
+    expect(flipGridHorizontal(matrix)).toEqual([
+      [3, 2, 1],
+      [6, 5, 4],
+      [9, 8, 7],
+    ]);
+
+    expect(flipGridVertical(matrix)).toEqual([
+      [7, 8, 9],
+      [4, 5, 6],
+      [1, 2, 3],
+    ]);
+
+    expect(flipGridBoth(matrix)).toEqual([
+      [9, 8, 7],
+      [6, 5, 4],
+      [3, 2, 1],
+    ]);
+  });
+
+  it('computes deterministic pseudo-random flip orientations per level id', () => {
+    const mode16 = getDeterministicFlipMode(16);
+    const mode16Again = getDeterministicFlipMode(16);
+    expect(mode16).toBe(mode16Again);
+    expect(['horizontal', 'vertical', 'both']).toContain(mode16);
+
+    const mode17 = getDeterministicFlipMode(17);
+    expect(mode17).toBe(getDeterministicFlipMode(17));
+  });
+
+  it('implements custom campaignLoop sequence and deterministic flips in getLevelConfig when levelId > N', () => {
+    const mockLevels: LevelConfig[] = Array.from({ length: 15 }, (_, idx) => ({
       id: idx + 1,
       cols: 3,
       rows: 3,
       difficulty: 'normal',
       timeLimitSeconds: 30,
       colorCount: 1,
-      frames: [[0, null, null], [null, null, null], [null, null, null]],
-      initialGrid: [[null, 0, null], [null, null, null], [null, null, null]],
+      frames: [
+        [0, null, null],
+        [null, null, null],
+        [null, null, null],
+      ],
+      initialGrid: [
+        [null, 0, null],
+        [null, null, null],
+        [null, null, null],
+      ],
     }));
 
-    expect(getLevelConfig(1, mockLevels, 10).id).toBe(1);
-    expect(getLevelConfig(12, mockLevels, 10).id).toBe(12);
-    // Level 13 should loop back to the first of the last 10 levels (Level 3)
-    expect(getLevelConfig(13, mockLevels, 10).id).toBe(3);
-    expect(getLevelConfig(22, mockLevels, 10).id).toBe(12);
-    expect(getLevelConfig(23, mockLevels, 10).id).toBe(3);
+    // Levels 1..15 return untouched original levels
+    expect(getLevelConfig(1, mockLevels).id).toBe(1);
+    expect(getLevelConfig(15, mockLevels).id).toBe(15);
+
+    // Sequence 1: Default loop [6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    const defaultLoop = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+    const lvl16 = getLevelConfig(16, mockLevels, defaultLoop);
+    expect(lvl16.id).toBe(6);
+    // Level 16 is flipped
+    const expectedFlip16 = getDeterministicFlipMode(16);
+    const expectedCfg16 = flipLevelConfig(mockLevels[5], expectedFlip16);
+    expect(lvl16.frames).toEqual(expectedCfg16.frames);
+    expect(lvl16.initialGrid).toEqual(expectedCfg16.initialGrid);
+
+    const lvl25 = getLevelConfig(25, mockLevels, defaultLoop);
+    expect(lvl25.id).toBe(15);
+
+    // Level 26 loops back to first in default sequence (Level 6)
+    const lvl26 = getLevelConfig(26, mockLevels, defaultLoop);
+    expect(lvl26.id).toBe(6);
+
+    // Sequence 2: Custom user-ordered sequence [10, 12, 14, 6]
+    const customLoop = [10, 12, 14, 6];
+    expect(getLevelConfig(16, mockLevels, customLoop).id).toBe(10);
+    expect(getLevelConfig(17, mockLevels, customLoop).id).toBe(12);
+    expect(getLevelConfig(18, mockLevels, customLoop).id).toBe(14);
+    expect(getLevelConfig(19, mockLevels, customLoop).id).toBe(6);
+    expect(getLevelConfig(20, mockLevels, customLoop).id).toBe(10);
   });
 
   it('validates all campaign levels in src/config/levels.json are solvable via IDA*', () => {
     const levelsPath = path.resolve(process.cwd(), 'src/config/levels.json');
-    const rawLevels: LevelConfig[] = JSON.parse(fs.readFileSync(levelsPath, 'utf-8'));
+    const parsedPayload = parseLevelsPayload(
+      JSON.parse(fs.readFileSync(levelsPath, 'utf-8'))
+    );
+    const rawLevels: LevelConfig[] = parsedPayload.levels;
     expect(rawLevels.length).toBeGreaterThanOrEqual(10);
 
     let updated = false;
@@ -217,7 +298,11 @@ describe('Grid Snap Toroidal Engine', () => {
     }
 
     if (updated) {
-      fs.writeFileSync(levelsPath, JSON.stringify(rawLevels, null, 2) + '\n', 'utf-8');
+      const payload: LevelsConfigFile = {
+        campaignLoop: parsedPayload.campaignLoop,
+        levels: rawLevels,
+      };
+      fs.writeFileSync(levelsPath, JSON.stringify(payload, null, 2) + '\n', 'utf-8');
     }
   });
 
@@ -235,5 +320,29 @@ describe('Grid Snap Toroidal Engine', () => {
     expect(isValidLevelsConfig([{ id: 1 }])).toBe(false);
     expect(isValidEconomyConfig(null)).toBe(false);
     expect(isValidEconomyConfig({ maxLives: 0 })).toBe(false);
+  });
+
+  it('validates reordered levels sequence logic and schema preservation', () => {
+    const levelsPath = path.resolve(process.cwd(), 'src/config/levels.json');
+    const parsedPayload = parseLevelsPayload(
+      JSON.parse(fs.readFileSync(levelsPath, 'utf-8'))
+    );
+    const rawLevels: LevelConfig[] = parsedPayload.levels;
+    expect(rawLevels.length).toBeGreaterThan(1);
+
+    // Simulate reversing order as a reorder action
+    const reversed = [...rawLevels].reverse();
+    const reindexed = reversed.map((lvl, idx) => ({
+      ...lvl,
+      id: idx + 1,
+    }));
+
+    // Must be sequential 1..N
+    expect(reindexed[0].id).toBe(1);
+    expect(reindexed[reindexed.length - 1].id).toBe(reindexed.length);
+    expect(reindexed.every((l, idx) => l.id === idx + 1)).toBe(true);
+
+    // Must pass level config validation
+    expect(isValidLevelsConfig(reindexed)).toBe(true);
   });
 });

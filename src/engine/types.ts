@@ -139,6 +139,8 @@ export type CellBlock = BlockColor | 'neutral';
 
 export type ShiftDirection = 'left' | 'right' | 'up' | 'down';
 
+export type FlipOrientation = 'horizontal' | 'vertical' | 'both';
+
 export interface ShiftAction {
   axis: 'row' | 'col';
   index: number; // row index (0..rows-1) or col index (0..cols-1)
@@ -164,6 +166,11 @@ export interface LevelConfig {
   scrambleSeed?: number; // Optional PRNG seed used by Auto-Unsolve
 }
 
+export interface LevelsConfigFile {
+  campaignLoop?: number[];
+  levels: LevelConfig[];
+}
+
 export interface StorePackConfig {
   id: string;
   type: 'lives' | 'coins';
@@ -179,7 +186,8 @@ export interface EconomyConfig {
   lifeRegenIntervalSeconds: number;
   startingCoins: number;
   levelClearReward: number;
-  campaignLoopSize: number;
+  fallbackEndgameLoopSize: number;
+  campaignLoopSize?: number;
   starThresholds: {
     threeStarMinRatio: number;
     twoStarMinRatio: number;

@@ -15,8 +15,8 @@
 | Field | Current Value |
 | :--- | :--- |
 | **Current Batch / Phase** | **All Phases 1–9.3 Complete (`[x]` Web, Itch.io & Android APK Fully Verified)** |
-| **Last Verified Milestone** | **Native Android Debug APK Compiled & Saved to `dump/grid-snap-051126-0156-android.apk` (5.41 MB)** |
-| **Next Immediate Action** | Ready for local playtesting (`npm run dev`), level authoring (`npm run dev:editor`), Itch.io deployment (`dump/grid-snap-*-itch.zip`), or Android APK installation. |
+| **Last Verified Milestone** | **Shared HUD Inventory Capsule Consistency (`CoinCapsule` & `LivesCapsule` standardized to 44px / `h-11` across MainMenu, Store, and InGame screens, 19/19 tests passing)** |
+| **Next Immediate Action** | Ready for local playtesting (`npm run dev`), level authoring (`npm run dev:editor`), Itch.io deployment (`npm run build:itch`), or Android APK export (`npm run build:apk`). |
 
 > **Agent Harness Rule (Mandatory End-of-Task Doc Sync)**:
 > 1. Whenever starting or resuming work on **Grid Snap**, read this file first to determine the active phase or maintenance task, mark tasks `[/]` when starting and `[x]` when verified, and update the **Live Harness Status** table above.
@@ -184,3 +184,69 @@
   - Wired `AssetLoader.resolvePath(...)` with `image-rendering: pixelated` across all icon components in `PixelIcons.tsx` for consistent, crisp rendering across Android, iOS, Windows, Mac, and Linux.
   - Added sprite preloading in `SplashScreen.tsx` during boot to ensure instant, zero-flicker icon display upon entering the main menu.
   - Verified 9/9 passing Vitest tests (`npm test`) and production build (`npm run build`).
+- [x] **Difficulty Badge Stacking Context Fix (`src/components/screens/MainMenuView.tsx`)**:
+  - Diagnosed 2 faint vertical white lines cutting through the `SUPER HARD` badge near the `S` and `D` letters: the parent node's decorative inner highlight border (`absolute inset-1.5 border border-white/60`) was stacking on top of the in-flow difficulty badge because positioned elements without z-index naturally stack above non-positioned in-flow elements.
+  - Added `relative z-10` to `renderDifficultyBadge` and the level number `<span>`, and assigned `z-0` to the decorative inner border div, ensuring all badges and text render cleanly above card highlight borders.
+  - Verified with 9/9 passing Vitest tests and production build.
+- [x] **Store & Settings Button Color Restoration (`src/components/screens/MainMenuView.tsx`)**:
+  - Restored original arcade design token colors for the top HUD action buttons: Store button reverted to mint teal (`bg-[#5EEAD4]`) with dark ink text (`text-[#1E1B18]`), and Settings button reverted to parchment cream (`bg-[#FFFDF8]`).
+  - Verified with 9/9 passing Vitest tests and production build.
+- [x] **Level Editor State Retention on Save & Active Level Persistence (`vite.editor.config.ts`, `editor/EditorApp.tsx`)**:
+  - Diagnosed editor resetting to Level #1 on save: Vite's server watcher was detecting `src/config/levels.json` modification on disk and issuing a full page reload, causing `EditorApp` to re-mount and load `list[0]`.
+  - Added `server.watch.ignored: ['**/src/config/**', '**/levels.json']` in `vite.editor.config.ts` so saving does not trigger browser reloads.
+  - Implemented `localStorage` active level persistence (`grid_snap_editor_active_level_id`) in `EditorApp.tsx` across `loadLevelIntoEditor`, `handleSaveLevel`, `handleInsertLevel`, `handleNewLevel`, and `handleDuplicateLevel`, ensuring the editor remains on the saved/selected level even after manual refreshes.
+- [x] **Interactive Reorder Levels Feature (`vite.editor.config.ts`, `editor/EditorApp.tsx`, `src/engine/__tests__/engine.test.ts`)**:
+  - Implemented `POST /api/reorder-levels` in `vite.editor.config.ts` (`saveLevelPlugin`) accepting an array of levels in their new sequence, re-indexing `id` sequentially `1 .. N`, and writing formatted JSON to `src/config/levels.json`.
+  - Added `⇄ Reorder Levels (N)` button in Panel 1 of the Level Editor sidebar and built a full modal dialog featuring:
+    - HTML5 native drag-and-drop row handles (`⠿`) with drop target indicators.
+    - Precision step buttons (`▲` move up, `▼` move down) and jump buttons (`⇪` move to top, `⇩` move to bottom).
+    - Clear visual level summary: new index (`#new`), previous ID (`was #old`), dimensions (`cols×rows`), difficulty badge, par moves, timer limit, and mini color dot palette indicator.
+    - Presets toolbar: **By Difficulty** (Normal -> Hard -> Super Hard), **By Grid Size** (3×3 -> 4×8), **Reverse Order**, and **Reset to Original**.
+    - Atomic save with active level tracking: automatically remaps the editor's active level to its new position in the sequence upon saving.
+  - Added Vitest unit test in `engine.test.ts` verifying sequence re-indexing logic and `LevelConfig` schema preservation (10/10 tests passing).
+  - Verified with clean production build (`npm run build`).
+- [x] **Editable JSON Campaign Loop Sequence & Deterministic 3-Way Flipped Repeated Levels (`src/config/levels.json`, `src/engine/grid.ts`, `src/engine/types.ts`, `src/store/gameStore.ts`, `src/components/screens/MainMenuView.tsx`, `vite.editor.config.ts`, `src/utils/remoteData.ts`, `src/engine/__tests__/engine.test.ts`)**:
+  - Upgraded `src/config/levels.json` format to `{ campaignLoop: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15], levels: [...] }` so level designers can customize the exact looping sequence of levels and order directly in JSON (e.g. `[10, 12, 14, 6, 7, 10, 15, 12, 14, 19, 25, 30]`).
+  - Implemented `flipGridHorizontal`, `flipGridVertical`, `flipGridBoth`, and `flipLevelConfig` in `src/engine/grid.ts`.
+  - Proved toroidal graph reflection isomorphism and verified with IDA\* solver that all 3 flip orientations (Horizontal, Vertical, Both/180°) retain 100% mathematical solvability with identical par moves.
+  - Added `getDeterministicFlipMode(levelId)` using integer hashing so every repeated level index receives a stable, reproducible orientation across retries and restarts.
+  - Updated `getLevelConfig` to evaluate custom `campaignLoop` arrays, skipping introductory levels 1-5 and looping designated stages with deterministic flipping.
+  - Updated `GameState`, `gameStore.ts`, `MainMenuView.tsx`, `remoteData.ts`, and `vite.editor.config.ts` to preserve and synchronize `campaignLoop` seamlessly across production builds and the Level Editor.
+  - Added comprehensive Vitest test coverage in `src/engine/__tests__/engine.test.ts` (12/12 passing) and verified production build (`npm run build`).
+- [x] **Rename Legacy Loop Config to `fallbackEndgameLoopSize` (`src/config/economy.json`, `src/engine/types.ts`, `src/utils/remoteData.ts`, `docs/architecture.md`)**:
+  - Renamed `campaignLoopSize` in `src/config/economy.json` to `fallbackEndgameLoopSize` to clearly distinguish the fallback window size from the active `campaignLoop` array in `levels.json`.
+  - Updated `EconomyConfig` type and schema validator in `src/utils/remoteData.ts` with backward-compatible fallback handling (`fallbackEndgameLoopSize ?? campaignLoopSize`).
+  - Verified 12/12 passing Vitest tests and production build.
+- [x] **Guided FTUE & Interactive Tutorial System (`src/store/gameStore.ts`, `src/components/TorusGrid.tsx`, `src/components/screens/InGameView.tsx`, `src/components/modals/TutorialOverlay.tsx`, `src/engine/__tests__/ftue.test.ts`, `docs/ui-ux-and-flows.md`)**:
+  - **Step 1 (Guided First Hint)**: When launching Level 1, the timer is frozen at `01:30`, bottom boosters (`HINT`, `+5S`) and pause controls are disabled, and the 1st optimal move hint animation (ghost hand + pulsing line) loops continuously.
+  - **Strict Directional Input Locking & Subtle Feedback**: In `TorusGrid.tsx`, interactions are strictly restricted to the hinted row/column and correct slide direction. Tapping wrong rows/columns or dragging in the wrong direction clamps movement and triggers tactile feedback (a throttled mechanical tick sound + subtle tray wiggle animation `@keyframes ftueWiggle`).
+  - **Step 2 (Tutorial Intro Overlay)**: Once Move 1 executes and snaps into frame, `TutorialOverlay` pops up with the game jam themed bullet points (`★ GREAT MOVE! ★`, `▸ SHIFT rows & columns`, `▸ TILES LOOP off the screen`, `▸ SNAP all colors into frames`).
+  - **Step 3 (Free 2nd Hint & Unfreeze)**: Tapping "TAP TO CONTINUE ▼" dismisses the popup, unfreezes the timer, unlocks full board input, and auto-plays the second optimal move as a free hint without deducting coins.
+  - **Repeatability**: Starting Level 1 at any time (initial play, retry after forfeit, or after reset) replays the guided FTUE flow.
+  - Added unit test suite in `src/engine/__tests__/ftue.test.ts` (19/19 passing tests) and verified with production build (`npm run build`).
+- [x] **Continuous Background Music Integration (`dump/Velvet_Tiling.mp3` -> `public/audio/music/`, `src/audio/AudioManager.ts`, `docs/architecture.md`, `docs/art-direction.md`)**:
+  - Processed `dump/Velvet_Tiling.mp3` with `ffmpeg`: trimmed the first `01:05.00` (65.0s) with micro zero-crossing fade-out at the loop boundary.
+  - Exported dual formats to `public/audio/music/`: `theme.ogg` (OGG Vorbis q5 ~160kbps, gapless looping) and `theme.mp3` (192kbps LAME fallback), aliased to `gameplay.*` and `menu.*`.
+  - Updated `AudioManager.ts` with continuous asset routing (`TRACK_ASSET_MAP`), ensuring the soundtrack persists uninterrupted across Menu and Gameplay screen transitions without resetting `currentTime`.
+  - Scaled music volume by -20% (`MUSIC_VOLUME = 0.36`, ducked volume `MUSIC_DUCKED_VOLUME = 0.13`) for optimal mix with 16-bit SFX.
+  - Preserved automatic ducking when modals are open, background suspension on `visibilitychange`, and full settings sync (`musicEnabled` toggle).
+  - Verified 19/19 Vitest tests passing and clean TypeScript typecheck (`npx tsc --noEmit`).
+- [x] **Settings Modal ON/OFF Switch Toggle Behavior (`src/components/modals/SettingsModal.tsx`, `docs/ui-ux-and-flows.md`)**:
+  - Replaced divided conditional click handlers (`!enabled && toggle()`) on separate child buttons with cohesive single-control toggle switches (`<button type="button" role="switch" ...>`).
+  - Tapping the switch (including tapping `ON` when it's already active) now flips the state immediately (`ON` -> `OFF`), and tapping it again flips it back (`OFF` -> `ON`).
+  - Added semantic accessibility attributes (`role="switch"`, `aria-checked`, dynamic `aria-label`) and tactile active press animation (`active:scale-95`).
+  - Verified with 19/19 Vitest tests passing and clean Vite production build.
+- [x] **Itch.io Marketing Documentation & Upload Details (`itch-assets/itch-upload-details.md`, `dump/itch-upload-details.md`)**:
+  - Authored comprehensive Itch.io upload marketing document tailored for **GitHub Game Off 2026** (Theme: **SHIFT**) in humble solo-creator tone.
+  - Included project classification, theme customizer color tokens, punchy taglines/short descriptions, GitHub repo topics, recommended tags, and full HTML-formatted page description matching the tactile 16-bit arcade tone of the game.
+  - Saved in both `itch-assets/` and `dump/`.
+- [x] **Expanded Click Target for HUD Coins & Lives Capsules (`src/components/screens/MainMenuView.tsx`, `src/components/screens/ItemStoreView.tsx`, `docs/ui-ux-and-flows.md`)**:
+  - Unified the split container (`<div>` readout + `<button>` plus) into a single cohesive `<button className="... pixel-btn">` control for both Coins and Lives.
+  - The entire capsule surface—including the icon, numerical quantity (`coins`, `lives`), timer, and the `+` square—is now clickable and opens the Item Store directly with button tap SFX.
+  - Preserved authentic 3D border, drop shadow, and synchronized microswitch press physics (`translate(2px, 2px)` on active press).
+  - Verified with 19/19 passing Vitest tests and production build.
+- [x] **Unified HUD Inventory Capsule Sizing Across All Screens (`src/components/HudInventoryCapsules.tsx`, `MainMenuView.tsx`, `ItemStoreView.tsx`, `InGameView.tsx`, `docs/ui-ux-and-flows.md`)**:
+  - Extracted shared `<CoinCapsule>` and `<LivesCapsule>` components in `src/components/HudInventoryCapsules.tsx` standardizing the master height to `44px` (`h-11`), `border-[3px] border-[#1E1B18]`, `shadow-[3px_3px_0_#1E1B18]`, `#FFFDF8` background, `20px` `CoinIcon` / `18px` `HeartIcon`, and `.pixel-btn` active physics.
+  - Upgraded **Item Store** (`ItemStoreView.tsx`) from legacy compressed `28px` pills to the full-size `44px` `CoinCapsule` and `LivesCapsule`, matching the Main Menu header pixel-for-pixel.
+  - Upgraded **In-Game** (`InGameView.tsx`) to render `<CoinCapsule showPlus={false} />`, standardizing the in-game coin inventory to `44px` with matching borders, shadows, and icon size while aligning with the updated `44×44px` Pause button.
+  - Verified with 19/19 passing Vitest tests and clean Vite production build.

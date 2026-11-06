@@ -33,6 +33,8 @@ function createEmptyMatrices(rows: number, cols: number): PaintSnapshot {
   };
 }
 
+const ACTIVE_LEVEL_STORAGE_KEY = 'grid_snap_editor_active_level_id';
+
 export const EditorApp: React.FC = () => {
   const [levels, setLevels] = useState<LevelConfig[]>([]);
   const [loadedSourceId, setLoadedSourceId] = useState<number | null>(null);
@@ -58,6 +60,13 @@ export const EditorApp: React.FC = () => {
   const [scrambleSeedInput, setScrambleSeedInput] = useState<string>('');
   const [lastUsedSeed, setLastUsedSeed] = useState<number | undefined>(undefined);
   const [statusMessage, setStatusMessage] = useState<string>('Ready.');
+
+  // Reorder levels modal state
+  const [isReorderModalOpen, setIsReorderModalOpen] = useState<boolean>(false);
+  const [reorderList, setReorderList] = useState<LevelConfig[]>([]);
+  const [isSavingReorder, setIsSavingReorder] = useState<boolean>(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   // Playtest state
   const [playtestGrid, setPlaytestGrid] = useState<CellBlock[][]>(
@@ -98,12 +107,28 @@ export const EditorApp: React.FC = () => {
     setScrambleSeedInput(lvl.scrambleSeed !== undefined ? String(lvl.scrambleSeed) : '');
     setMode('unsolve');
     setStatusMessage(`Loaded Level #${lvl.id} (${lvl.cols}×${lvl.rows}).`);
+    try {
+      localStorage.setItem(ACTIVE_LEVEL_STORAGE_KEY, String(lvl.id));
+    } catch {
+      // ignore
+    }
   }, []);
 
   useEffect(() => {
     void fetchLevels().then((list) => {
       if (list.length > 0) {
-        loadLevelIntoEditor(list[0]);
+        let target = list[0];
+        try {
+          const savedIdStr = localStorage.getItem(ACTIVE_LEVEL_STORAGE_KEY);
+          if (savedIdStr) {
+            const savedId = Number(savedIdStr);
+            const found = list.find((l) => l.id === savedId);
+            if (found) target = found;
+          }
+        } catch {
+          // ignore
+        }
+        loadLevelIntoEditor(target);
       } else {
         setTargetLevelId(1);
       }
@@ -280,6 +305,11 @@ export const EditorApp: React.FC = () => {
     setPaintUndoStack([]);
     setUnsolveUndoStack([]);
     setMode('paint');
+    try {
+      localStorage.setItem(ACTIVE_LEVEL_STORAGE_KEY, String(nextId));
+    } catch {
+      // ignore
+    }
     setStatusMessage(`Initialized new blank draft for Level #${nextId}.`);
   };
 
@@ -288,6 +318,11 @@ export const EditorApp: React.FC = () => {
     const nextId = maxId + 1;
     setLoadedSourceId(null);
     setTargetLevelId(nextId);
+    try {
+      localStorage.setItem(ACTIVE_LEVEL_STORAGE_KEY, String(nextId));
+    } catch {
+      // ignore
+    }
     setStatusMessage(`Duplicated current board into draft Level #${nextId}.`);
   };
 
@@ -306,6 +341,84 @@ export const EditorApp: React.FC = () => {
         handleNewLevel();
       }
       setStatusMessage(`Deleted Level #${loadedSourceId}.`);
+    }
+  };
+
+  const handleOpenReorderModal = () => {
+    setReorderList([...levels].sort((a, b) => a.id - b.id));
+    setIsReorderModalOpen(true);
+  };
+
+  const handleMoveReorderItem = (fromIdx: number, toIdx: number) => {
+    if (toIdx < 0 || toIdx >= reorderList.length) return;
+    setReorderList((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(fromIdx, 1);
+      next.splice(toIdx, 0, item);
+      return next;
+    });
+  };
+
+  const handleResetReorder = () => {
+    setReorderList([...levels].sort((a, b) => a.id - b.id));
+  };
+
+  const handleSortByDifficulty = () => {
+    const diffScore = (d: DifficultyTier) => (d === 'normal' ? 0 : d === 'hard' ? 1 : 2);
+    setReorderList((prev) =>
+      [...prev].sort((a, b) => diffScore(a.difficulty) - diffScore(b.difficulty))
+    );
+  };
+
+  const handleSortByGridSize = () => {
+    setReorderList((prev) =>
+      [...prev].sort((a, b) => a.cols * a.rows - b.cols * b.rows || a.rows - b.rows)
+    );
+  };
+
+  const handleReverseReorder = () => {
+    setReorderList((prev) => [...prev].reverse());
+  };
+
+  const handleSaveReorder = async () => {
+    setIsSavingReorder(true);
+    try {
+      const res = await fetch('/api/reorder-levels', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ levels: reorderList }),
+      });
+      const data = await res.json();
+      if (data.ok && Array.isArray(data.levels)) {
+        setLevels(data.levels);
+
+        if (loadedSourceId !== null) {
+          const newIdx = reorderList.findIndex((l) => l.id === loadedSourceId);
+          if (newIdx >= 0) {
+            const newId = newIdx + 1;
+            setLoadedSourceId(newId);
+            setTargetLevelId(newId);
+            try {
+              localStorage.setItem(ACTIVE_LEVEL_STORAGE_KEY, String(newId));
+            } catch {
+              // ignore
+            }
+            const updated = data.levels[newIdx];
+            if (updated) {
+              loadLevelIntoEditor(updated);
+            }
+          }
+        }
+
+        setIsReorderModalOpen(false);
+        setStatusMessage(`Successfully reordered all ${data.levels.length} levels!`);
+      } else {
+        setStatusMessage(`Failed to reorder: ${data.error || 'Server error'}`);
+      }
+    } catch (err: any) {
+      setStatusMessage(`Error saving order: ${err?.message || 'Network error'}`);
+    } finally {
+      setIsSavingReorder(false);
     }
   };
 
@@ -356,7 +469,15 @@ export const EditorApp: React.FC = () => {
     if (data.ok) {
       setLevels(data.levels);
       setLoadedSourceId(payload.id);
+      setTargetLevelId(payload.id);
+      try {
+        localStorage.setItem(ACTIVE_LEVEL_STORAGE_KEY, String(payload.id));
+      } catch {
+        // ignore
+      }
       setStatusMessage(`Saved Level #${payload.id} to src/config/levels.json!`);
+    } else {
+      setStatusMessage(`Error saving level: ${data.error || 'Server error'}`);
     }
   };
 
@@ -373,9 +494,17 @@ export const EditorApp: React.FC = () => {
     if (data.ok) {
       setLevels(data.levels);
       setLoadedSourceId(payload.id);
+      setTargetLevelId(payload.id);
+      try {
+        localStorage.setItem(ACTIVE_LEVEL_STORAGE_KEY, String(payload.id));
+      } catch {
+        // ignore
+      }
       setStatusMessage(
         `Inserted at Level #${payload.id} and shifted subsequent levels +1 in src/config/levels.json!`
       );
+    } else {
+      setStatusMessage(`Error inserting level: ${data.error || 'Server error'}`);
     }
   };
 
@@ -460,6 +589,14 @@ export const EditorApp: React.FC = () => {
                 Delete
               </button>
             </div>
+
+            <button
+              onClick={handleOpenReorderModal}
+              className="pixel-btn w-full mt-2 bg-[#6366F1] text-white font-bold text-xs py-2 flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <span className="text-sm font-bold">⇄</span>
+              <span>Reorder Levels ({levels.length})</span>
+            </button>
           </div>
 
           <hr className="border-t-2 border-dashed border-[#D1C6A5]" />
@@ -799,6 +936,237 @@ export const EditorApp: React.FC = () => {
           </div>
         </main>
       </div>
+
+      {/* Reorder Levels Modal */}
+      {isReorderModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#FFFDF8] border-4 border-[#2C2523] shadow-[8px_8px_0px_#2C2523] w-full max-w-2xl max-h-[88vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex-none bg-[#2C2523] text-white px-5 py-3 flex items-center justify-between border-b-4 border-[#1E1B18]">
+              <div className="flex items-center gap-3">
+                <span className="font-pixel text-sm text-[#FBBF24]">⇄ REORDER LEVELS</span>
+                <span className="text-xs font-bold bg-[#1E1B18] text-[#5EEAD4] px-2 py-0.5 border border-[#5EEAD4]">
+                  {reorderList.length} Levels
+                </span>
+              </div>
+              <button
+                onClick={() => setIsReorderModalOpen(false)}
+                className="text-[#FFFDF8] hover:text-[#FBBF24] font-bold text-lg px-2 cursor-pointer"
+                title="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Quick Toolbar & Presets */}
+            <div className="flex-none p-3 bg-[#EAE2CA] border-b-2 border-[#2C2523] flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-[#2C2523]">Sort presets:</span>
+                <button
+                  onClick={handleSortByDifficulty}
+                  className="px-2.5 py-1 bg-[#FFFDF8] border border-[#2C2523] font-semibold hover:bg-[#F4EFE6] cursor-pointer"
+                  title="Group Normal -> Hard -> Super Hard"
+                >
+                  By Difficulty
+                </button>
+                <button
+                  onClick={handleSortByGridSize}
+                  className="px-2.5 py-1 bg-[#FFFDF8] border border-[#2C2523] font-semibold hover:bg-[#F4EFE6] cursor-pointer"
+                  title="3x3 first, ascending to largest"
+                >
+                  By Grid Size
+                </button>
+                <button
+                  onClick={handleReverseReorder}
+                  className="px-2.5 py-1 bg-[#FFFDF8] border border-[#2C2523] font-semibold hover:bg-[#F4EFE6] cursor-pointer"
+                >
+                  Reverse
+                </button>
+                <button
+                  onClick={handleResetReorder}
+                  className="px-2.5 py-1 bg-[#FFFDF8] border border-[#2C2523] font-semibold hover:bg-[#F4EFE6] cursor-pointer"
+                >
+                  Reset
+                </button>
+              </div>
+              <span className="text-xs text-[#57534E] font-medium">
+                Tip: Drag rows or use ▲ / ▼ to adjust order
+              </span>
+            </div>
+
+            {/* Scrollable Level List */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-1.5 bg-[#F4EFE6]">
+              {reorderList.map((lvl, index) => {
+                const isCurrent = loadedSourceId === lvl.id;
+                const isDragging = draggedIndex === index;
+                const isOver = dragOverIndex === index;
+                const colorIndices = Array.from(
+                  new Set(lvl.frames.flat().filter((f): f is number => f !== null))
+                );
+
+                return (
+                  <div
+                    key={`${lvl.id}-${index}`}
+                    draggable
+                    onDragStart={(e) => {
+                      setDraggedIndex(index);
+                      e.dataTransfer.effectAllowed = 'move';
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = 'move';
+                      if (dragOverIndex !== index) setDragOverIndex(index);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (draggedIndex !== null && draggedIndex !== index) {
+                        handleMoveReorderItem(draggedIndex, index);
+                      }
+                      setDraggedIndex(null);
+                      setDragOverIndex(null);
+                    }}
+                    onDragEnd={() => {
+                      setDraggedIndex(null);
+                      setDragOverIndex(null);
+                    }}
+                    className={`flex items-center justify-between p-2.5 border-2 border-[#2C2523] transition-colors select-none ${
+                      isOver
+                        ? 'bg-[#BAE6FD] border-dashed border-[#0284C7]'
+                        : isDragging
+                          ? 'opacity-40 bg-[#E2E8F0]'
+                          : isCurrent
+                            ? 'bg-[#FEF08A]'
+                            : 'bg-[#FFFDF8]'
+                    }`}
+                  >
+                    {/* Left: Drag Handle + New Index + Original ID + Specs */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className="cursor-grab active:cursor-grabbing text-[#78716C] hover:text-[#2C2523] px-1 text-sm font-mono"
+                        title="Drag to reorder"
+                      >
+                        ⠿
+                      </div>
+
+                      <div className="flex items-center gap-1.5 min-w-[72px]">
+                        <span className="font-extrabold text-sm bg-[#2C2523] text-[#FBBF24] px-2 py-0.5 rounded-none">
+                          #{index + 1}
+                        </span>
+                        {lvl.id !== index + 1 && (
+                          <span className="text-[10px] font-semibold text-[#78716C]">
+                            (was #{lvl.id})
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold px-1.5 py-0.5 bg-[#EAE2CA] border border-[#2C2523]">
+                          {lvl.cols}×{lvl.rows}
+                        </span>
+                        <span
+                          className={`text-[10px] font-extrabold px-1.5 py-0.5 border ${
+                            lvl.difficulty === 'super_hard'
+                              ? 'bg-[#F3E8FF] text-[#6B21A8] border-[#D8B4FE]'
+                              : lvl.difficulty === 'hard'
+                                ? 'bg-[#FEE2E2] text-[#B91C1C] border-[#FCA5A5]'
+                                : 'bg-[#DCFCE7] text-[#15803D] border-[#86EFAC]'
+                          }`}
+                        >
+                          {lvl.difficulty.replace('_', ' ').toUpperCase()}
+                        </span>
+                        <span className="text-xs font-medium text-[#44403C]">
+                          {lvl.parMoves} moves · {lvl.timeLimitSeconds}s
+                        </span>
+                      </div>
+
+                      {/* Mini color dots */}
+                      <div className="flex items-center gap-1 ml-2">
+                        {colorIndices.map((ci) => {
+                          const colorName = ALL_BLOCK_COLORS[ci];
+                          const hex = colorName ? COLOR_HEX_MAP[colorName]?.base : '#999';
+                          return (
+                            <span
+                              key={ci}
+                              className="w-2.5 h-2.5 rounded-full border border-black/40 inline-block"
+                              style={{ backgroundColor: hex }}
+                              title={colorName}
+                            />
+                          );
+                        })}
+                      </div>
+
+                      {isCurrent && (
+                        <span className="text-[10px] font-extrabold bg-[#2C2523] text-white px-1.5 py-0.5 ml-2">
+                          ACTIVE
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Right: Reorder Action Buttons */}
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleMoveReorderItem(index, 0)}
+                        disabled={index === 0}
+                        className="w-7 h-7 flex items-center justify-center bg-[#EAE2CA] border border-[#2C2523] font-bold text-xs disabled:opacity-25 hover:bg-[#D1C6A5] cursor-pointer"
+                        title="Move to Top"
+                      >
+                        ⇪
+                      </button>
+                      <button
+                        onClick={() => handleMoveReorderItem(index, index - 1)}
+                        disabled={index === 0}
+                        className="w-7 h-7 flex items-center justify-center bg-[#EAE2CA] border border-[#2C2523] font-bold text-xs disabled:opacity-25 hover:bg-[#D1C6A5] cursor-pointer"
+                        title="Move Up"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        onClick={() => handleMoveReorderItem(index, index + 1)}
+                        disabled={index === reorderList.length - 1}
+                        className="w-7 h-7 flex items-center justify-center bg-[#EAE2CA] border border-[#2C2523] font-bold text-xs disabled:opacity-25 hover:bg-[#D1C6A5] cursor-pointer"
+                        title="Move Down"
+                      >
+                        ▼
+                      </button>
+                      <button
+                        onClick={() => handleMoveReorderItem(index, reorderList.length - 1)}
+                        disabled={index === reorderList.length - 1}
+                        className="w-7 h-7 flex items-center justify-center bg-[#EAE2CA] border border-[#2C2523] font-bold text-xs disabled:opacity-25 hover:bg-[#D1C6A5] cursor-pointer"
+                        title="Move to Bottom"
+                      >
+                        ⇩
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex-none p-3 bg-[#FFFDF8] border-t-4 border-[#2C2523] flex items-center justify-between">
+              <span className="text-xs text-[#78716C] font-semibold">
+                Saving will permanently update and renumber src/config/levels.json.
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsReorderModalOpen(false)}
+                  disabled={isSavingReorder}
+                  className="px-4 py-2 bg-[#EAE2CA] border-2 border-[#2C2523] font-bold text-xs hover:bg-[#D1C6A5] cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveReorder}
+                  disabled={isSavingReorder}
+                  className="pixel-btn px-5 py-2 bg-[#22C55E] text-white font-bold text-xs cursor-pointer flex items-center gap-2"
+                >
+                  {isSavingReorder ? 'Saving Order...' : 'Save New Order'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

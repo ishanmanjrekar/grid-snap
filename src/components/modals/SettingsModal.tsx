@@ -70,30 +70,33 @@ export const SettingsModal: React.FC = () => {
             <span className="font-pixel text-[10px] font-bold text-[#1E1B18] tracking-wide">
               MUSIC
             </span>
-            <div className="flex border-[3px] border-[#1E1B18] bg-[#EDE5D3]">
-              <button
-                type="button"
-                onClick={() => !settings.musicEnabled && toggleMusic()}
-                className={`font-pixel px-2.5 py-1 text-[9px] font-bold border-r-[2px] border-[#1E1B18] cursor-pointer select-none ${
+            <button
+              type="button"
+              role="switch"
+              aria-checked={settings.musicEnabled}
+              aria-label={`Toggle music, currently ${settings.musicEnabled ? 'on' : 'off'}`}
+              onClick={toggleMusic}
+              className="flex border-[3px] border-[#1E1B18] bg-[#EDE5D3] cursor-pointer select-none active:scale-95 transition-transform"
+            >
+              <span
+                className={`font-pixel px-2.5 py-1 text-[9px] font-bold border-r-[2px] border-[#1E1B18] ${
                   settings.musicEnabled
                     ? 'bg-[#28C76F] text-white'
                     : 'bg-[#EDE5D3] text-[#1E1B18] opacity-60'
                 }`}
               >
                 ON
-              </button>
-              <button
-                type="button"
-                onClick={() => settings.musicEnabled && toggleMusic()}
-                className={`font-pixel px-2.5 py-1 text-[9px] font-bold cursor-pointer select-none ${
+              </span>
+              <span
+                className={`font-pixel px-2.5 py-1 text-[9px] font-bold ${
                   !settings.musicEnabled
                     ? 'bg-[#EF4444] text-white'
                     : 'bg-[#EDE5D3] text-[#1E1B18] opacity-60'
                 }`}
               >
                 OFF
-              </button>
-            </div>
+              </span>
+            </button>
           </div>
 
           {/* 2. SFX */}
@@ -101,30 +104,33 @@ export const SettingsModal: React.FC = () => {
             <span className="font-pixel text-[10px] font-bold text-[#1E1B18] tracking-wide">
               SFX
             </span>
-            <div className="flex border-[3px] border-[#1E1B18] bg-[#EDE5D3]">
-              <button
-                type="button"
-                onClick={() => !settings.sfxEnabled && toggleSfx()}
-                className={`font-pixel px-2.5 py-1 text-[9px] font-bold border-r-[2px] border-[#1E1B18] cursor-pointer select-none ${
+            <button
+              type="button"
+              role="switch"
+              aria-checked={settings.sfxEnabled}
+              aria-label={`Toggle sound effects, currently ${settings.sfxEnabled ? 'on' : 'off'}`}
+              onClick={toggleSfx}
+              className="flex border-[3px] border-[#1E1B18] bg-[#EDE5D3] cursor-pointer select-none active:scale-95 transition-transform"
+            >
+              <span
+                className={`font-pixel px-2.5 py-1 text-[9px] font-bold border-r-[2px] border-[#1E1B18] ${
                   settings.sfxEnabled
                     ? 'bg-[#28C76F] text-white'
                     : 'bg-[#EDE5D3] text-[#1E1B18] opacity-60'
                 }`}
               >
                 ON
-              </button>
-              <button
-                type="button"
-                onClick={() => settings.sfxEnabled && toggleSfx()}
-                className={`font-pixel px-2.5 py-1 text-[9px] font-bold cursor-pointer select-none ${
+              </span>
+              <span
+                className={`font-pixel px-2.5 py-1 text-[9px] font-bold ${
                   !settings.sfxEnabled
                     ? 'bg-[#EF4444] text-white'
                     : 'bg-[#EDE5D3] text-[#1E1B18] opacity-60'
                 }`}
               >
                 OFF
-              </button>
-            </div>
+              </span>
+            </button>
           </div>
 
           {/* 3. COLORBLIND */}
@@ -132,30 +138,33 @@ export const SettingsModal: React.FC = () => {
             <span className="font-pixel text-[10px] font-bold text-[#1E1B18] tracking-wide">
               COLORBLIND
             </span>
-            <div className="flex border-[3px] border-[#1E1B18] bg-[#EDE5D3]">
-              <button
-                type="button"
-                onClick={() => !settings.colorblindMode && toggleColorblindMode()}
-                className={`font-pixel px-2.5 py-1 text-[9px] font-bold border-r-[2px] border-[#1E1B18] cursor-pointer select-none ${
+            <button
+              type="button"
+              role="switch"
+              aria-checked={settings.colorblindMode}
+              aria-label={`Toggle colorblind mode, currently ${settings.colorblindMode ? 'on' : 'off'}`}
+              onClick={toggleColorblindMode}
+              className="flex border-[3px] border-[#1E1B18] bg-[#EDE5D3] cursor-pointer select-none active:scale-95 transition-transform"
+            >
+              <span
+                className={`font-pixel px-2.5 py-1 text-[9px] font-bold border-r-[2px] border-[#1E1B18] ${
                   settings.colorblindMode
                     ? 'bg-[#28C76F] text-white'
                     : 'bg-[#EDE5D3] text-[#1E1B18] opacity-60'
                 }`}
               >
                 ON
-              </button>
-              <button
-                type="button"
-                onClick={() => settings.colorblindMode && toggleColorblindMode()}
-                className={`font-pixel px-2.5 py-1 text-[9px] font-bold cursor-pointer select-none ${
+              </span>
+              <span
+                className={`font-pixel px-2.5 py-1 text-[9px] font-bold ${
                   !settings.colorblindMode
                     ? 'bg-[#EF4444] text-white'
                     : 'bg-[#EDE5D3] text-[#1E1B18] opacity-60'
                 }`}
               >
                 OFF
-              </button>
-            </div>
+              </span>
+            </button>
           </div>
 
           {/* Dashed Divider */}

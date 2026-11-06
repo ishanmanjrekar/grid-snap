@@ -158,8 +158,8 @@ To ensure bold contrast, high-DPI scaling across web & mobile, and authentic pla
 | :--- | :---: | :--- |
 | **Coins & Currency** | `🪙` | Main Menu HUD capsule, In-Game HUD capsule, Hint & Extra Time booster costs, Shop pack cards (`1x`, `2x`, `3x`), and Level Complete rewards. |
 | **Lives & Escrow** | `❤️` | Main Menu lives capsule, Shop header capsule, Shop lives pack cards (`1x`, `2x`, `3x`), Pause forfeiture notice, and Out-of-Time penalty badge. |
-| **Settings** | `⚙️` | Main Menu top-right dark charcoal button (`#2C2523`) with high contrast against the metallic gear. |
-| **Store** | `🛒` | Main Menu top-left dark charcoal button (`#2C2523`) with crisp white `STORE` label text. |
+| **Settings** | `gear.png` | Main Menu top-right parchment cream button (`#FFFDF8`) with dark border framing the pixel gear sprite. |
+| **Store** | `store.png` | Main Menu top-left mint teal button (`#5EEAD4`) with dark ink `STORE` label text (`#1E1B18`). |
 | **Settings Warning** | `⚠️` | Settings Modal "RESET PROGRESS" button. |
 | **Hint Guide** | `💡` | In-Game booster bar Hint button. |
 | **Stars & Ratings** | `⭐` | Victory Level Complete modal (3 large animated stars), in-game timer threshold markers, and Main Menu star stats vanity pill. Lit stars render in full color; unearned stars render in dimmed grayscale (`grayscale opacity-30`). |
@@ -185,9 +185,9 @@ All sound effects follow a crisp 16-bit handheld console aesthetic (square/trian
 | `level_timeout` | Countdown hits `00:00` (`TIME'S UP!` modal trigger) | Descending 4-note arcade fail trombone/synth (`A4 -> G#4 -> G4 -> F#4`, `450ms`). |
 | `store_buy` | Claiming any Coin or Life pack in the Item Store | Classic dual-tone coin register ding (`B5 -> E6`, `160ms`). |
 
-### 7.2 Looping Background Music (`MUSIC` — Menu & Gameplay Tracks)
-- **User-Supplied Track Slots (`public/audio/music/`)**:
-  - `public/audio/music/menu.ogg` (or `.mp3`): Played on the **Main Menu** and **Item Store** screens.
-  - `public/audio/music/gameplay.ogg` (or `.mp3`): Played during active **In-Game** stages.
-- **Graceful Fallback**: Because the music files will be added by the developer, `AudioManager` checks/fetches the track via `AssetLoader.resolvePath()` and fails silently (no console errors or crashes) if the music files are not yet present in `public/audio/music/`.
-- **Transitions & Ducking**: Crossfades (`400ms`) when transitioning between Menu and In-Game, lowers gain to `35%` while a modal overlay (`Pause`, `Level Complete`, `Out of Time`, `Settings`) is open, and pauses automatically when `MUSIC` is toggled `OFF` or when the app/tab moves to the background (`visibilitychange`).
+### 7.2 Looping Background Music (`MUSIC` — Continuous Theme Track)
+- **Track Implementation (`public/audio/music/`)**:
+  - `public/audio/music/theme.ogg` & `theme.mp3` (aliased to `menu.*` and `gameplay.*`): Derived from the first `01:05.00` (65.0s) of `dump/Velvet_Tiling.mp3` with gapless OGG Vorbis loop encoding and MP3 universal fallback.
+  - **Continuous Playback**: The theme soundtrack plays continuously across both Menu and In-Game gameplay without resetting track time on screen transitions.
+- **Graceful Fallback**: `AudioManager` checks/fetches the track via `AssetLoader.resolvePath()` and fails silently if music files are ever missing or blocked by browser autoplay policy until the first user interaction.
+- **Levels, Ducking & Background Suspend**: Playback volume calibrated to `36%` (`MUSIC_VOLUME = 0.36`), automatically ducking to `13%` (`MUSIC_DUCKED_VOLUME = 0.13`) while modal overlays (`Pause`, `Level Complete`, `Out of Time`, `Settings`, `Item Store`) are open. Suspends when hidden or when `MUSIC` is toggled `OFF` in Settings.

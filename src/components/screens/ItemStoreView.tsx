@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { CoinIcon, HeartIcon, StorefrontIcon } from '../PixelIcons';
-import { useLifeRegenDisplay } from './MainMenuView';
+import { CoinCapsule, LivesCapsule } from '../HudInventoryCapsules';
 
 export const ItemStoreView: React.FC = () => {
-  const coins = useGameStore((s) => s.coins);
-  const lives = useGameStore((s) => s.lives);
   const storePacks = useGameStore((s) => s.economy.storePacks);
   const claimKoFiStorePack = useGameStore((s) => s.claimKoFiStorePack);
   const navigateTo = useGameStore((s) => s.navigateTo);
@@ -13,7 +11,6 @@ export const ItemStoreView: React.FC = () => {
   const getPackLabel = (id: string, fallback: string) =>
     storePacks.find((p) => p.id === id)?.label ?? fallback;
 
-  const { isFull, timerText } = useLifeRegenDisplay();
   const [toastText, setToastText] = useState<string | null>(null);
   const toastTimerRef = useRef<number | null>(null);
 
@@ -45,54 +42,12 @@ export const ItemStoreView: React.FC = () => {
   return (
     <div className="w-full h-full flex flex-col justify-between bg-[#FFF8F5] text-[#2C2523] px-3.5 py-3 select-none overflow-hidden gap-2.5">
       {/* 1. TOP HUD BAR */}
-      <div className="flex items-center justify-between w-full gap-2 flex-none">
+      <div className="flex items-center justify-between w-full flex-none">
         {/* Coin Capsule */}
-        <div className="flex items-center">
-          <div className="flex items-center gap-1.5 bg-[#FFFFFF] px-2.5 py-1.5 border-[2.5px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523]">
-            <CoinIcon size={16} />
-            <span
-              id="player-coins"
-              className="font-pixel text-[10px] text-[#2C2523] tracking-tight"
-            >
-              {coins.toLocaleString()}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={() => showToast('+ SELECT A PACK BELOW!')}
-            className="w-7 h-7 bg-[#FBBF24] hover:bg-[#F59E0B] border-[2.5px] border-l-0 border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] flex items-center justify-center text-[#2C2523] font-pixel text-xs font-bold active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer"
-          >
-            +
-          </button>
-        </div>
+        <CoinCapsule onClick={() => showToast('+ SELECT A PACK BELOW!')} />
 
         {/* Heart / Lives Capsule */}
-        <div className="flex items-center">
-          <div className="flex items-center gap-1.5 bg-[#FFFFFF] px-2.5 py-1.5 border-[2.5px] border-[#2C2523] shadow-[2px_2px_0_0_#2C2523]">
-            <HeartIcon size={14} />
-            <span
-              id="player-lives"
-              className="font-pixel text-[9px] text-[#2C2523]"
-            >
-              {lives}
-            </span>
-            <span className="font-pixel text-[8px] text-[#817661]">|</span>
-            <span
-              className={`font-pixel text-[8px] tracking-tighter ${
-                isFull ? 'text-[#15803D] font-bold' : 'text-[#817661]'
-              }`}
-            >
-              {timerText}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={() => showToast('+ SELECT A PACK BELOW!')}
-            className="w-7 h-7 bg-[#10B981] hover:bg-[#059669] border-[2.5px] border-l-0 border-[#2C2523] shadow-[2px_2px_0_0_#2C2523] flex items-center justify-center text-[#FFFFFF] font-pixel text-xs font-bold active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer"
-          >
-            +
-          </button>
-        </div>
+        <LivesCapsule onClick={() => showToast('+ SELECT A PACK BELOW!')} />
       </div>
 
       {/* 2. STORE HEADER BANNER */}

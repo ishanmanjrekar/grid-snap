@@ -17,9 +17,10 @@ import type {
   CellBlock,
   EconomyConfig,
   LevelConfig,
+  LevelsConfigFile,
   ShiftAction,
 } from '../engine/types';
-import { fetchLiveGameConfigs } from '../utils/remoteData';
+import { fetchLiveGameConfigs, parseLevelsPayload } from '../utils/remoteData';
 
 export type ScreenView = 'menu' | 'playing' | 'store';
 
@@ -30,6 +31,12 @@ export type ModalType =
   | 'level_complete'
   | 'out_of_time'
   | 'settings';
+
+export type TutorialStep =
+  | 'step1_hint'
+  | 'overlay'
+  | 'step2_hint'
+  | 'completed';
 
 export interface GameState {
   // Persisted Player Progression & Economy (`grid-snap-save`, version: 1)
@@ -47,6 +54,7 @@ export interface GameState {
 
   // Live Remote-Hydrated Configs (Initialized to bundled JSON fallbacks; never persisted to localStorage)
   levels: LevelConfig[];
+  campaignLoop: number[];
   economy: EconomyConfig;
 
   // Ephemeral Navigation & Active Level Session (Never persisted to localStorage)
@@ -65,6 +73,7 @@ export interface GameState {
   livesBeforeStart: number;
   cachedSolution: ShiftAction[];
   activeHint: ShiftAction | null;
+  tutorialStep: TutorialStep;
   lastRewardCoins: number;
   lastEarnedStars: 1 | 2 | 3;
 
@@ -115,7 +124,11 @@ export interface GameActions {
 
 export type GameStore = GameState & GameActions;
 
-const bundledLevels = levelsData as unknown as LevelConfig[];
+const parsedBundledLevels = parseLevelsPayload(
+  levelsData as unknown as LevelConfig[] | LevelsConfigFile
+);
+const bundledLevels = parsedBundledLevels.levels;
+const bundledCampaignLoop = parsedBundledLevels.campaignLoop;
 const bundledEconomy = economyConfig as unknown as EconomyConfig;
 
 export function openExternalUrl(url: string): void {
@@ -160,6 +173,7 @@ export const useGameStore = create<GameStore>()(
 
       // Live remote-hydrated configs (immediately available via bundled fallbacks)
       levels: bundledLevels,
+      campaignLoop: bundledCampaignLoop,
       economy: bundledEconomy,
 
       // Ephemeral state
@@ -186,18 +200,20 @@ export const useGameStore = create<GameStore>()(
       livesBeforeStart: bundledEconomy.startingLives,
       cachedSolution: [],
       activeHint: null,
+      tutorialStep: 'completed',
       lastRewardCoins: bundledEconomy.levelClearReward,
       lastEarnedStars: 3,
       isDebugOpen: false,
       isTimerFrozen: false,
 
       syncRemoteConfigs: async () => {
-        const { levels, economy } = await fetchLiveGameConfigs(
-          bundledLevels,
+        const { levels, campaignLoop, economy } = await fetchLiveGameConfigs(
+          levelsData as unknown as LevelConfig[] | LevelsConfigFile,
           bundledEconomy
         );
         set({
           levels,
+          campaignLoop,
           economy,
           lastRewardCoins: economy.levelClearReward,
         });
@@ -266,7 +282,7 @@ export const useGameStore = create<GameStore>()(
         const levelCfg = getLevelConfig(
           targetId,
           refreshed.levels,
-          eco.campaignLoopSize
+          refreshed.campaignLoop
         );
         const hydrated = hydrateLevelColors(levelCfg);
         const initialSolve = solveIDAStar(hydrated.grid, hydrated.frames, 120, 6);
@@ -278,13 +294,14 @@ export const useGameStore = create<GameStore>()(
             ? Date.now()
             : refreshed.lastLifeRegenAt;
 
-        const showTutorial = targetId === 1 && !refreshed.hasSeenTutorial;
+        const isLevel1 = targetId === 1;
+        const firstHint = isLevel1 ? (initialSolve.actions[0] ?? null) : null;
 
         audioManager.playSfx('button_tap');
         audioManager.setMusicTrack('gameplay');
         audioManager.syncSettings({
           ...refreshed.settings,
-          isModalOpen: showTutorial,
+          isModalOpen: false,
         });
 
         set({
@@ -293,7 +310,9 @@ export const useGameStore = create<GameStore>()(
           livesBeforeStart: livesBefore,
           escrowActive: true,
           activeScreen: 'playing',
-          activeModal: showTutorial ? 'tutorial' : 'none',
+          activeModal: 'none',
+          tutorialStep: isLevel1 ? 'step1_hint' : 'completed',
+          isTimerFrozen: isLevel1 ? true : false,
           activeLevelId: targetId,
           rows: levelCfg.rows,
           cols: levelCfg.cols,
@@ -303,7 +322,7 @@ export const useGameStore = create<GameStore>()(
           timeRemaining: levelCfg.timeLimitSeconds,
           shiftsCount: 0,
           cachedSolution: initialSolve.actions,
-          activeHint: null,
+          activeHint: firstHint,
         });
 
         return true;
@@ -316,15 +335,80 @@ export const useGameStore = create<GameStore>()(
           ...state.settings,
           isModalOpen: false,
         });
+
+        if (state.activeLevelId === 1 && state.tutorialStep === 'overlay') {
+          let solution = state.cachedSolution;
+          if (solution.length === 0) {
+            const solved = solveIDAStar(state.grid, state.frames, 120, 6);
+            solution = solved.actions;
+          }
+          const secondHint = solution[0] ?? null;
+
+          set({
+            hasSeenTutorial: true,
+            activeModal: 'none',
+            tutorialStep: 'step2_hint',
+            isTimerFrozen: false,
+            activeHint: secondHint,
+            cachedSolution: solution,
+          });
+          return;
+        }
+
         set({
           hasSeenTutorial: true,
           activeModal: 'none',
+          tutorialStep: 'completed',
         });
       },
 
       performShift: (action) => {
         const state = get();
         if (state.activeScreen !== 'playing' || state.activeModal !== 'none') return;
+
+        // Step 1 Guided Move for Level 1 FTUE
+        if (state.activeLevelId === 1 && state.tutorialStep === 'step1_hint') {
+          if (
+            !state.activeHint ||
+            action.axis !== state.activeHint.axis ||
+            action.index !== state.activeHint.index ||
+            action.direction !== state.activeHint.direction ||
+            action.distance !== state.activeHint.distance
+          ) {
+            return;
+          }
+
+          const nextGrid = applyShiftAction(state.grid, action);
+          const nextShifts = state.shiftsCount + 1;
+          const nextCached =
+            state.cachedSolution.length > 0 &&
+            state.cachedSolution[0].axis === action.axis &&
+            state.cachedSolution[0].index === action.index &&
+            state.cachedSolution[0].direction === action.direction &&
+            state.cachedSolution[0].distance === action.distance
+              ? state.cachedSolution.slice(1)
+              : [];
+
+          audioManager.playSfx('frame_snap');
+          audioManager.syncSettings({
+            ...state.settings,
+            isModalOpen: true,
+          });
+
+          set({
+            grid: nextGrid,
+            shiftsCount: nextShifts,
+            activeHint: null,
+            cachedSolution: nextCached,
+            tutorialStep: 'overlay',
+            activeModal: 'tutorial',
+            isTimerFrozen: true,
+          });
+          return;
+        }
+
+        const nextTutorialStep: TutorialStep =
+          state.tutorialStep === 'step2_hint' ? 'completed' : state.tutorialStep;
 
         const eco = state.economy;
         const prevSnap = getSnapProgress(state.grid, state.frames);
@@ -371,6 +455,7 @@ export const useGameStore = create<GameStore>()(
             lastRewardCoins: rewardCoins,
             lastEarnedStars: earnedStars,
             activeModal: 'level_complete',
+            tutorialStep: 'completed',
           });
           return;
         }
@@ -398,6 +483,7 @@ export const useGameStore = create<GameStore>()(
           shiftsCount: nextShifts,
           activeHint: null,
           cachedSolution: nextCached,
+          tutorialStep: nextTutorialStep,
         });
       },
 
@@ -455,6 +541,8 @@ export const useGameStore = create<GameStore>()(
           activeScreen: 'menu',
           activeModal: 'none',
           activeHint: null,
+          tutorialStep: 'completed',
+          isTimerFrozen: false,
         });
       },
 

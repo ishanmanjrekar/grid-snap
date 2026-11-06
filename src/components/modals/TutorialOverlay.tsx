@@ -17,10 +17,24 @@ export const TutorialOverlay: React.FC = () => {
           </span>
         </div>
 
-        <p className="font-pixel text-[11px] leading-[22px] text-[#FFFDF7] mt-2 mb-4 tracking-wide text-center">
-          Slide the rows or columns to match all the colored blocks with their
-          matching frames
-        </p>
+        <h2 className="font-pixel text-[12px] text-[#F8B800] mt-1 mb-4 tracking-wider text-center drop-shadow-[1px_1px_0_#000]">
+          ★ GREAT MOVE! ★
+        </h2>
+
+        <div className="w-full text-left font-pixel text-[9px] leading-[22px] text-[#FFFDF7] mb-4 space-y-2 px-1">
+          <div className="flex items-start gap-2">
+            <span className="text-[#38B764] select-none text-[10px]">▸</span>
+            <span>SHIFT rows &amp; columns</span>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-[#3B82F6] select-none text-[10px]">▸</span>
+            <span>TILES LOOP off the screen</span>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-[#F8B800] select-none text-[10px]">▸</span>
+            <span>SNAP all colors into frames</span>
+          </div>
+        </div>
 
         <div className="flex items-center gap-1.5 pt-2 border-t-2 border-[#403833] w-full justify-center">
           <span className="font-pixel text-[8px] text-[#FFECA8] tracking-widest uppercase pixel-star-active">
