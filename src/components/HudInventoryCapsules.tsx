@@ -129,3 +129,4 @@ export const LivesCapsule: React.FC<LivesCapsuleProps> = ({
     </button>
   );
 };
+
