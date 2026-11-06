@@ -103,7 +103,7 @@ Modelled after the `SplashScreen.tsx` implementation in `topdown-2d-car-engine` 
   - **Top Node (`unlockedLevel + 3`)**: Partially visible dashed preview square (`#EDE5D3`, `opacity-60`).
 - **Bottom Action Panel (`flex-none`)**:
   - **Elevated Spacing (`-mt-8 pb-10`)**: Vertically balanced with ~50% reduced empty space between the green level block and the Star Count panel, lifting the primary CTA away from the bottom of the screen.
-  - **Star Count Row**: Full-width row combining a `STAR COUNT` vanity bar (`⭐ STAR COUNT` left, total stars right) and a square `44×44px` (`w-11 h-11`) Share button (inline pixel share icon).
+  - **Star Count Row**: Full-width row combining a `STAR COUNT` vanity bar (`⭐ STAR COUNT` left, total stars right) and a square `44×44px` (`w-11 h-11`) Share button (inline pixel share icon) which triggers `navigator.share` or clipboard copy with a catchy challenge message, current level, star count, and direct link (`https://playable-things.itch.io/grid-snap`).
   - **Primary CTA**: Full-width `56px`-tall (`h-14`) Arcade Gold (`#FFC021`) button reading `▶ PLAY`.
 
 ---
@@ -153,10 +153,12 @@ The gameplay view uses a strict 3-zone vertical Flexbox layout so the board neve
 All modals render inside an `absolute inset-0 z-50` container over the active screen:
 
 - **Tutorial Intro Overlay (`Level 1` First Launch)**:
-  - Dark scrim (`#2C2523/70`). Timer is paused while visible.
+  - **Step 1 (First Guided Move)**: Guided first move instructs the player to slide the **center column (col 1) one move down**, snapping the cyan block into the bottom-center frame. Timer is frozen at `01:30` and booster/pause inputs are disabled with locked single-line drag restriction.
+  - **Step 2 (Tutorial Intro Overlay)**: Dark scrim (`#2C2523/70`). Timer remains frozen.
   - Card (`#2C2523` fill, `4px solid #F4EFE0` border, `6px 6px 0 #000` shadow) with overhanging gold `TUTORIAL` tag.
-  - Copy: *"Slide the rows or columns to match all the colored blocks with their matching frames"*.
-  - Tapping anywhere on the overlay dismisses it, sets `hasSeenTutorial = true`, and starts the stage timer.
+  - Copy: *"★ GREAT MOVE! ★ - SHIFT rows & columns - TILES LOOP off the screen - SNAP all colors into frames"*.
+  - Tapping anywhere on the overlay dismisses it, unfreezes the stage timer, sets `hasSeenTutorial = true`, and unlocks Step 2.
+  - **Step 3 (Second Guided Move)**: Auto-plays a free hint showing the **top row (row 0) one move right**, wrapping the blue block into the top-left frame to complete Level 1.
 - **Pause Modal**:
   - Overhanging gold `PAUSED` ribbon.
   - Inset pause icon badge (`||`), dashed divider, full-width Emerald `RESUME` button, and full-width Cream `QUIT` button with `YOU WILL LOSE 1 ❤️` warning label underneath (tapping `QUIT` forfeits the escrowed heart and returns to the Main Menu with the same level selected).

@@ -1,5 +1,10 @@
 import React from 'react';
-import { COLOR_SHAPE_MAP, type BlockColor, type ColorShape } from '../engine/types';
+import {
+  COLOR_SHAPE_GLYPH_MAP,
+  COLOR_SHAPE_MAP,
+  type BlockColor,
+  type ColorShape,
+} from '../engine/types';
 import { AssetLoader } from '../utils/AssetLoader';
 
 interface IconProps {
@@ -16,56 +21,31 @@ export const ColorblindShapeIcon: React.FC<{
   fill?: string;
   size?: string | number;
   className?: string;
-}> = ({ color, fill = 'currentColor', size = '40%', className = '' }) => {
-  const shape: ColorShape = COLOR_SHAPE_MAP[color];
+}> = ({ color, fill = 'currentColor', size = 26, className = '' }) => {
+  const shape: ColorShape = COLOR_SHAPE_MAP[color] ?? 'circle';
+  const glyph = COLOR_SHAPE_GLYPH_MAP[shape] ?? '●';
+
+  const fontPx =
+    typeof size === 'number'
+      ? `${size}px`
+      : typeof size === 'string' && (size.endsWith('px') || size.endsWith('rem') || size.endsWith('em'))
+        ? size
+        : '24px';
+
   return (
-    <svg
-      viewBox="0 0 16 16"
-      style={{ width: size, height: size }}
-      className={`pointer-events-none select-none ${className}`}
-      shapeRendering="crispEdges"
+    <span
+      style={{
+        color: fill,
+        fontSize: fontPx,
+        lineHeight: 1,
+        fontFamily:
+          'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Segoe UI Symbol", Roboto, "Helvetica Neue", Arial, sans-serif',
+      }}
+      className={`inline-flex items-center justify-center text-center select-none pointer-events-none font-bold ${className}`}
+      aria-label={shape}
     >
-      {shape === 'circle' && (
-        <path
-          fill={fill}
-          d="M5 2h6v1h2v2h1v6h-1v2h-2v1H5v-1H3v-2H2V5h1V3h2V2z"
-        />
-      )}
-      {shape === 'triangle' && (
-        <path
-          fill={fill}
-          d="M7 2h2v2h2v3h2v3h1v3H2v-3h1V7h2V4h2V2z"
-        />
-      )}
-      {shape === 'square' && <rect x="3" y="3" width="10" height="10" fill={fill} />}
-      {shape === 'diamond' && (
-        <path
-          fill={fill}
-          d="M7 1h2v2h2v2h2v2h2v2h-2v2h-2v2H9v2H7v-2H5v-2H3V9H1V7h2V5h2V3h2V1z"
-        />
-      )}
-      {shape === 'star' && (
-        <path
-          fill={fill}
-          d="M7 1h2v4h5v2h-3v3h1v4H9v-2H7v2H4v-4h1V7H2V5h5V1z"
-        />
-      )}
-      {shape === 'cross' && (
-        <path fill={fill} d="M6 2h4v4h4v4h-4v4H6v-4H2V6h4V2z" />
-      )}
-      {shape === 'pentagon' && (
-        <path
-          fill={fill}
-          d="M7 2h2v1h3v2h2v4h-1v5H3V9H2V5h2V3h3V2z"
-        />
-      )}
-      {shape === 'heart' && (
-        <path
-          fill={fill}
-          d="M3 3h3v1h1v1h2V4h1V3h3v1h1v4h-1v2h-2v2H9v2H7v-2H5v-2H3V8H2V4h1V3z"
-        />
-      )}
-    </svg>
+      {glyph}
+    </span>
   );
 };
 
@@ -173,23 +153,25 @@ export const PauseBarsIcon: React.FC<IconProps> = ({ size = 16, className = '' }
 );
 
 export const CloseXIcon: React.FC<IconProps> = ({
-  size = 14,
+  size = 12,
   color = '#FFFDF8',
   className = '',
-}) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 14 14"
-    className={`select-none ${className}`}
-    shapeRendering="crispEdges"
-  >
-    <path
-      fill={color}
-      d="M2 2h3v2h2v2h2V4h3v3h-2v2h2v3H9v-2H7V8H5v4H2V9h2V7H2V2z"
-    />
-  </svg>
-);
+}) => {
+  const dim = toDim(size, 12);
+  return (
+    <span
+      style={{
+        color,
+        fontSize: dim,
+        lineHeight: 1,
+      }}
+      className={`font-pixel font-bold select-none leading-none inline-flex items-center justify-center text-center pointer-events-none ${className}`}
+      aria-hidden="true"
+    >
+      X
+    </span>
+  );
+};
 
 export const LightbulbIcon: React.FC<IconProps> = ({ size = 18, className = '' }) => {
   const dim = toDim(size, 18);

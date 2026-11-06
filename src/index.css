@@ -179,47 +179,47 @@ body {
 }
 
 .pixel-tile-ruby {
-  background-color: #EF4444;
-  border: 1.5px solid #2B1810;
+  background-color: #DC2626;
+  border: 1.5px solid #450A0A;
   box-shadow:
-    inset 2px 2px 0 0 #FFA3A8,
-    inset -2px -2px 0 0 #B91C1C,
+    inset 2px 2px 0 0 #FCA5A5,
+    inset -2px -2px 0 0 #991B1B,
     0 2.5px 0 0 #7F1D1D;
 }
 
 .pixel-tile-emerald {
-  background-color: #22C55E;
-  border: 1.5px solid #14281A;
+  background-color: #16A34A;
+  border: 1.5px solid #052E16;
   box-shadow:
     inset 2px 2px 0 0 #86EFAC,
-    inset -2px -2px 0 0 #15803D,
-    0 2.5px 0 0 #14532D;
+    inset -2px -2px 0 0 #14532D,
+    0 2.5px 0 0 #052E16;
 }
 
 .pixel-tile-cobalt {
-  background-color: #3B82F6;
-  border: 1.5px solid #132238;
+  background-color: #1D4ED8;
+  border: 1.5px solid #172554;
   box-shadow:
     inset 2px 2px 0 0 #93C5FD,
-    inset -2px -2px 0 0 #1D4ED8,
-    0 2.5px 0 0 #1E3A8A;
+    inset -2px -2px 0 0 #1E3A8A,
+    0 2.5px 0 0 #172554;
 }
 
 .pixel-tile-yellow {
-  background-color: #F59E0B;
-  border: 1.5px solid #78350F;
+  background-color: #FACC15;
+  border: 1.5px solid #713F12;
   box-shadow:
-    inset 2px 2px 0 0 #FDE68A,
-    inset -2px -2px 0 0 #B45309,
-    0 2.5px 0 0 #451A03;
+    inset 2px 2px 0 0 #FEF08A,
+    inset -2px -2px 0 0 #CA8A04,
+    0 2.5px 0 0 #854D0E;
 }
 
 .pixel-tile-purple {
-  background-color: #A855F7;
-  border: 1.5px solid #581C87;
+  background-color: #7E22CE;
+  border: 1.5px solid #3B0764;
   box-shadow:
     inset 2px 2px 0 0 #D8B4FE,
-    inset -2px -2px 0 0 #7E22CE,
+    inset -2px -2px 0 0 #581C87,
     0 2.5px 0 0 #3B0764;
 }
 
@@ -228,67 +228,69 @@ body {
   border: 1.5px solid #164E63;
   box-shadow:
     inset 2px 2px 0 0 #A5F3FC,
-    inset -2px -2px 0 0 #0891B2,
+    inset -2px -2px 0 0 #0E7490,
     0 2.5px 0 0 #155E75;
 }
 
 .pixel-tile-tangerine {
-  background-color: #F97316;
+  background-color: #EA580C;
   border: 1.5px solid #431407;
   box-shadow:
-    inset 2px 2px 0 0 #FDBA74,
-    inset -2px -2px 0 0 #C2410C,
+    inset 2px 2px 0 0 #FED7AA,
+    inset -2px -2px 0 0 #9A3412,
     0 2.5px 0 0 #7C2D12;
 }
 
+.pixel-tile-onyx,
 .pixel-tile-magenta {
-  background-color: #EC4899;
-  border: 1.5px solid #500724;
+  background-color: #262626;
+  border: 1.5px solid #0A0A0A;
   box-shadow:
-    inset 2px 2px 0 0 #F9A8D4,
-    inset -2px -2px 0 0 #BE185D,
-    0 2.5px 0 0 #831843;
+    inset 2px 2px 0 0 #737373,
+    inset -2px -2px 0 0 #171717,
+    0 2.5px 0 0 #0A0A0A;
 }
 
 /* Fixed Target Frame Wireframes (8 Colors) */
 .slot-ruby {
-  border: 2px dashed #DC2626;
-  background-color: rgba(239, 68, 68, 0.12);
+  border: 2px dashed #B91C1C;
+  background-color: rgba(220, 38, 38, 0.14);
 }
 
 .slot-emerald {
-  border: 2px dashed #16A34A;
-  background-color: rgba(34, 197, 94, 0.12);
+  border: 2px dashed #15803D;
+  background-color: rgba(22, 163, 74, 0.14);
 }
 
 .slot-cobalt {
-  border: 2px dashed #2563EB;
-  background-color: rgba(59, 130, 246, 0.12);
+  border: 2px dashed #1E40AF;
+  background-color: rgba(29, 78, 216, 0.14);
 }
 
 .slot-yellow {
-  border: 2px dashed #D97706;
-  background-color: rgba(245, 158, 11, 0.12);
+  border: 2px dashed #CA8A04;
+  background-color: rgba(250, 204, 21, 0.16);
 }
 
 .slot-purple {
-  border: 2px dashed #9333EA;
-  background-color: rgba(168, 85, 247, 0.12);
+  border: 2px dashed #6B21A8;
+  background-color: rgba(126, 34, 206, 0.14);
 }
 
 .slot-cyan {
   border: 2px dashed #0891B2;
-  background-color: rgba(6, 182, 212, 0.12);
+  background-color: rgba(6, 182, 212, 0.14);
 }
 
 .slot-tangerine {
-  border: 2px dashed #EA580C;
-  background-color: rgba(249, 115, 22, 0.12);
+  border: 2px dashed #C2410C;
+  background-color: rgba(234, 88, 12, 0.14);
 }
 
+.slot-onyx,
 .slot-magenta {
-  border: 2px dashed #DB2777;
-  background-color: rgba(236, 72, 153, 0.12);
+  border: 2px dashed #404040;
+  background-color: rgba(38, 38, 38, 0.15);
 }
 
 /* Stepped Keyframe Animations */

@@ -62,20 +62,29 @@ Every movable color block uses a 4-part 3D pixel bevel (`background-color`, top-
 | Color ID | Base Hex | Top-Left Highlight | Bottom-Right Shade | Bottom Lip / Border | Target Frame (`slot-*`) Border, Tint & Center Pip (`pipFill` / `pipBorder`) | Colorblind Shape Symbol |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **`neutral`** *(Filler)* | `#F8F5EB` | `#FFFFFF` | `#DDD2BA` | `#9E937D` / `#332B25` | N/A *(Center dot: `#BCB199`)* | None |
-| **`ruby`** *(Crimson Red)* | `#EF4444` | `#FFA3A8` | `#B91C1C` | `#7F1D1D` / `#2B1810` | `dashed #DC2626` / `rgba(239, 68, 68, 0.12)` / Pip `#FCA5A5` (`#B91C1C` border) | **Circle (`●`)** |
-| **`emerald`** *(Green)* | `#22C55E` | `#86EFAC` | `#15803D` | `#14532D` / `#14281A` | `dashed #16A34A` / `rgba(34, 197, 94, 0.12)` / Pip `#86EFAC` (`#15803D` border) | **Triangle (`▲`)** |
-| **`cobalt`** *(Blue)* | `#3B82F6` | `#93C5FD` | `#1D4ED8` | `#1E3A8A` / `#132238` | `dashed #2563EB` / `rgba(59, 130, 246, 0.12)` / Pip `#93C5FD` (`#1D4ED8` border) | **Square (`■`)** |
-| **`yellow`** *(Amber Gold)* | `#F59E0B` | `#FDE68A` | `#B45309` | `#451A03` / `#78350F` | `dashed #D97706` / `rgba(245, 158, 11, 0.12)` / Pip `#FDE68A` (`#D97706` border) | **Diamond (`◆`)** |
-| **`purple`** *(Vivid Violet)* | `#A855F7` | `#D8B4FE` | `#7E22CE` | `#3B0764` / `#581C87` | `dashed #9333EA` / `rgba(168, 85, 247, 0.12)` / Pip `#E9D5FF` (`#9333EA` border) | **Star (`★`)** |
-| **`cyan`** *(Turquoise)* | `#06B6D4` | `#A5F3FC` | `#0891B2` | `#155E75` / `#164E63` | `dashed #0891B2` / `rgba(6, 182, 212, 0.12)` / Pip `#A5F3FC` (`#0891B2` border) | **Cross (`✚`)** |
-| **`tangerine`** *(Orange)* | `#F97316` | `#FDBA74` | `#C2410C` | `#7C2D12` / `#431407` | `dashed #EA580C` / `rgba(249, 115, 22, 0.12)` / Pip `#FDBA74` (`#C2410C` border) | **Pentagon (`⬟`)** |
-| **`magenta`** *(Rose Pink)* | `#EC4899` | `#F9A8D4` | `#BE185D` | `#831843` / `#500724` | `dashed #DB2777` / `rgba(236, 72, 153, 0.12)` / Pip `#F9A8D4` (`#BE185D` border) | **Heart (`♥`)** |
+| **`ruby`** *(Crimson Red)* | `#DC2626` | `#FCA5A5` | `#991B1B` | `#7F1D1D` / `#450A0A` | `dashed #B91C1C` / `rgba(220, 38, 38, 0.14)` / Pip `#F87171` (`#991B1B` border) | **Circle (`●`)** |
+| **`emerald`** *(Arcade Green)* | `#16A34A` | `#86EFAC` | `#14532D` | `#052E16` / `#052E16` | `dashed #15803D` / `rgba(22, 163, 74, 0.14)` / Pip `#86EFAC` (`#14532D` border) | **Triangle (`▲`)** |
+| **`cobalt`** *(Deep Navy Blue)* | `#1D4ED8` | `#93C5FD` | `#1E3A8A` | `#172554` / `#172554` | `dashed #1E40AF` / `rgba(29, 78, 216, 0.14)` / Pip `#60A5FA` (`#1E3A8A` border) | **Square (`■`)** |
+| **`yellow`** *(Canary / Lemon)* | `#FACC15` | `#FEF08A` | `#CA8A04` | `#854D0E` / `#713F12` | `dashed #CA8A04` / `rgba(250, 204, 21, 0.16)` / Pip `#FEF08A` (`#A16207` border) | **Diamond (`◆`)** |
+| **`purple`** *(Royal Amethyst)* | `#7E22CE` | `#D8B4FE` | `#581C87` | `#3B0764` / `#3B0764` | `dashed #6B21A8` / `rgba(126, 34, 206, 0.14)` / Pip `#C084FC` (`#581C87` border) | **Star (`★`)** |
+| **`cyan`** *(Ice Aqua)* | `#06B6D4` | `#A5F3FC` | `#0E7490` | `#155E75` / `#164E63` | `dashed #0891B2` / `rgba(6, 182, 212, 0.14)` / Pip `#A5F3FC` (`#0E7490` border) | **Cross (`✚`)** |
+| **`tangerine`** *(Blaze Orange)* | `#EA580C` | `#FED7AA` | `#9A3412` | `#7C2D12` / `#431407` | `dashed #C2410C` / `rgba(234, 88, 12, 0.14)` / Pip `#FB923C` (`#9A3412` border) | **Sparkle (`✦`)** |
+| **`onyx`** *(Obsidian Black)* | `#262626` | `#737373` | `#171717` | `#0A0A0A` / `#0A0A0A` | `dashed #404040` / `rgba(38, 38, 38, 0.15)` / Pip `#E5E5E5` (`#262626` border) | **Heart (`♥`)** |
 
 ### 3.1 Colorblind Mode Symbol Overlay (`settings.colorblindMode`)
 - **Default (`OFF`)**: Colored blocks render with clean bevel faces and no inner symbol; unoccupied target frames show a simple square colored center pip.
 - **Enabled (`ON`)**:
-  - **On Colored Blocks**: Renders the color's assigned crisp pixel SVG geometric shape (`~35%` of tile width) centered on the block face in the block's **Top-Left Highlight** color at `45%` opacity (`rgba(255,255,255,0.45)` blend), keeping the 3D plastic aesthetic intact.
-  - **On Unoccupied Target Frames**: Replaces the generic center square pip with the matching colored geometric shape SVG (`~28%` of cell width) in the frame's border hue so colorblind players can immediately pair blocks with their target frames.
+  - **Crisp Unicode Font Glyphs**: Replaces 16x16 pixel SVG paths (which suffered from blurry rendering on low-res grids and rendered pentagons like bread loaves) with sharp, universally supported Unicode geometry font glyphs (`system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Segoe UI Symbol", Roboto, sans-serif`):
+    - `ruby` → `●` (Circle)
+    - `emerald` → `▲` (Triangle)
+    - `cobalt` → `■` (Square)
+    - `yellow` → `◆` (Diamond)
+    - `purple` → `★` (Star)
+    - `cyan` → `✚` (Cross)
+    - `tangerine` → `✦` (Sparkle / 4-Point Diamond Star)
+    - `onyx` → `♥` (Heart)
+  - **On Colored Blocks**: Centered on the block face at `size={Math.max(16, Math.round(cellSize * 0.46))}` in semi-translucent white (`rgba(255, 255, 255, 0.85)`) with a subtle `drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.6)]` for contrast against both light and dark tiles.
+  - **On Unoccupied Target Frames**: Replaces the generic center square pip with the matching colored glyph (`~30%` of cell size) in the frame's `pipBorder` hue so colorblind players can instantly pair blocks with their target frames.
 
 ### 3.2 Snapped Visual State (When `grid[r][c] === frames[r][c]`)
 When a colored block occupies its matching target frame:
@@ -103,8 +112,10 @@ To guarantee 100% offline reliability in Android APKs and zero CDN latency on It
     - `hint.png`: Lightbulb (`💡`) for the in-game hint booster.
     - `hourglass.png`: Hourglass (`⏳`) for stage timers and time extensions.
     - `warning.png`: Warning sign (`⚠️`) for reset confirmations.
-- **Inline Pixel Art SVGs (Structural & Assistive Controls)**:
-  - Vector pixel-grid SVGs with `shapeRendering="crispEdges"` are retained for `ColorblindShapeIcon` (8 geometric shapes), `CloseXIcon`, `PauseBarsIcon`, `ShareIcon`, and `GhostHandIcon`.
+- **Inline Pixel Art Icons & Typography (Structural & Assistive Controls)**:
+  - Vector pixel-grid SVGs with `shapeRendering="crispEdges"` are retained for `PauseBarsIcon`, `ShareIcon`, and `GhostHandIcon`.
+  - `ColorblindShapeIcon` uses universal geometric system-font glyphs (`system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Segoe UI Symbol", Roboto, sans-serif`) with proportional px sizing and drop shadow, ensuring sharp legibility across all platforms and resolutions without pixelation or shape ambiguity.
+  - `CloseXIcon` renders the authentic arcade pixel letter `'X'` directly from the primary header font (`Press Start 2P`, `--font-pixel`) rather than an SVG path, ensuring crisp pixel symmetry and visual harmony across all modal close buttons.
 - **Formatting Rules**:
   - All button labels, badges, and headers use `text-transform: uppercase`.
   - Use container-query-relative font sizes (`clamp(8px, 2.5cqw, 12px)`) so text never overflows inside the `450×800` `BoundingBox`.

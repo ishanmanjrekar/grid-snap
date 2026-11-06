@@ -754,10 +754,13 @@ export const EditorApp: React.FC = () => {
                   <button
                     key={c}
                     onClick={() => setSelectedBrush(c)}
-                    className={`px-3 py-1.5 border-2 border-[#2C2523] font-bold text-xs text-white flex items-center gap-1.5 cursor-pointer ${
+                    className={`px-3 py-1.5 border-2 border-[#2C2523] font-bold text-xs flex items-center gap-1.5 cursor-pointer ${
                       selectedBrush === c ? 'ring-3 ring-[#2C2523] scale-105' : 'opacity-85'
                     }`}
-                    style={{ backgroundColor: COLOR_HEX_MAP[c].base }}
+                    style={{
+                      backgroundColor: COLOR_HEX_MAP[c].base,
+                      color: c === 'yellow' ? '#1E1B18' : '#FFFFFF',
+                    }}
                   >
                     <span>#{idx + 1}</span>
                     <span className="capitalize">{c}</span>

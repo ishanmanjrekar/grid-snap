@@ -72,7 +72,8 @@ export const MainMenuView: React.FC = () => {
 
   const handleShare = async () => {
     audioManager.playSfx('button_tap');
-    const text = `Grid Snap — Level ${unlockedLevel} | ⭐ ${totalStars} Stars!`;
+    const shareUrl = 'https://playable-things.itch.io/grid-snap';
+    const text = `Testing my spatial logic in Grid Snap — made it to Level ${unlockedLevel} with ⭐ ${totalStars} Stars!\n\nLooking for a real puzzle challenge? Try it here:\n${shareUrl}`;
     try {
       if (navigator.share) {
         await navigator.share({ title: 'Grid Snap', text });

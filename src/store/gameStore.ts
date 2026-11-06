@@ -295,7 +295,24 @@ export const useGameStore = create<GameStore>()(
             : refreshed.lastLifeRegenAt;
 
         const isLevel1 = targetId === 1;
-        const firstHint = isLevel1 ? (initialSolve.actions[0] ?? null) : null;
+        let solution = initialSolve.actions;
+        if (isLevel1) {
+          // FTUE Tutorial Level: Center column (col 1) one move down is the guided 1st step,
+          // followed by top row (row 0) one move right as the 2nd step.
+          const colDownIdx = solution.findIndex(
+            (a) => a.axis === 'col' && a.index === 1 && a.direction === 'down'
+          );
+          if (colDownIdx !== -1) {
+            const [colMove] = solution.splice(colDownIdx, 1);
+            solution = [colMove, ...solution];
+          } else {
+            solution = [
+              { axis: 'col', index: 1, direction: 'down', distance: 1 },
+              { axis: 'row', index: 0, direction: 'right', distance: 1 },
+            ];
+          }
+        }
+        const firstHint = isLevel1 ? (solution[0] ?? null) : null;
 
         audioManager.playSfx('button_tap');
         audioManager.setMusicTrack('gameplay');
@@ -321,7 +338,7 @@ export const useGameStore = create<GameStore>()(
           timeLimitSeconds: levelCfg.timeLimitSeconds,
           timeRemaining: levelCfg.timeLimitSeconds,
           shiftsCount: 0,
-          cachedSolution: initialSolve.actions,
+          cachedSolution: solution,
           activeHint: firstHint,
         });
 

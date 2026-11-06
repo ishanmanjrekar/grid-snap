@@ -29,7 +29,12 @@ describe('Level 1 FTUE & Tutorial Step-by-Step Flow', () => {
     expect(state.activeModal).toBe('none'); // overlay is NOT shown upfront
     expect(state.tutorialStep).toBe('step1_hint');
     expect(state.isTimerFrozen).toBe(true);
-    expect(state.activeHint).not.toBeNull();
+    expect(state.activeHint).toEqual({
+      axis: 'col',
+      index: 1,
+      direction: 'down',
+      distance: 1,
+    });
     expect(state.cachedSolution.length).toBeGreaterThan(0);
   });
 
@@ -78,7 +83,12 @@ describe('Level 1 FTUE & Tutorial Step-by-Step Flow', () => {
     expect(state.activeModal).toBe('none');
     expect(state.tutorialStep).toBe('step2_hint');
     expect(state.isTimerFrozen).toBe(false);
-    expect(state.activeHint).not.toBeNull();
+    expect(state.activeHint).toEqual({
+      axis: 'row',
+      index: 0,
+      direction: 'right',
+      distance: 1,
+    });
     // Coins should NOT be deducted for this free tutorial hint
     expect(state.coins).toBe(500);
   });

@@ -6,6 +6,7 @@ export type BlockColor =
   | 'purple'
   | 'cyan'
   | 'tangerine'
+  | 'onyx'
   | 'magenta';
 
 export const ALL_BLOCK_COLORS: BlockColor[] = [
@@ -16,7 +17,7 @@ export const ALL_BLOCK_COLORS: BlockColor[] = [
   'purple',
   'cyan',
   'tangerine',
-  'magenta',
+  'onyx',
 ];
 
 export type ColorShape =
@@ -26,6 +27,7 @@ export type ColorShape =
   | 'diamond'
   | 'star'
   | 'cross'
+  | 'sparkle'
   | 'pentagon'
   | 'heart';
 
@@ -36,8 +38,21 @@ export const COLOR_SHAPE_MAP: Record<BlockColor, ColorShape> = {
   yellow: 'diamond',
   purple: 'star',
   cyan: 'cross',
-  tangerine: 'pentagon',
+  tangerine: 'sparkle',
+  onyx: 'heart',
   magenta: 'heart',
+};
+
+export const COLOR_SHAPE_GLYPH_MAP: Record<ColorShape, string> = {
+  circle: '●',
+  triangle: '▲',
+  square: '■',
+  diamond: '◆',
+  star: '★',
+  cross: '✚',
+  sparkle: '✦',
+  pentagon: '✦',
+  heart: '♥',
 };
 
 export const COLOR_HEX_MAP: Record<
@@ -54,84 +69,94 @@ export const COLOR_HEX_MAP: Record<
   }
 > = {
   ruby: {
-    base: '#EF4444',
-    highlight: '#FFA3A8',
-    shade: '#B91C1C',
-    border: '#2B1810',
-    slotBorder: '#DC2626',
-    slotTint: 'rgba(239, 68, 68, 0.12)',
-    pipFill: '#FCA5A5',
-    pipBorder: '#B91C1C',
+    base: '#DC2626',
+    highlight: '#FCA5A5',
+    shade: '#991B1B',
+    border: '#450A0A',
+    slotBorder: '#B91C1C',
+    slotTint: 'rgba(220, 38, 38, 0.14)',
+    pipFill: '#F87171',
+    pipBorder: '#991B1B',
   },
   emerald: {
-    base: '#22C55E',
+    base: '#16A34A',
     highlight: '#86EFAC',
-    shade: '#15803D',
-    border: '#14281A',
-    slotBorder: '#16A34A',
-    slotTint: 'rgba(34, 197, 94, 0.12)',
+    shade: '#14532D',
+    border: '#052E16',
+    slotBorder: '#15803D',
+    slotTint: 'rgba(22, 163, 74, 0.14)',
     pipFill: '#86EFAC',
-    pipBorder: '#15803D',
+    pipBorder: '#14532D',
   },
   cobalt: {
-    base: '#3B82F6',
+    base: '#1D4ED8',
     highlight: '#93C5FD',
-    shade: '#1D4ED8',
-    border: '#132238',
-    slotBorder: '#2563EB',
-    slotTint: 'rgba(59, 130, 246, 0.12)',
-    pipFill: '#93C5FD',
-    pipBorder: '#1D4ED8',
+    shade: '#1E3A8A',
+    border: '#172554',
+    slotBorder: '#1E40AF',
+    slotTint: 'rgba(29, 78, 216, 0.14)',
+    pipFill: '#60A5FA',
+    pipBorder: '#1E3A8A',
   },
   yellow: {
-    base: '#F59E0B',
-    highlight: '#FDE68A',
-    shade: '#B45309',
-    border: '#78350F',
-    slotBorder: '#D97706',
-    slotTint: 'rgba(245, 158, 11, 0.12)',
-    pipFill: '#FDE68A',
-    pipBorder: '#D97706',
+    base: '#FACC15',
+    highlight: '#FEF08A',
+    shade: '#CA8A04',
+    border: '#713F12',
+    slotBorder: '#CA8A04',
+    slotTint: 'rgba(250, 204, 21, 0.16)',
+    pipFill: '#FEF08A',
+    pipBorder: '#A16207',
   },
   purple: {
-    base: '#A855F7',
+    base: '#7E22CE',
     highlight: '#D8B4FE',
-    shade: '#7E22CE',
-    border: '#581C87',
-    slotBorder: '#9333EA',
-    slotTint: 'rgba(168, 85, 247, 0.12)',
-    pipFill: '#E9D5FF',
-    pipBorder: '#9333EA',
+    shade: '#581C87',
+    border: '#3B0764',
+    slotBorder: '#6B21A8',
+    slotTint: 'rgba(126, 34, 206, 0.14)',
+    pipFill: '#C084FC',
+    pipBorder: '#581C87',
   },
   cyan: {
     base: '#06B6D4',
     highlight: '#A5F3FC',
-    shade: '#0891B2',
+    shade: '#0E7490',
     border: '#164E63',
     slotBorder: '#0891B2',
-    slotTint: 'rgba(6, 182, 212, 0.12)',
+    slotTint: 'rgba(6, 182, 212, 0.14)',
     pipFill: '#A5F3FC',
-    pipBorder: '#0891B2',
+    pipBorder: '#0E7490',
   },
   tangerine: {
-    base: '#F97316',
-    highlight: '#FDBA74',
-    shade: '#C2410C',
+    base: '#EA580C',
+    highlight: '#FED7AA',
+    shade: '#9A3412',
     border: '#431407',
-    slotBorder: '#EA580C',
-    slotTint: 'rgba(249, 115, 22, 0.12)',
-    pipFill: '#FDBA74',
-    pipBorder: '#C2410C',
+    slotBorder: '#C2410C',
+    slotTint: 'rgba(234, 88, 12, 0.14)',
+    pipFill: '#FB923C',
+    pipBorder: '#9A3412',
+  },
+  onyx: {
+    base: '#262626',
+    highlight: '#737373',
+    shade: '#171717',
+    border: '#0A0A0A',
+    slotBorder: '#404040',
+    slotTint: 'rgba(38, 38, 38, 0.15)',
+    pipFill: '#E5E5E5',
+    pipBorder: '#262626',
   },
   magenta: {
-    base: '#EC4899',
-    highlight: '#F9A8D4',
-    shade: '#BE185D',
-    border: '#500724',
-    slotBorder: '#DB2777',
-    slotTint: 'rgba(236, 72, 153, 0.12)',
-    pipFill: '#F9A8D4',
-    pipBorder: '#BE185D',
+    base: '#262626',
+    highlight: '#737373',
+    shade: '#171717',
+    border: '#0A0A0A',
+    slotBorder: '#404040',
+    slotTint: 'rgba(38, 38, 38, 0.15)',
+    pipFill: '#E5E5E5',
+    pipBorder: '#262626',
   },
 };
 

@@ -88,12 +88,16 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
   const updateCellSize = useCallback(() => {
     const el = stageRef.current;
     if (!el) return;
+    const clientW = el.clientWidth;
+    const clientH = el.clientHeight;
     const rect = el.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
+    const w = clientW > 0 ? clientW : rect.width;
+    const h = clientH > 0 ? clientH : rect.height;
+    if (w === 0 || h === 0) return;
 
     // Reserve space for the outer arcade bezel + decorative arrows (approx 52px width, 52px height)
-    const availW = Math.max(120, rect.width - 54);
-    const availH = Math.max(120, rect.height - 54);
+    const availW = Math.max(120, w - 54);
+    const availH = Math.max(120, h - 54);
     const gapTotalW = (cols - 1) * 5 + 12;
     const gapTotalH = (rows - 1) * 5 + 12;
 
@@ -168,10 +172,31 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
     if (!tray) return;
 
     const rect = tray.getBoundingClientRect();
-    const relX = e.clientX - rect.left - 6;
-    const relY = e.clientY - rect.top - 6;
-    const col = Math.max(0, Math.min(cols - 1, Math.floor(relX / stepSizePx)));
-    const row = Math.max(0, Math.min(rows - 1, Math.floor(relY / stepSizePx)));
+    const scaleX = rect.width > 0 && trayWidth > 0 ? rect.width / trayWidth : 1;
+    const scaleY = rect.height > 0 && trayHeight > 0 ? rect.height / trayHeight : 1;
+
+    // 1. Direct Hit-Testing: check if target is inside an actual cell tile
+    const cellEl = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-cell-row]');
+    let row: number;
+    let col: number;
+
+    if (
+      cellEl &&
+      cellEl.dataset.cellRow !== undefined &&
+      cellEl.dataset.cellCol !== undefined
+    ) {
+      row = parseInt(cellEl.dataset.cellRow, 10);
+      col = parseInt(cellEl.dataset.cellCol, 10);
+    } else {
+      // 2. Scale-Aware Coordinate Math: for clicks in the 5px gap or padding between tiles
+      const localX = (e.clientX - rect.left) / scaleX;
+      const localY = (e.clientY - rect.top) / scaleY;
+      // Tray has 3px outer border + 6px inner padding offset = 9px to (row 0, col 0)
+      const relX = localX - 9;
+      const relY = localY - 9;
+      col = Math.max(0, Math.min(cols - 1, Math.floor(relX / stepSizePx)));
+      row = Math.max(0, Math.min(rows - 1, Math.floor(relY / stepSizePx)));
+    }
 
     if (editorPaintMode) {
       isPaintingRef.current = true;
@@ -216,13 +241,19 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (disabled) return;
 
+    const tray = trayRef.current;
+    if (!tray) return;
+
+    const rect = tray.getBoundingClientRect();
+    const scaleX = rect.width > 0 && trayWidth > 0 ? rect.width / trayWidth : 1;
+    const scaleY = rect.height > 0 && trayHeight > 0 ? rect.height / trayHeight : 1;
+
     if (editorPaintMode) {
       if (!isPaintingRef.current) return;
-      const tray = trayRef.current;
-      if (!tray) return;
-      const rect = tray.getBoundingClientRect();
-      const relX = e.clientX - rect.left - 6;
-      const relY = e.clientY - rect.top - 6;
+      const localX = (e.clientX - rect.left) / scaleX;
+      const localY = (e.clientY - rect.top) / scaleY;
+      const relX = localX - 9;
+      const relY = localY - 9;
       const col = Math.floor(relX / stepSizePx);
       const row = Math.floor(relY / stepSizePx);
       if (row >= 0 && row < rows && col >= 0 && col < cols) {
@@ -238,8 +269,8 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
     const current = dragRef.current;
     if (!current || current.isCommitting || current.pointerId !== e.pointerId) return;
 
-    const dx = e.clientX - current.startX;
-    const dy = e.clientY - current.startY;
+    const dx = (e.clientX - current.startX) / scaleX;
+    const dy = (e.clientY - current.startY) / scaleY;
     const lockThreshold = cellSize * 0.3;
 
     let axis = current.axis;
@@ -388,7 +419,7 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
         <ColorblindShapeIcon
           color={targetColor}
           fill={COLOR_HEX_MAP[targetColor].pipBorder}
-          size="38%"
+          size={Math.max(12, Math.round(sizePx * 0.3))}
         />
       );
     }
@@ -433,8 +464,9 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
             {colorblindMode && (
               <ColorblindShapeIcon
                 color={block}
-                fill="rgba(255, 255, 255, 0.55)"
-                size="42%"
+                fill="rgba(255, 255, 255, 0.85)"
+                size={Math.max(16, Math.round(cellSize * 0.46))}
+                className="drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.6)]"
               />
             )}
             {!isMatched && targetColor !== null && (
@@ -634,6 +666,8 @@ export const TorusGrid: React.FC<TorusGridProps> = ({
                 return (
                   <div
                     key={`cell-${r}-${c}`}
+                    data-cell-row={r}
+                    data-cell-col={c}
                     style={{
                       position: 'absolute',
                       left,

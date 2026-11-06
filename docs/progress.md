@@ -15,7 +15,7 @@
 | Field | Current Value |
 | :--- | :--- |
 | **Current Batch / Phase** | **All Phases 1–9.3 Complete (`[x]` Web, Itch.io & Android APK Fully Verified)** |
-| **Last Verified Milestone** | **Shared HUD Inventory Capsule Consistency (`CoinCapsule` & `LivesCapsule` standardized to 44px / `h-11` across MainMenu, Store, and InGame screens, 19/19 tests passing)** |
+| **Last Verified Milestone** | **Catchy Social Share Challenge Message (`https://playable-things.itch.io/grid-snap` link + level & star stats in `MainMenuView.tsx`, 19/19 tests passing)** |
 | **Next Immediate Action** | Ready for local playtesting (`npm run dev`), level authoring (`npm run dev:editor`), Itch.io deployment (`npm run build:itch`), or Android APK export (`npm run build:apk`). |
 
 > **Agent Harness Rule (Mandatory End-of-Task Doc Sync)**:
@@ -246,6 +246,25 @@
   - Formatted ultra-short, crisp variations of the **Statement on AI Usage** specifically sized for the Itch.io metadata dialog without cluttering the view.
   - Credited Gemini for art assets & sound and Google Stitch for UI layouts in the Credits and classification checklists.
   - Saved in both `itch-assets/` and `dump/`.
+- [x] **High-Contrast 8-Color Palette Upgrade (Option 2: 7 Chromas + 1 Obsidian Onyx) (`src/engine/types.ts`, `src/index.css`, `editor/EditorApp.tsx`, `docs/art-direction.md`)**:
+  - Replaced ambiguous, overlapping hues (`Yellow` vs `Tangerine` amber crowding; `Cobalt` vs `Cyan` mid-tone blue crowding; `Ruby` vs `Magenta` red-pink crowding) with the distinct Option 2 arcade palette.
+  - Upgraded palette: **Ruby** (Deep Crimson `#DC2626`), **Tangerine** (Blaze Orange `#EA580C`), **Yellow** (Canary Lemon `#FACC15`), **Emerald** (Arcade Green `#16A34A`), **Cobalt** (Deep Navy/Sapphire `#1D4ED8`), **Cyan** (Ice Aqua `#06B6D4`), **Purple** (Royal Amethyst `#7E22CE`), and **Onyx** (Charcoal/Obsidian Black `#262626` with silver/white pip `#E5E5E5`).
+  - Updated 3D pixel bevel CSS classes (`.pixel-tile-*`) and dashed target frame wireframe classes (`.slot-*`) in `src/index.css`.
+  - Updated Level Editor palette toolbar in `editor/EditorApp.tsx` with dynamic high-contrast text (`color: c === 'yellow' ? '#1E1B18' : '#FFFFFF'`).
+  - Verified with 19/19 passing Vitest tests and production build (`npm run build`).
+- [x] **Fix Scale-Aware Drag & Cell Hit-Testing in TorusGrid (`src/components/TorusGrid.tsx`)**:
+  - **Root Cause**: On desktop monitors where `BoundingBox.tsx` applies `transform: scale(scale > 1.0)`, `handlePointerDown` calculated `relY = e.clientY - rect.top - 6` in screen viewport pixels, but divided by unscaled CSS `stepSizePx` (`cellSize + 5`). Because screen pixels were inflated by `scale`, dividing by unscaled `stepSizePx` caused `Math.floor(relY / stepSizePx)` to overshoot into Row 1 when touching anywhere in the bottom half of Row 0. In Level 1 FTUE, this was masked because `lineIndex` was hardcoded to `restrictedHint.index`, but on subsequent levels (like Level 4), touching just below center of a row wrongly selected the row below.
+  - **Resolution**: Implemented precise DOM hit-testing (`data-cell-row` and `data-cell-col` on each cell container) with scale-aware fallback `(e.clientX - rect.left) / scaleX` and normalized drag delta `dx / scaleX, dy / scaleY` in `handlePointerMove`.
+  - Verified with 19/19 passing Vitest tests and production build (`npm run build`).
+- [x] **Modal Close Button Replaced with Header Pixel Font 'X' (`src/components/PixelIcons.tsx`, `docs/art-direction.md`)**:
+  - Replaced the asymmetric vector path SVG in `CloseXIcon` with the authentic arcade pixel letter `'X'` rendered directly in the primary header font (`Press Start 2P`, `--font-pixel`).
+  - Automatically updates close buttons across all modals (`SettingsModal`, `LevelCompleteModal`, `OutOfTimeModal`, and `DebugPanel`) to be perfectly centered, clean, and symmetrical.
+  - Verified with 19/19 passing Vitest tests and clean Vite production build (`npm run build`).
+- [x] **Tutorial Level First Step Sequence Adjustment (`src/store/gameStore.ts`, `src/engine/__tests__/ftue.test.ts`, `docs/ui-ux-and-flows.md`)**:
+  - Reordered the Level 1 FTUE solution so the initial guided move (Step 1) directs the player to shift the **center column (col 1) one move down** (`{ axis: 'col', index: 1, direction: 'down', distance: 1 }`), immediately snapping the cyan block at `(1, 1)` into the bottom-center frame at `(2, 1)`.
+  - Upon committing the center column downshift, the `TutorialOverlay` modal triggers with frozen timer as designed.
+  - Dismissing the overlay transitions to Step 2 with the second guided move directing the player to slide the **top row (row 0) one move right** (`{ axis: 'row', index: 0, direction: 'right', distance: 1 }`), demonstrating toroidal wrapping to snap the blue block at `(0, 2)` into `(0, 0)` and clearing the tutorial.
+  - Updated Vitest unit tests in `src/engine/__tests__/ftue.test.ts` to assert the explicit column-down move for step 1 and row-right move for step 2 (19/19 passing).
 - [x] **Expanded Click Target for HUD Coins & Lives Capsules (`src/components/screens/MainMenuView.tsx`, `src/components/screens/ItemStoreView.tsx`, `docs/ui-ux-and-flows.md`)**:
   - Unified the split container (`<div>` readout + `<button>` plus) into a single cohesive `<button className="... pixel-btn">` control for both Coins and Lives.
   - The entire capsule surface—including the icon, numerical quantity (`coins`, `lives`), timer, and the `+` square—is now clickable and opens the Item Store directly with button tap SFX.
@@ -256,3 +275,24 @@
   - Upgraded **Item Store** (`ItemStoreView.tsx`) from legacy compressed `28px` pills to the full-size `44px` `CoinCapsule` and `LivesCapsule`, matching the Main Menu header pixel-for-pixel.
   - Upgraded **In-Game** (`InGameView.tsx`) to render `<CoinCapsule showPlus={false} />`, standardizing the in-game coin inventory to `44px` with matching borders, shadows, and icon size while aligning with the updated `44×44px` Pause button.
   - Verified with 19/19 passing Vitest tests and clean Vite production build.
+- [x] **Catchy Social Share Challenge Message (`src/components/screens/MainMenuView.tsx`, `docs/economy-and-progression.md`, `docs/ui-ux-and-flows.md`)**:
+  - Replaced the plain `Level X | ⭐ Y Stars!` string with Option 4 ("Brain Teaser / Spatial Logic Challenge") including the direct itch.io link (`https://playable-things.itch.io/grid-snap`).
+  - Message format:
+    `Testing my spatial logic in Grid Snap — made it to Level ${unlockedLevel} with ⭐ ${totalStars} Stars!\n\nLooking for a real puzzle challenge? Try it here:\nhttps://playable-things.itch.io/grid-snap`
+  - Fully compatible with native Web Share API (`navigator.share`) on mobile and clipboard fallback (`navigator.clipboard.writeText`) on desktop web.
+  - Verified with 19/19 Vitest tests passing and clean Vite production build.
+- [x] **Replace SVG Colorblind Shapes with Crisp Unicode System-Font Glyphs (`src/components/PixelIcons.tsx`, `src/components/TorusGrid.tsx`, `src/engine/types.ts`, `docs/art-direction.md`)**:
+  - Replaced the low-res 16x16 pixel SVG paths in `ColorblindShapeIcon`—which rendered blurry or distorted on varying grid scales and caused the Tangerine pentagon to look like a loaf of bread—with crisp, universally supported Unicode geometry/symbol glyphs using system fonts (`system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Segoe UI Symbol", Roboto, sans-serif`).
+  - Glyph mapping:
+    - **Ruby**: Circle (`●` U+25CF)
+    - **Emerald**: Triangle (`▲` U+25B2)
+    - **Cobalt**: Square (`■` U+25A0)
+    - **Yellow**: Diamond (`◆` U+25C6)
+    - **Purple**: Star (`★` U+2605)
+    - **Cyan**: Cross (`✚` U+271A)
+    - **Tangerine**: Sparkle (`✦` U+2726, 4-point diamond star replacing the pentagon bread loaf)
+    - **Onyx**: Heart (`♥` U+2665)
+  - Updated `TorusGrid.tsx`:
+    - On colored blocks: sized at `Math.max(16, Math.round(cellSize * 0.46))` in `rgba(255, 255, 255, 0.85)` with `drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.6)]` for contrast against both bright yellow and dark onyx tiles.
+    - On target frame center pips: sized at `Math.max(12, Math.round(sizePx * 0.3))` in the frame's `pipBorder` dark tone on cream backgrounds.
+  - Verified with 19/19 Vitest tests passing and clean Vite production build.
