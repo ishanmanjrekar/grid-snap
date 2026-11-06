@@ -236,13 +236,15 @@
   - Tapping the switch (including tapping `ON` when it's already active) now flips the state immediately (`ON` -> `OFF`), and tapping it again flips it back (`OFF` -> `ON`).
   - Added semantic accessibility attributes (`role="switch"`, `aria-checked`, dynamic `aria-label`) and tactile active press animation (`active:scale-95`).
   - Verified with 19/19 Vitest tests passing and clean Vite production build.
-- [x] **Itch.io Marketing Documentation & Upload Details (`itch-assets/itch-upload-details.md`, `dump/itch-upload-details.md`, `LICENSE`)**:
+- [x] **Itch.io Marketing Documentation & Upload Details (`itch-assets/itch-upload-details.md`, `dump/itch-upload-details.md`, `LICENSE`, `README.md`)**:
   - Authored comprehensive Itch.io upload marketing document tailored for **GitHub Game Off 2026** (Theme: **SHIFT**) in humble solo-creator tone.
   - Refined copy to focus accurately on casual, simple shifting mechanics, 2D torus puzzle gameplay, and snapping colors to their matching frames without "16-bit" misnomers.
   - Trimmed all tagline options strictly under 120 characters to fit the Itch.io tagline field limit.
   - Added Itch.io theme customizer font recommendations (`Press Start 2P` for headers, `Open Sans`/`Roboto` for body).
   - Streamlined the HTML Introduction to emphasize unlimited move experimentation within time limits for collecting stars, removed redundant tags header from description, and linked the GitHub repository.
   - Clarified license status with GitHub Game Off rules (public repo required, open source encouraged): added standard GNU General Public License v3.0 (`LICENSE` file added to project root matching `lootbox-go` and `post-like-a-celeb`).
+  - Authored official project `README.md` complete with banner, gameplay rules, features, AI usage statement, tech stack, quick start guide, scripts reference, docs index, and GPLv3 licensing notice.
+  - Explicitly credited Gemini for background music generation in README and Itch upload details.
   - Formatted ultra-short, crisp variations of the **Statement on AI Usage** specifically sized for the Itch.io metadata dialog without cluttering the view.
   - Credited Gemini for art assets & sound and Google Stitch for UI layouts in the Credits and classification checklists.
   - Saved in both `itch-assets/` and `dump/`.

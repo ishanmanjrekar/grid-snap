@@ -149,7 +149,7 @@ Created for **GitHub Game Off 2026** (Theme: **SHIFT**).
 <ul>
     <li><strong>AI Pair Programming &amp; IDE:</strong> Built with <strong>Google Antigravity</strong> and <strong>Gemini</strong>.</li>
     <li><strong>UI Design &amp; Interfaces:</strong> Designed with <strong>Google Stitch</strong>.</li>
-    <li><strong>Art &amp; Sound Assets:</strong> Concept art and audio generation with <strong>Gemini</strong>, paired with procedural in-browser sound synthesis.</li>
+    <li><strong>Art &amp; Music Assets:</strong> Concept art and background music generated through <strong>Gemini</strong>, paired with procedural in-browser retro sound synthesis.</li>
     <li><strong>Framework &amp; Styling:</strong> React 19, TypeScript, Vite, and Tailwind CSS.</li>
     <li><strong>Typography:</strong> <i>Press Start 2P</i>, <i>Silkscreen</i>, and <i>Space Mono</i>.</li>
 </ul>
