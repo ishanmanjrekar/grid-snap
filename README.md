@@ -18,7 +18,7 @@ Built with a "no move limits" philosophy, you're never penalized for exploratory
 * **Toroidal Wrap-Around:** Blocks pushed off any edge automatically wrap around to the opposite side of the grid.
 * **Snap to Match:** Target wireframes stay anchored on the board; shift matching colored blocks into position to snap and lock them in.
 * **No Move Limits:** Slide tiles freely without move-count stress—your only adversary is the ticking clock.
-* **3-Star Clear Milestones:** Clear the board before the milestone timer runs down to earn up to 3 stars and coins for boosters.
+* **3-Star Clear Milestones & Replay Records:** Clear the board before the milestone timer runs down to earn up to 3 stars and coins for boosters. Scroll back through completed stages anytime to replay them, increase your star rating, and beat your **Best Time** and **Least Moves** (`BEST!`) records.
 * **Escrow Heart System:** Starting a stage places 1 heart in escrow. Clear the puzzle to get it back; running out of time forfeits it.
 * **Boosters:** Tap **HINT** (highlights the optimal next move) or **+5S** (adds emergency extra time) whenever you're in a pinch.
 
@@ -31,7 +31,7 @@ Built with a "no move limits" philosophy, you're never penalized for exploratory
 * **Standalone Browser Level Editor:** Run `npm run dev:editor` to launch a dedicated WYSIWYG level authoring tool with automated unsolve algorithms, par calculations, and live playtesting.
 * **Live Remote Balancing:** Level curves, difficulty tuning, and the coin economy can be updated on the fly via remote config without needing a new build.
 * **Smart In-Browser Hint Solver:** An in-browser optimal solver calculates the shortest solution path when you request a hint, projecting a pulsating visual guide on the board.
-* **Colorblind Accessibility:** Toggle Colorblind Mode in Settings to overlay distinct geometric shape symbols (Circle, Triangle, Square, Diamond, Star, Cross) on all blocks and target frames.
+* **Colorblind Accessibility:** Toggle Colorblind Mode in Settings to overlay distinct geometric shape symbols (Circle, Triangle, Square, Diamond, Star, Cross, Sparkle, Heart) on all blocks and target frames.
 * **Zero-Download Procedural SFX & Gemini Music:** Retro sound effects synthesized natively in real time via the WebAudio API, paired with continuous background music generated through Gemini.
 
 ---

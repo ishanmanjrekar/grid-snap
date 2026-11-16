@@ -305,3 +305,4 @@
   - Updated `LevelCompleteModal.tsx` to render pixel `BEST!` badges on `TIME` (`isNewBestTime`) and `SHIFTS` (`isNewLeastMoves`) on first clears or record improvements, and wired `NEXT LEVEL ▶` to advance sequentially (`activeLevelId + 1`).
   - Added Vitest tests in `src/engine/__tests__/ftue.test.ts` covering Level 1 FTUE replay, first-clear vs. replay coin rewards (`+200` vs `0`), star preservation/upgrades, and `BEST!` record evaluation (22/22 tests passing) plus clean production build (`npm run build`).
   - Built and verified Itch.io distribution archive (`dump/grid-snap-161126-2338-itch.zip`, `8.60 MB`, `__GRID_SNAP_DEBUG_PANEL__` verified absent in `dist/assets/*.js`) and cleaned older `*-itch.zip` packages from `dump/`.
+  - Updated `README.md` with level replayability, `BEST!` time/moves records, and complete 8-shape colorblind accessibility list before merging `feat/replayable-levels` into `main`.
