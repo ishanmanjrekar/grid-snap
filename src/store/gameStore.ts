@@ -30,7 +30,8 @@ export type ModalType =
   | 'pause'
   | 'level_complete'
   | 'out_of_time'
-  | 'settings';
+  | 'settings'
+  | 'exit_confirm';
 
 export type TutorialStep =
   | 'step1_hint'

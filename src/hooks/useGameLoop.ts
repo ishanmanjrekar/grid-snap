@@ -68,18 +68,34 @@ export function useGameLoop(): void {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
-  // 4. Android Hardware Back Button listener
+  // 4. Android Hardware Back Button listener (Native Android only; excluded from Itch builds)
   useEffect(() => {
-    if (!Capacitor.isNativePlatform()) return;
+    if (
+      import.meta.env.VITE_DISABLE_DEBUG === 'true' ||
+      !Capacitor.isNativePlatform()
+    ) {
+      return;
+    }
 
     const listenerPromise = CapApp.addListener('backButton', () => {
       const st = useGameStore.getState();
-      if (st.activeModal === 'settings' || st.activeModal === 'pause') {
+      if (
+        st.activeModal === 'settings' ||
+        st.activeModal === 'pause' ||
+        st.activeModal === 'exit_confirm'
+      ) {
         closeModal();
       } else if (st.activeScreen === 'playing' && st.activeModal === 'none') {
         openModal('pause');
       } else if (st.activeScreen === 'store') {
         navigateTo('menu');
+      } else if (
+        st.activeScreen === 'menu' &&
+        st.activeModal === 'none' &&
+        st.isGameStarted
+      ) {
+        audioManager.playSfx('button_tap');
+        openModal('exit_confirm');
       }
     });
 

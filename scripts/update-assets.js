@@ -16,8 +16,16 @@ const generateIconsScript = path.join(__dirname, 'generate-icons.py');
 
 console.log('--- Game Icon & Splash Asset Sync ---');
 
-// If android-assets/icon.png is missing or splash.webp is missing, run generate-icons.py
-if ((!fs.existsSync(androidIconPath) && fs.existsSync(publicIconPath)) || !fs.existsSync(splashWebpPath)) {
+// Run generate-icons.py if splash.webp is missing, android-assets/icon.png needs backup,
+// or android-assets/icon.png is newer than public/icon.png
+const shouldGenerateIcons =
+  (!fs.existsSync(androidIconPath) && fs.existsSync(publicIconPath)) ||
+  !fs.existsSync(splashWebpPath) ||
+  (fs.existsSync(androidIconPath) &&
+    (!fs.existsSync(publicIconPath) ||
+      fs.statSync(androidIconPath).mtimeMs > fs.statSync(publicIconPath).mtimeMs));
+
+if (shouldGenerateIcons) {
   try {
     execSync(`python "${generateIconsScript}"`, { stdio: 'inherit' });
   } catch (err) {

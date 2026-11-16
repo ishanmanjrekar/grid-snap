@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import React, { Suspense } from 'react';
 import { BoundingBox } from './components/BoundingBox';
 import { LevelCompleteModal } from './components/modals/LevelCompleteModal';
@@ -16,6 +17,11 @@ const LazyDebugPanel =
   import.meta.env.VITE_DISABLE_DEBUG === 'true'
     ? null
     : React.lazy(() => import('./components/DebugPanel'));
+
+const LazyExitConfirmModal =
+  import.meta.env.VITE_DISABLE_DEBUG === 'true'
+    ? null
+    : React.lazy(() => import('./components/modals/ExitConfirmModal'));
 
 export function App() {
   useGameLoop();
@@ -37,6 +43,13 @@ export function App() {
         {activeModal === 'level_complete' && <LevelCompleteModal />}
         {activeModal === 'out_of_time' && <OutOfTimeModal />}
         {activeModal === 'settings' && <SettingsModal />}
+        {LazyExitConfirmModal &&
+          Capacitor.isNativePlatform() &&
+          activeModal === 'exit_confirm' && (
+            <Suspense fallback={null}>
+              <LazyExitConfirmModal />
+            </Suspense>
+          )}
 
         {/* Developer Debug Panel (Excluded in Itch builds) */}
         {LazyDebugPanel && (

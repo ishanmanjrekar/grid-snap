@@ -22,6 +22,8 @@ stateDiagram-v2
     ItemStore --> MainMenu : Tap ◀ BACK TO MENU
     MainMenu --> SettingsModal : Tap ⚙ Settings
     SettingsModal --> MainMenu : Tap ✕ Close
+    MainMenu --> ExitConfirmModal : Android Back Button (Native APK only)
+    ExitConfirmModal --> MainMenu : Tap NO / Android Back Button
     MainMenu --> InGame : Tap ▶ PLAY or Selected Node (if Lives >= 1; holds 1 ❤️ in escrow)
     MainMenu --> ItemStore : Tap ▶ PLAY (if Lives == 0)
 
@@ -63,6 +65,7 @@ Every screen and popup in the game maps to a reference asset or folder in `./ui-
 | **Level Complete Modal** | `color_shift_level_complete_popup_x_close` | Modal Overlay | Overhanging gold `LEVEL X CLEAR!` banner, top-right red `✕` close button, 3 chunky animated `⭐` stars, status pill, inset stats box (`TIME` + conditional `BEST!` badge, `SHIFTS` + conditional `BEST!` badge, `COINS: +200` on first clear / `+0` on replay), green `NEXT LEVEL ▶` CTA (`activeLevelId + 1`). |
 | **Out of Time Modal** | `color_shift_out_of_time_popup_x_close` | Modal Overlay | Overhanging crimson `TIME'S UP!` banner, top-right red `✕` close button with `-1 ❤️` badge directly underneath, pixel hourglass box, `! YOU RAN OUT OF TIME !` alert, stats box (`TIME`, `MOVES`, `SOLVED X/Y SLOTS`), green `+30 SECONDS ▶ (200 🪙)` rescue button. |
 | **Settings Modal** | `color_shift_settings_popup_ui` | Modal Overlay | Overhanging gold `SETTINGS` text banner (clean, without emoji), top-right red `✕` close button, `MUSIC` (`ON`/`OFF`), `SFX` (`ON`/`OFF`), `COLORBLIND` (`ON`/`OFF`) toggles, dashed divider, `⚠️ RESET PROGRESS` button with double-tap confirm. |
+| **Exit Confirm Modal** *(Android APK Only)* | Matches `PauseModal` 16-Bit style | Modal Overlay | Triggered by hardware Back button on Main Menu / Level Screen (never rendered or bundled in Itch.io builds). Overhanging gold `EXIT GAME?` ribbon, confirmation prompt, side-by-side Emerald `NO` (stay) & Crimson `YES` (`App.exitApp()`) buttons. |
 | **In-Game Item Store** | `color_shift_in_game_store_balanced_spacing` | Full Screen (`store`) | Top Coin (`🪙`)/Heart (`❤️`) HUD capsules, gold `🛒 ITEM STORE` header banner, `GET LIVES` 3-pack grid with side-by-side hearts (1x `❤️`, 2x `❤️`, 3x `❤️`), `GET COINS` 3-pack grid with side-by-side coins (1x `🪙`, 2x `🪙`, 3x `🪙`), inline `#toast` banner, and bottom `◀ BACK TO MENU` button. |
 
 ---
@@ -155,7 +158,7 @@ The gameplay view uses a strict 3-zone vertical Flexbox layout so the board neve
 
 ---
 
-### 3.3 Modal Overlays (Tutorial, Pause, Level Complete, Out of Time, Settings)
+### 3.3 Modal Overlays (Tutorial, Pause, Level Complete, Out of Time, Settings, Exit Confirm)
 
 All modals render inside an `absolute inset-0 z-50` container over the active screen:
 
@@ -198,6 +201,10 @@ All modals render inside an `absolute inset-0 z-50` container over the active sc
     3. **`COLORBLIND`**: Toggles geometric colorblind symbols on movable blocks and unoccupied target frame pips.
   - Dashed horizontal divider.
   - `⚠ RESET PROGRESS` button: First tap turns the button crimson (`#EF4444`) and reveals pulsing `TAP AGAIN TO CONFIRM` text underneath; second tap within `3s` resets save state and flashes `PROGRESS CLEARED!`.
+- **Exit Confirm Modal (`ExitConfirmModal.tsx` — Native Android Only)**:
+  - Strictly excluded from Itch.io builds (`VITE_DISABLE_DEBUG === 'true'`) and gated on `Capacitor.isNativePlatform()`.
+  - Triggered when pressing the Android hardware Back button on the Main Menu / Level Screen (`activeScreen === 'menu'`, `activeModal === 'none'`, `isGameStarted === true`).
+  - Overhanging gold `EXIT GAME?` ribbon, inset confirmation panel (`ARE YOU SURE YOU WANT TO CLOSE THE GAME?`), and side-by-side buttons: Emerald `NO` (dismisses modal, same as pressing Back again) and Crimson `YES` (plays `button_tap` SFX and calls `App.exitApp()`).
 
 ---
 

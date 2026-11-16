@@ -15,8 +15,8 @@
 | Field | Current Value |
 | :--- | :--- |
 | **Current Batch / Phase** | **All Phases 1–9.3 Complete (`[x]` Web, Itch.io & Android APK Fully Verified)** |
-| **Last Verified Milestone** | **Itch.io Package Built & Verified (`dump/grid-snap-161126-2338-itch.zip`, `8.60 MB`, debug sentinel absent) on `feat/replayable-levels` (22/22 tests passing)** |
-| **Next Immediate Action** | Ready for local playtesting (`npm run dev`), level authoring (`npm run dev:editor`), Itch.io deployment (`npm run build:itch`), or Android APK export (`npm run build:apk`). |
+| **Last Verified Milestone** | **Android APK Built & Verified (`dump/grid-snap-171126-0010-android.apk`, `13.62 MB`) on `feat/android-build-fixes` (new launcher icons synced, Android-only back-button `ExitConfirmModal` excluded from `--mode itch`, 22/22 tests passing)** |
+| **Next Immediate Action** | Ready for Android APK device testing (`dump/grid-snap-171126-0010-android.apk`), local playtesting (`npm run dev`), level authoring (`npm run dev:editor`), or Itch.io deployment (`npm run build:itch`). |
 
 > **Agent Harness Rule (Mandatory End-of-Task Doc Sync)**:
 > 1. Whenever starting or resuming work on **Grid Snap**, read this file first to determine the active phase or maintenance task, mark tasks `[/]` when starting and `[x]` when verified, and update the **Live Harness Status** table above.
@@ -306,3 +306,8 @@
   - Added Vitest tests in `src/engine/__tests__/ftue.test.ts` covering Level 1 FTUE replay, first-clear vs. replay coin rewards (`+200` vs `0`), star preservation/upgrades, and `BEST!` record evaluation (22/22 tests passing) plus clean production build (`npm run build`).
   - Built and verified Itch.io distribution archive (`dump/grid-snap-161126-2338-itch.zip`, `8.60 MB`, `__GRID_SNAP_DEBUG_PANEL__` verified absent in `dist/assets/*.js`) and cleaned older `*-itch.zip` packages from `dump/`.
   - Updated `README.md` with level replayability, `BEST!` time/moves records, and complete 8-shape colorblind accessibility list before merging `feat/replayable-levels` into `main`.
+- [x] **Android Build Fixes: Updated Launcher Icons & Android-Only Exit Confirmation Modal (`feat/android-build-fixes` — `scripts/update-assets.js`, `src/store/gameStore.ts`, `src/components/modals/ExitConfirmModal.tsx`, `src/hooks/useGameLoop.ts`, `src/App.tsx`)**:
+  - Regenerated all 5 Android `mipmap-*` launcher icon densities (`ic_launcher.png`, `ic_launcher_round.png`, `ic_launcher_foreground.png`) and `256×256` web icons (`public/icon.png`, `public/assets/icon.png`) from the updated `1024×1024` master icon in `android-assets/icon.png` via `scripts/generate-icons.py`, and updated `scripts/update-assets.js` to re-run icon generation automatically whenever `android-assets/icon.png` is newer than `public/icon.png`.
+  - Added `'exit_confirm'` to `ModalType` in `src/store/gameStore.ts` and created `src/components/modals/ExitConfirmModal.tsx` (`EXIT GAME?` confirmation ribbon with side-by-side Emerald `NO` and Crimson `YES` calling `App.exitApp()`).
+  - Updated `src/hooks/useGameLoop.ts` and `src/App.tsx` so the hardware back-button listener and `ExitConfirmModal` are strictly Android-only (`Capacitor.isNativePlatform()` at runtime and tree-shaken out when `VITE_DISABLE_DEBUG === 'true'` in `npm run build:itch`): pressing Back on the Level Screen (`MainMenuView` while `isGameStarted`) opens `exit_confirm`, and pressing Back while `exit_confirm` is open dismisses it (`NO`).
+  - Verified 22/22 passing Vitest unit tests (`npm test`), clean TypeScript/Vite build (`npm run build`), verified `ExitConfirmModal` (`EXIT GAME?` / `exit_confirm`) absent from `vite build --mode itch` (`dist/assets/*.js`), and compiled `dump/grid-snap-171126-0010-android.apk` (`13.62 MB`).

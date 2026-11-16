@@ -235,7 +235,8 @@ export type ModalType =
   | 'pause'
   | 'level_complete'
   | 'out_of_time'
-  | 'settings';
+  | 'settings'
+  | 'exit_confirm';
 
 export interface GameState {
   // Persisted Player Progression & Economy (`grid-snap-save`, version: 1)
@@ -340,9 +341,11 @@ export interface GameActions {
 - While `activeScreen === 'playing'`, `activeModal === 'none'`, and `!isTimerFrozen`, `useGameLoop` calls `tickTimer(deltaSeconds)` every animation frame using `performance.now()` deltas.
 - When `timeRemaining` reaches `<= 0`, `timeRemaining` clamps to `0` and `activeModal` transitions to `'out_of_time'`.
 - **Background Auto-Pause (`visibilitychange`)**: Listening to `document.addEventListener('visibilitychange', ...)`, if `document.hidden` becomes `true` while `activeScreen === 'playing'` and `activeModal === 'none'`, the store automatically opens `activeModal = 'pause'` and suspends audio.
-- **Android Hardware Back Button**: Registering `@capacitor/app` `backButton` listener:
-  - If a non-critical modal (`settings`, `pause`) is open, closes/resumes it.
+- **Android Hardware Back Button**: Registering `@capacitor/app` `backButton` listener (native Android only — gated on `Capacitor.isNativePlatform()` and excluded at build time when `import.meta.env.VITE_DISABLE_DEBUG === 'true'` for Itch.io builds):
+  - If a dismissible modal (`settings`, `pause`, or `exit_confirm`) is open, closes/resumes it (`closeModal()`).
   - If actively playing (`activeModal === 'none'`), opens the `pause` modal.
+  - If in the Item Store (`activeScreen === 'store'`), returns to the Main Menu (`navigateTo('menu')`).
+  - If on the Main Menu / Level Screen (`activeScreen === 'menu'`, `activeModal === 'none'`, `isGameStarted === true`), opens `exit_confirm` (`ExitConfirmModal`) prompting `NO` (dismiss) or `YES` (`App.exitApp()`).
 
 ### 5.2 Timestamp-Based Heart Regeneration (`syncLifeRegeneration`)
 - Runs on app boot, every `1s` on the Main Menu / Store HUD, and before starting or finishing a level.
@@ -589,8 +592,8 @@ Following the asset pipeline in `topdown-2d-car-engine` and `portable-web-androi
 1. **Splash Screen Resizing & WebP Compression (`itch-assets/splash.png` → `public/splash.webp`)**:
    - The master artwork in `itch-assets/splash.png` (`1080×2400`, `9:20` aspect ratio) is resized to **`900×2000`** (`2×` retina resolution for tall mobile displays and `450×800` `<BoundingBox>`) using Lanczos resampling and encoded to **`public/splash.webp`** (`quality=82, method=6`), keeping the bundle footprint lightweight (`~185 KB`).
    - At runtime, `src/components/SplashScreen.tsx` loads `${import.meta.env.BASE_URL}splash.webp` (via `AssetLoader.resolvePath('splash.webp')`) as a full-bleed cover overlay with a 0–100% progress bar and `TAP TO CONTINUE` prompt.
-2. **Game Icon Resizing & Capacitor Android Sync (`public/icon.png`)**:
-   - The master square icon in `public/icon.png` (`1024×1024`, `~1.32 MB`) is synced to `android-assets/icon.png` and optimized for web (`public/icon.png` / `public/assets/icon.png` resized to `256×256` optimized PNG for fast favicon and UI loading).
+2. **Game Icon Resizing & Capacitor Android Sync (`android-assets/icon.png`)**:
+   - The master square icon in `android-assets/icon.png` (`1024×1024`) is optimized for web (`public/icon.png` / `public/assets/icon.png` resized to `256×256` optimized PNG for fast favicon and UI loading). `scripts/update-assets.js` automatically detects when `android-assets/icon.png` is newer than `public/icon.png` and triggers `scripts/generate-icons.py`.
    - `scripts/generate-icons.py` (invoked automatically during asset sync and `npm run build:apk`) reads the master `1024×1024` icon and generates all 5 Android native launcher densities inside `android/app/src/main/res/`:
      - `mipmap-mdpi`: `48×48` (`ic_launcher.png`, `ic_launcher_round.png`), `108×108` (`ic_launcher_foreground.png`)
      - `mipmap-hdpi`: `72×72` / `162×162`
