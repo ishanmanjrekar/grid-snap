@@ -15,7 +15,7 @@
 | Field | Current Value |
 | :--- | :--- |
 | **Current Batch / Phase** | **All Phases 1–9.3 Complete (`[x]` Web, Itch.io & Android APK Fully Verified)** |
-| **Last Verified Milestone** | **Scrollable Replayable Level Selection, Solved Star Rows & `BEST!` Time/Moves Badges on `feat/replayable-levels` (22/22 tests passing)** |
+| **Last Verified Milestone** | **Itch.io Package Built & Verified (`dump/grid-snap-161126-2338-itch.zip`, `8.60 MB`, debug sentinel absent) on `feat/replayable-levels` (22/22 tests passing)** |
 | **Next Immediate Action** | Ready for local playtesting (`npm run dev`), level authoring (`npm run dev:editor`), Itch.io deployment (`npm run build:itch`), or Android APK export (`npm run build:apk`). |
 
 > **Agent Harness Rule (Mandatory End-of-Task Doc Sync)**:
@@ -304,3 +304,4 @@
   - Updated `MainMenuView.tsx` with a vertically scrollable level path (`overflow-y-auto`, hidden scrollbar, pinned `STORE` and `SETTINGS` buttons, plus scale-aware pointer-drag scrolling with a `6px` tap-vs-drag threshold so touch and mouse dragging work seamlessly despite `#root { touch-action: none; }`) capped at `unlockedLevel + 3` dashed preview at the top and scrolling down to Level 1 below; solved nodes hide `HARD`/`SUPER HARD` badges and display their 3-star ratings (`1–3` stars) instead.
   - Updated `LevelCompleteModal.tsx` to render pixel `BEST!` badges on `TIME` (`isNewBestTime`) and `SHIFTS` (`isNewLeastMoves`) on first clears or record improvements, and wired `NEXT LEVEL ▶` to advance sequentially (`activeLevelId + 1`).
   - Added Vitest tests in `src/engine/__tests__/ftue.test.ts` covering Level 1 FTUE replay, first-clear vs. replay coin rewards (`+200` vs `0`), star preservation/upgrades, and `BEST!` record evaluation (22/22 tests passing) plus clean production build (`npm run build`).
+  - Built and verified Itch.io distribution archive (`dump/grid-snap-161126-2338-itch.zip`, `8.60 MB`, `__GRID_SNAP_DEBUG_PANEL__` verified absent in `dist/assets/*.js`) and cleaned older `*-itch.zip` packages from `dump/`.
