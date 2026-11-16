@@ -45,6 +45,8 @@ export interface GameState {
   lastLifeRegenAt: number;
   unlockedLevel: number;
   levelStars: Record<number, 1 | 2 | 3>;
+  levelBestTime: Record<number, number>;
+  levelLeastMoves: Record<number, number>;
   hasSeenTutorial: boolean;
   settings: {
     musicEnabled: boolean;
@@ -61,6 +63,7 @@ export interface GameState {
   isGameStarted: boolean;
   activeScreen: ScreenView;
   activeModal: ModalType;
+  selectedLevelId: number;
   activeLevelId: number;
   rows: number;
   cols: number;
@@ -76,6 +79,8 @@ export interface GameState {
   tutorialStep: TutorialStep;
   lastRewardCoins: number;
   lastEarnedStars: 1 | 2 | 3;
+  isNewBestTime: boolean;
+  isNewLeastMoves: boolean;
 
   // Developer Debug State (Inactive in Itch builds)
   isDebugOpen: boolean;
@@ -89,6 +94,7 @@ export interface GameActions {
   navigateTo: (screen: ScreenView) => void;
   openModal: (modal: ModalType) => void;
   closeModal: () => void;
+  selectLevel: (levelId: number) => void;
   startLevel: (levelId?: number) => boolean;
   dismissTutorial: () => void;
 
@@ -158,6 +164,8 @@ const initialPersistedSlice = {
   lastLifeRegenAt: Date.now(),
   unlockedLevel: 1,
   levelStars: {} as Record<number, 1 | 2 | 3>,
+  levelBestTime: {} as Record<number, number>,
+  levelLeastMoves: {} as Record<number, number>,
   hasSeenTutorial: false,
   settings: {
     musicEnabled: true,
@@ -180,6 +188,7 @@ export const useGameStore = create<GameStore>()(
       isGameStarted: false,
       activeScreen: 'menu',
       activeModal: 'none',
+      selectedLevelId: 1,
       activeLevelId: 1,
       rows: 3,
       cols: 3,
@@ -203,6 +212,8 @@ export const useGameStore = create<GameStore>()(
       tutorialStep: 'completed',
       lastRewardCoins: bundledEconomy.levelClearReward,
       lastEarnedStars: 3,
+      isNewBestTime: false,
+      isNewLeastMoves: false,
       isDebugOpen: false,
       isTimerFrozen: false,
 
@@ -266,6 +277,20 @@ export const useGameStore = create<GameStore>()(
         set({ activeModal: 'none' });
       },
 
+      selectLevel: (levelId) => {
+        const state = get();
+        const safeId = Math.floor(levelId);
+        if (
+          !Number.isFinite(safeId) ||
+          safeId < 1 ||
+          safeId > state.unlockedLevel
+        ) {
+          return;
+        }
+        audioManager.playSfx('button_tap');
+        set({ selectedLevelId: safeId });
+      },
+
       startLevel: (levelId) => {
         const state = get();
         state.syncLifeRegeneration();
@@ -278,7 +303,8 @@ export const useGameStore = create<GameStore>()(
           return false;
         }
 
-        const targetId = levelId ?? refreshed.unlockedLevel;
+        const targetId =
+          levelId ?? refreshed.selectedLevelId ?? refreshed.unlockedLevel;
         const levelCfg = getLevelConfig(
           targetId,
           refreshed.levels,
@@ -330,6 +356,7 @@ export const useGameStore = create<GameStore>()(
           activeModal: 'none',
           tutorialStep: isLevel1 ? 'step1_hint' : 'completed',
           isTimerFrozen: isLevel1 ? true : false,
+          selectedLevelId: targetId,
           activeLevelId: targetId,
           rows: levelCfg.rows,
           cols: levelCfg.cols,
@@ -340,6 +367,8 @@ export const useGameStore = create<GameStore>()(
           shiftsCount: 0,
           cachedSolution: solution,
           activeHint: firstHint,
+          isNewBestTime: false,
+          isNewLeastMoves: false,
         });
 
         return true;
@@ -434,10 +463,13 @@ export const useGameStore = create<GameStore>()(
         const nextShifts = state.shiftsCount + 1;
 
         if (nextSnap.isSolved && state.timeRemaining > 0) {
-          // Win! Refund escrowed heart up to max(maxLives, livesBeforeStart) and award +200 Coins
+          // Win! Refund escrowed heart up to max(maxLives, livesBeforeStart) and award +200 Coins on first clear
           const ratio = state.timeRemaining / Math.max(1, state.timeLimitSeconds);
           const earnedStars = evaluateStarsFromRatio(ratio, eco.starThresholds);
-          const rewardCoins = eco.levelClearReward;
+          const isReplay =
+            state.activeLevelId < state.unlockedLevel ||
+            state.levelStars[state.activeLevelId] !== undefined;
+          const rewardCoins = isReplay ? 0 : eco.levelClearReward;
           const refundedLives = state.escrowActive
             ? Math.min(
                 Math.max(eco.maxLives, state.livesBeforeStart),
@@ -451,7 +483,34 @@ export const useGameStore = create<GameStore>()(
             [state.activeLevelId]: Math.max(prevBest, earnedStars) as 1 | 2 | 3,
           };
 
+          const clearTime = Math.max(
+            1,
+            Math.round(state.timeLimitSeconds - state.timeRemaining)
+          );
+          const prevBestTime = state.levelBestTime[state.activeLevelId];
+          const isNewBestTime =
+            prevBestTime === undefined || clearTime < prevBestTime;
+          const nextBestTimeMap = {
+            ...state.levelBestTime,
+            [state.activeLevelId]:
+              prevBestTime === undefined
+                ? clearTime
+                : Math.min(prevBestTime, clearTime),
+          };
+
+          const prevLeastMoves = state.levelLeastMoves[state.activeLevelId];
+          const isNewLeastMoves =
+            prevLeastMoves === undefined || nextShifts < prevLeastMoves;
+          const nextLeastMovesMap = {
+            ...state.levelLeastMoves,
+            [state.activeLevelId]:
+              prevLeastMoves === undefined
+                ? nextShifts
+                : Math.min(prevLeastMoves, nextShifts),
+          };
+
           const nextUnlocked = Math.max(state.unlockedLevel, state.activeLevelId + 1);
+          const nextSelected = Math.min(nextUnlocked, state.activeLevelId + 1);
 
           audioManager.playSfx('level_win');
           audioManager.syncSettings({
@@ -468,9 +527,14 @@ export const useGameStore = create<GameStore>()(
             lives: refundedLives,
             coins: state.coins + rewardCoins,
             levelStars: nextStarsMap,
+            levelBestTime: nextBestTimeMap,
+            levelLeastMoves: nextLeastMovesMap,
             unlockedLevel: nextUnlocked,
+            selectedLevelId: nextSelected,
             lastRewardCoins: rewardCoins,
             lastEarnedStars: earnedStars,
+            isNewBestTime,
+            isNewLeastMoves,
             activeModal: 'level_complete',
             tutorialStep: 'completed',
           });
@@ -728,9 +792,12 @@ export const useGameStore = create<GameStore>()(
           coins: state.economy.startingCoins,
           lives: state.economy.startingLives,
           lastLifeRegenAt: Date.now(),
+          selectedLevelId: 1,
           activeScreen: 'menu',
           activeModal: 'none',
           escrowActive: false,
+          isNewBestTime: false,
+          isNewLeastMoves: false,
         });
       },
 
@@ -747,24 +814,57 @@ export const useGameStore = create<GameStore>()(
         const solvedGrid: CellBlock[][] = state.frames.map((row) =>
           row.map((f) => (f === null ? 'neutral' : f))
         );
+        const isReplay =
+          state.activeLevelId < state.unlockedLevel ||
+          state.levelStars[state.activeLevelId] !== undefined;
+        const rewardCoins = isReplay ? 0 : eco.levelClearReward;
         const refundedLives = state.escrowActive
           ? Math.min(
               Math.max(eco.maxLives, state.livesBeforeStart),
               state.lives + 1
             )
           : state.lives;
+        const clearTime = Math.max(
+          1,
+          Math.round(state.timeLimitSeconds - state.timeRemaining)
+        );
+        const moves = Math.max(1, state.shiftsCount);
+        const prevBestTime = state.levelBestTime[state.activeLevelId];
+        const isNewBestTime =
+          prevBestTime === undefined || clearTime < prevBestTime;
+        const nextBestTimeMap = {
+          ...state.levelBestTime,
+          [state.activeLevelId]:
+            prevBestTime === undefined
+              ? clearTime
+              : Math.min(prevBestTime, clearTime),
+        };
+        const prevLeastMoves = state.levelLeastMoves[state.activeLevelId];
+        const isNewLeastMoves =
+          prevLeastMoves === undefined || moves < prevLeastMoves;
+        const nextLeastMovesMap = {
+          ...state.levelLeastMoves,
+          [state.activeLevelId]:
+            prevLeastMoves === undefined ? moves : Math.min(prevLeastMoves, moves),
+        };
         const nextUnlocked = Math.max(state.unlockedLevel, state.activeLevelId + 1);
+        const nextSelected = Math.min(nextUnlocked, state.activeLevelId + 1);
 
         audioManager.playSfx('level_win');
         set({
           grid: solvedGrid,
           escrowActive: false,
           lives: refundedLives,
-          coins: state.coins + eco.levelClearReward,
+          coins: state.coins + rewardCoins,
           levelStars: { ...state.levelStars, [state.activeLevelId]: 3 },
+          levelBestTime: nextBestTimeMap,
+          levelLeastMoves: nextLeastMovesMap,
           unlockedLevel: nextUnlocked,
-          lastRewardCoins: eco.levelClearReward,
+          selectedLevelId: nextSelected,
+          lastRewardCoins: rewardCoins,
           lastEarnedStars: 3,
+          isNewBestTime,
+          isNewLeastMoves,
           activeModal: 'level_complete',
           isDebugOpen: false,
         });
@@ -778,7 +878,7 @@ export const useGameStore = create<GameStore>()(
         if (state.escrowActive) {
           set({ lives: state.lives + 1, escrowActive: false });
         }
-        set({ unlockedLevel: safeId, isDebugOpen: false });
+        set({ unlockedLevel: safeId, selectedLevelId: safeId, isDebugOpen: false });
         get().startLevel(safeId);
       },
 
@@ -814,10 +914,33 @@ export const useGameStore = create<GameStore>()(
         lastLifeRegenAt: state.lastLifeRegenAt,
         unlockedLevel: state.unlockedLevel,
         levelStars: state.levelStars,
+        levelBestTime: state.levelBestTime,
+        levelLeastMoves: state.levelLeastMoves,
         hasSeenTutorial: state.hasSeenTutorial,
         settings: state.settings,
       }),
-      migrate: (persistedState) => persistedState as GameStore,
+      migrate: (persistedState) => {
+        const ps = (persistedState ?? {}) as Partial<GameState>;
+        return {
+          ...ps,
+          levelBestTime: ps.levelBestTime ?? {},
+          levelLeastMoves: ps.levelLeastMoves ?? {},
+        } as GameStore;
+      },
+      merge: (persistedState, currentState) => {
+        const ps = (persistedState ?? {}) as Partial<GameState>;
+        const unlocked =
+          typeof ps.unlockedLevel === 'number' && ps.unlockedLevel >= 1
+            ? ps.unlockedLevel
+            : currentState.unlockedLevel;
+        return {
+          ...currentState,
+          ...ps,
+          levelBestTime: ps.levelBestTime ?? {},
+          levelLeastMoves: ps.levelLeastMoves ?? {},
+          selectedLevelId: unlocked,
+        };
+      },
     }
   )
 );

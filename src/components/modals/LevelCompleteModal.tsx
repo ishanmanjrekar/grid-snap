@@ -11,12 +11,13 @@ function formatClearTime(seconds: number): string {
 
 export const LevelCompleteModal: React.FC = () => {
   const activeLevelId = useGameStore((s) => s.activeLevelId);
-  const unlockedLevel = useGameStore((s) => s.unlockedLevel);
   const timeLimitSeconds = useGameStore((s) => s.timeLimitSeconds);
   const timeRemaining = useGameStore((s) => s.timeRemaining);
   const shiftsCount = useGameStore((s) => s.shiftsCount);
   const lastRewardCoins = useGameStore((s) => s.lastRewardCoins);
   const lastEarnedStars = useGameStore((s) => s.lastEarnedStars);
+  const isNewBestTime = useGameStore((s) => s.isNewBestTime);
+  const isNewLeastMoves = useGameStore((s) => s.isNewLeastMoves);
 
   const startLevel = useGameStore((s) => s.startLevel);
   const navigateTo = useGameStore((s) => s.navigateTo);
@@ -31,7 +32,7 @@ export const LevelCompleteModal: React.FC = () => {
         : '★ STAGE CLEAR! ★';
 
   const handleNextLevel = () => {
-    startLevel(unlockedLevel);
+    startLevel(activeLevelId + 1);
   };
 
   const handleCloseToMenu = () => {
@@ -94,7 +95,7 @@ export const LevelCompleteModal: React.FC = () => {
           {bannerLabel}
         </span>
 
-        {/* Inset Stats Matrix Box (Override: No BEST! badge on TIME) */}
+        {/* Inset Stats Matrix Box */}
         <div
           data-purpose="level-stats"
           className="w-full bg-[#EAE2CA] border-2 border-[#2C2523] p-2.5 shadow-[inset_2px_2px_0_0_#9E9375] space-y-2 mb-4"
@@ -105,9 +106,16 @@ export const LevelCompleteModal: React.FC = () => {
               <HourglassIcon size={13} />
               <span className="font-pixel text-[8px] text-[#2C2523]">TIME</span>
             </div>
-            <span className="font-pixel text-[9px] text-[#2C2523] font-bold">
-              {formatClearTime(timeTaken)}
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-pixel text-[9px] text-[#2C2523] font-bold">
+                {formatClearTime(timeTaken)}
+              </span>
+              {isNewBestTime && (
+                <span className="font-pixel text-[6px] bg-[#FDE68A] text-[#78350F] px-1 py-0.5 border border-[#B45309]">
+                  BEST!
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Stat 2: Total Shifts */}
@@ -118,9 +126,16 @@ export const LevelCompleteModal: React.FC = () => {
                 SHIFTS
               </span>
             </div>
-            <span className="font-pixel text-[9px] text-[#2C2523] font-bold">
-              {shiftsCount} MOVES
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-pixel text-[9px] text-[#2C2523] font-bold">
+                {shiftsCount} MOVES
+              </span>
+              {isNewLeastMoves && (
+                <span className="font-pixel text-[6px] bg-[#FDE68A] text-[#78350F] px-1 py-0.5 border border-[#B45309]">
+                  BEST!
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Stat 3: Coins Reward (+200) */}

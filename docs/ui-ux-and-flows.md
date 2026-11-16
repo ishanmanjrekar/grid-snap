@@ -22,18 +22,18 @@ stateDiagram-v2
     ItemStore --> MainMenu : Tap ◀ BACK TO MENU
     MainMenu --> SettingsModal : Tap ⚙ Settings
     SettingsModal --> MainMenu : Tap ✕ Close
-    MainMenu --> InGame : Tap ▶ PLAY (if Lives >= 1; holds 1 ❤️ in escrow)
+    MainMenu --> InGame : Tap ▶ PLAY or Selected Node (if Lives >= 1; holds 1 ❤️ in escrow)
     MainMenu --> ItemStore : Tap ▶ PLAY (if Lives == 0)
 
     state InGame {
-        [*] --> FTUEStep1 : Level 1 start (FTUE Step 1)
+        [*] --> FTUEStep1 : Level 1 start or replay (FTUE Step 1)
         FTUEStep1 --> TutorialOverlay : Execute guided Move 1 (snaps tile into frame)
         TutorialOverlay --> FTUEStep2 : Tap to Continue ▼ (FTUE Step 2 free hint)
         FTUEStep2 --> ActivePlay : Any shift performed / Level 1 solved
         [*] --> ActivePlay : Standard Stage Start (Level > 1)
         ActivePlay --> PauseModal : Tap ⏸ Pause / App Backgrounded
         PauseModal --> ActivePlay : Tap RESUME
-        ActivePlay --> LevelCompleteModal : All Target Frames Matched (refunds 1 ❤️ + 200 Coins)
+        ActivePlay --> LevelCompleteModal : All Target Frames Matched (refunds 1 ❤️ + 200 Coins on first clear / 0 on replay)
         ActivePlay --> OutOfTimeModal : Timer reaches 00:00
         OutOfTimeModal --> ActivePlay : Tap +30 SECONDS ($200, if Coins >= 200)
         ActivePlay --> DebugPanel : Double-tap any HUD Star (Dev/APK only)
@@ -41,8 +41,8 @@ stateDiagram-v2
     }
 
     PauseModal --> MainMenu : Tap QUIT (forfeits escrowed 1 ❤️; same level selected)
-    LevelCompleteModal --> InGame : Tap NEXT LEVEL ▶ (advances unlockedLevel; holds 1 ❤️)
-    LevelCompleteModal --> MainMenu : Tap ✕ Close (unlockedLevel advanced)
+    LevelCompleteModal --> InGame : Tap NEXT LEVEL ▶ (starts activeLevelId + 1; holds 1 ❤️)
+    LevelCompleteModal --> MainMenu : Tap ✕ Close (returns with next sequential level selected)
     OutOfTimeModal --> MainMenu : Tap ✕ Close (forfeits escrowed 1 ❤️; same level selected)
 ```
 
@@ -55,12 +55,12 @@ Every screen and popup in the game maps to a reference asset or folder in `./ui-
 | Screen / Modal | Source Reference / Asset | View Type | Key UI Responsibilities & Locked Overrides |
 | :--- | :--- | :---: | :--- |
 | **Boot Splash Screen** | `itch-assets/splash.png` → `public/splash.webp` | Full-Screen Boot Overlay (`SplashScreen`) | Full-bleed cover artwork (`900×2000` optimized WebP from `1080×2400` `9:20` master art), `0%–100%` loading progress bar (`LOADING...` → `READY`), and pulsing `TAP TO CONTINUE` prompt (or `Space`/`Enter`) that fades/scales out (`450ms`) and unlocks WebAudio. |
-| **Main Menu & Level Path** | `color_shift_retro_main_menu_difficulty_tags` | Full Screen (`menu`) | Top Coin (`coin.png`)/Heart (`heart.png`) HUD capsules (**Override**: displays `FULL` with no timer when `lives >= 5`), Mint Teal (`#5EEAD4`) `STORE` & Parchment Cream (`#FFFDF8`) `SETTINGS` buttons with custom pixel sprites, vertical Level Path with dashed line terminating inside the green active level block without underhang, rescaled `HARD` (+50%) / `SUPER HARD` tags (with explicit `z-10` stacking over card borders), elevated `STAR COUNT` (`star.png`) vanity bar + Share button, and Gold `▶ PLAY` CTA with balanced 50% reduced spacing. |
+| **Main Menu & Level Path** | `color_shift_retro_main_menu_difficulty_tags` | Full Screen (`menu`) | Top Coin (`coin.png`)/Heart (`heart.png`) HUD capsules (**Override**: displays `FULL` with no timer when `lives >= 5`), pinned Mint Teal (`#5EEAD4`) `STORE` & Parchment Cream (`#FFFDF8`) `SETTINGS` buttons with custom pixel sprites, **scrollable vertical Level Path** (top limit locked at `unlockedLevel + 3` dashed preview, scrollable down through solved levels `unlockedLevel - 1 .. 1`), solved nodes displaying achieved 1–3 `⭐` stars without `HARD`/`SUPER HARD` badges, tap-to-select & launch, elevated `STAR COUNT` (`star.png`) vanity bar + Share button, and Gold `▶ PLAY` CTA. |
 | **In-Game (`3×3`–`4×4`)** | `color_shift_pastel_minimalist_game_ui` | Full Screen (`playing`) | Top Bar (`🪙` pill, `LVL. X`, `⏸`), `⏳ MM:SS` timer pill, 3-Star progress bar with `⭐` icons (**Override**: star `left: %` driven by `economy.json`), central arcade bezel (**Override**: `▲▼◄►` arrows are visual-only `pointer-events: none`; input is drag-only), bottom **`💡 HINT (🪙 50)`** & **`+5S EXTRA TIME (🪙 100)`** units. |
 | **In-Game (`4×5`–`4×8`)** | `color_shift_4x8_grid_pixel_art_puzzle_ui` | Full Screen (`playing`) | Same bolted top HUD and bottom powerup footer, with the central `flex-1 min-h-0` stage auto-scaling the taller `4×8` (32-tile) bezel and 8-row decorative side arrows cleanly without scrolling. |
 | **Tutorial Intro Overlay** | `color_shift_tutorial_intro_overlay_ui` | Scrim Overlay | Dark scrim (`#2C2523/70`), dark charcoal card (`#2C2523`) with cream border (`#F4EFE0`), overhanging gold `TUTORIAL` badge, `★ GREAT MOVE! ★` header with 3 retro bullets (`▸ SHIFT rows & columns`, `▸ TILES LOOP off the screen`, `▸ SNAP all colors into frames`), and blinking `TAP TO CONTINUE ▼` prompt. Triggers after guided Move 1 commits. |
 | **Pause Modal** | `color_shift_pause_menu_popup_ui` | Modal Overlay | Dark scrim (`bg-black/60`), overhanging gold `PAUSED` badge, inset `||` icon box, green `RESUME` button, cream `QUIT` button with `YOU WILL LOSE 1 ❤️` warning below. |
-| **Level Complete Modal** | `color_shift_level_complete_popup_x_close` | Modal Overlay | Overhanging gold `LEVEL X CLEAR!` banner, top-right red `✕` close button, 3 chunky animated `⭐` stars, status pill, inset stats box (`TIME` [**Override**: no `BEST!` badge], `SHIFTS`, `COINS: +200 🪙`), green `NEXT LEVEL ▶` CTA. |
+| **Level Complete Modal** | `color_shift_level_complete_popup_x_close` | Modal Overlay | Overhanging gold `LEVEL X CLEAR!` banner, top-right red `✕` close button, 3 chunky animated `⭐` stars, status pill, inset stats box (`TIME` + conditional `BEST!` badge, `SHIFTS` + conditional `BEST!` badge, `COINS: +200` on first clear / `+0` on replay), green `NEXT LEVEL ▶` CTA (`activeLevelId + 1`). |
 | **Out of Time Modal** | `color_shift_out_of_time_popup_x_close` | Modal Overlay | Overhanging crimson `TIME'S UP!` banner, top-right red `✕` close button with `-1 ❤️` badge directly underneath, pixel hourglass box, `! YOU RAN OUT OF TIME !` alert, stats box (`TIME`, `MOVES`, `SOLVED X/Y SLOTS`), green `+30 SECONDS ▶ (200 🪙)` rescue button. |
 | **Settings Modal** | `color_shift_settings_popup_ui` | Modal Overlay | Overhanging gold `SETTINGS` text banner (clean, without emoji), top-right red `✕` close button, `MUSIC` (`ON`/`OFF`), `SFX` (`ON`/`OFF`), `COLORBLIND` (`ON`/`OFF`) toggles, dashed divider, `⚠️ RESET PROGRESS` button with double-tap confirm. |
 | **In-Game Item Store** | `color_shift_in_game_store_balanced_spacing` | Full Screen (`store`) | Top Coin (`🪙`)/Heart (`❤️`) HUD capsules, gold `🛒 ITEM STORE` header banner, `GET LIVES` 3-pack grid with side-by-side hearts (1x `❤️`, 2x `❤️`, 3x `❤️`), `GET COINS` 3-pack grid with side-by-side coins (1x `🪙`, 2x `🪙`, 3x `🪙`), inline `#toast` banner, and bottom `◀ BACK TO MENU` button. |
@@ -96,15 +96,22 @@ Modelled after the `SplashScreen.tsx` implementation in `topdown-2d-car-engine` 
 - **Floating Utility Buttons**:
   - **Top-Left (`STORE`)**: `56×56px` (`w-14 h-14`) Mint Teal (`#5EEAD4`) square button with pixel `store.png` sprite and dark charcoal pixel `STORE` label (`text-[#1E1B18]`).
   - **Top-Right (`SETTINGS`)**: `56×56px` (`w-14 h-14`) Parchment Cream (`#FFFDF8`) square button with pixel `gear.png` sprite.
-- **Center Stage (`flex-1 min-h-0`) — Vertical Level Path**:
-  - Centered vertical dashed ink line (`stroke="#1E1B18" stroke-dasharray="6 7" y2="420"`) that terminates safely inside the active level block with zero overhang.
-  - **Bottom Node (Current Active Level — `unlockedLevel`)**: Large `144×144px` (`w-36 h-36`) Emerald Green (`#28C76F`) beveled square with `4px` ink border, large white pixel level number (`25`), and optional rescaled difficulty badge. Cleared levels below `unlockedLevel` are not shown and cannot be replayed.
-  - **Middle Nodes (`unlockedLevel + 1`, `unlockedLevel + 2`)**: Locked cream squares (`#FFFDF8`) with level numbers (`26`, `27`) and rescaled difficulty tag pills (`HARD` in `#EF4444` at `text-[10.5px] px-3.5 py-1`, `SUPER HARD` in `#9333EA` at `text-[9px] px-3 py-1`).
-  - **Top Node (`unlockedLevel + 3`)**: Partially visible dashed preview square (`#EDE5D3`, `opacity-60`).
+- **Center Stage (`flex-1 min-h-0`) — Scrollable Vertical Level Path**:
+  - `STORE` and `SETTINGS` buttons stay pinned at `top-2` (`z-30`) above the scrollable path track (`data-purpose="level-path-scroll"`).
+  - **Scale-Aware Pointer-Drag Scrolling**: Because `#root` sets `touch-action: none` for the puzzle grid and desktop mouse pointers do not drag-scroll CSS overflow boxes natively, `MainMenuView` implements scale-aware `onPointerDown` / `onPointerMove` / `onPointerUp` drag scrolling (normalized by `<BoundingBox>` `scaleY` with a `6px` tap-vs-drag threshold and `onClickCapture` suppression after drags) so both touch swipes and desktop mouse drags scroll cleanly alongside wheel and arrow keys.
+  - Continuous centered vertical dashed ink line (`border-l-4 border-dashed border-[#1E1B18]`) running from `unlockedLevel + 3` down to the center of `Level 1` with zero overhang.
+  - **Top Limit (Locked Preview Nodes Above `unlockedLevel`)**:
+    - `unlockedLevel + 3`: Dashed preview square (`w-16 h-16`, `#EDE5D3`, `opacity-60`) marking the upper scroll ceiling.
+    - `unlockedLevel + 2` (`w-24 h-24`) & `unlockedLevel + 1` (`w-28 h-28`): Locked cream squares (`#FFFDF8`) with optional rescaled difficulty tag pills (`HARD` in `#EF4444` at `text-[10.5px] px-3.5 py-1`, `SUPER HARD` in `#9333EA` at `text-[9px] px-3 py-1`).
+  - **Playable & Replayable Nodes (`unlockedLevel` down to `Level 1`)**:
+    - **Selected Level (`selectedLevelId`)**: Large `144×144px` (`w-36 h-36`) Emerald Green (`#28C76F`) beveled square with `4px` ink border and large white pixel level number. Tapping it launches `startLevel(levelId)`.
+    - **Unselected Playable Levels**: `112×112px` (`w-28 h-28`) `#FFFDF8` interactive cards; tapping selects that level (`selectLevel(levelId)`).
+    - **Solved Nodes (`levelId < unlockedLevel`)**: Hide `HARD` / `SUPER HARD` difficulty tags completely and display a **3-star rating row** (`1–3` lit `⭐` icons) beneath the level number. Only the unsolved frontier stage (`unlockedLevel`) shows its `HARD` / `SUPER HARD` badge.
+    - **Default Scroll Position**: Opens at `scrollTop = 0` when `selectedLevelId === unlockedLevel` (showing `unlockedLevel + 3`, `+2`, `+1`, and `unlockedLevel`), and auto-scrolls to `selectedLevelId` if returning to menu with an earlier level selected.
 - **Bottom Action Panel (`flex-none`)**:
-  - **Elevated Spacing (`-mt-8 pb-10`)**: Vertically balanced with ~50% reduced empty space between the green level block and the Star Count panel, lifting the primary CTA away from the bottom of the screen.
+  - **Balanced Spacing (`pt-2 pb-9`)**: Cleanly separated below the scroll viewport so bottom-scrolled nodes (`Level 1`) are never clipped.
   - **Star Count Row**: Full-width row combining a `STAR COUNT` vanity bar (`⭐ STAR COUNT` left, total stars right) and a square `44×44px` (`w-11 h-11`) Share button (inline pixel share icon) which triggers `navigator.share` or clipboard copy with a catchy challenge message, current level, star count, and direct link (`https://playable-things.itch.io/grid-snap`).
-  - **Primary CTA**: Full-width `56px`-tall (`h-14`) Arcade Gold (`#FFC021`) button reading `▶ PLAY`.
+  - **Primary CTA**: Full-width `56px`-tall (`h-14`) Arcade Gold (`#FFC021`) button reading `▶ PLAY` (launches `selectedLevelId`).
 
 ---
 
@@ -167,10 +174,10 @@ All modals render inside an `absolute inset-0 z-50` container over the active sc
   - 3 large pixel stars (earned stars rendered in gold `#F8B800`/`#FCD34D` with center star elevated; unearned stars rendered in muted `#D2C7AA`).
   - Status pill (`★ PERFECT SOLVE! ★` for 3★, `★ GREAT CLEAR! ★` for 2★, `★ STAGE CLEAR! ★` for 1★).
   - Inset Stats Matrix (`#EAE2CA`):
-    1. `⌛ TIME`: Clear time (`MM:SS`) — no `BEST!` badge.
-    2. `🔲 SHIFTS`: `{N} MOVES` total drag shifts performed.
-    3. `$ COINS`: `+200` in emerald green.
-  - Primary CTA: `NEXT LEVEL ▶` (`#22C55E`). Tapping `✕` returns to the Main Menu (with `unlockedLevel` already incremented to `N + 1`).
+    1. `⌛ TIME`: Clear time (`MM:SS`), plus a pixel `BEST!` badge (`#FDE68A` / `#78350F`) when clearing for the first time or beating the previous best time (`isNewBestTime`).
+    2. `🔲 SHIFTS`: `{N} MOVES` total drag shifts performed, plus a pixel `BEST!` badge when clearing for the first time or beating the previous least moves (`isNewLeastMoves`).
+    3. `$ COINS`: `+{lastRewardCoins}` in emerald green (`+200` on first clear, `+0` on replay).
+  - Primary CTA: `NEXT LEVEL ▶` (`#22C55E`) — starts `activeLevelId + 1` sequentially. Tapping `✕` returns to the Main Menu with `selectedLevelId` set to `activeLevelId + 1`.
 - **Out of Time Modal (`TIME'S UP!`)**:
   - Overhanging crimson `TIME'S UP!` ribbon (`#EF4444`).
   - Top-right crimson `✕` close button with a floating `-1 ❤️` penalty badge (`#FCA5A5` fill, `#B91C1C` border/text) directly beneath it (tapping `✕` forfeits the escrowed heart and returns to the Main Menu with the same level selected for retry).

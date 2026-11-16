@@ -27,14 +27,19 @@
 ├───────────────────────────────────────────┤ │  • IDA* Solver Worker     │
 │  • Persisted (`grid-snap-save` v1):       │ │    (src/engine/solver.ts) │
 │    coins, lives, lastLifeRegenAt,         │ └───────────────────────────┘
-│    unlockedLevel, levelStars, settings    │
+│    unlockedLevel, levelStars,             │
+│    levelBestTime, levelLeastMoves,        │
+│    hasSeenTutorial, settings              │
 │  • Ephemeral Session & Live Config Slice: │
 │    levels, economy (synced from GitHub    │
 │    main w/ bundled fallback),             │
 │    isGameStarted, activeScreen,           │
-│    activeModal, grid, frames,             │
+│    activeModal, selectedLevelId,          │
+│    activeLevelId, grid, frames,           │
 │    escrowActive, cachedSolution,          │
-│    activeHint, timeRemaining, shiftsCount │
+│    activeHint, timeRemaining,             │
+│    shiftsCount, isNewBestTime,            │
+│    isNewLeastMoves                        │
 └───────────────┬───────────────────────────┘
                 │ Hydrates From / Reads Configs
                 ▼
@@ -237,8 +242,10 @@ export interface GameState {
   coins: number;
   lives: number;
   lastLifeRegenAt: number; // Epoch ms timestamp
-  unlockedLevel: number;   // Current active stage number (starts at 1; cleared levels cannot be replayed)
+  unlockedLevel: number;   // Highest unlocked frontier stage (starts at 1; solved stages 1..unlockedLevel-1 are replayable)
   levelStars: Record<number, 1 | 2 | 3>;
+  levelBestTime: Record<number, number>;   // Fastest integer clear time in seconds per level ID
+  levelLeastMoves: Record<number, number>; // Lowest winning shiftsCount per level ID
   hasSeenTutorial: boolean;
   settings: {
     musicEnabled: boolean;
@@ -250,6 +257,7 @@ export interface GameState {
   isGameStarted: boolean;
   activeScreen: ScreenView;
   activeModal: ModalType;
+  selectedLevelId: number;
   activeLevelId: number;
   rows: number;
   cols: number;
@@ -264,6 +272,8 @@ export interface GameState {
   activeHint: ShiftAction | null;
   lastRewardCoins: number;
   lastEarnedStars: 1 | 2 | 3;
+  isNewBestTime: boolean;
+  isNewLeastMoves: boolean;
 
   // Developer Debug State (Inactive in Itch builds)
   isDebugOpen: boolean;
@@ -279,7 +289,8 @@ export interface GameActions {
   navigateTo: (screen: ScreenView) => void;
   openModal: (modal: ModalType) => void;
   closeModal: () => void;
-  startLevel: (levelId?: number) => boolean; // Deducts 1 life into escrow & loads unlockedLevel
+  selectLevel: (levelId: number) => void;      // Selects any playable level 1..unlockedLevel on Main Menu
+  startLevel: (levelId?: number) => boolean; // Deducts 1 life into escrow & loads levelId ?? selectedLevelId ?? unlockedLevel
   dismissTutorial: () => void;
 
   // Board & Timer Actions
@@ -317,8 +328,8 @@ export interface GameActions {
 - Configured via Zustand's `persist` middleware with:
   - `name: 'grid-snap-save'`
   - `version: 1`
-  - `partialize`: Persists **only** `{ coins, lives, lastLifeRegenAt, unlockedLevel, levelStars, hasSeenTutorial, settings }`.
-  - `migrate`: Identity migration stub ready for future schema bumps.
+  - `partialize`: Persists **only** `{ coins, lives, lastLifeRegenAt, unlockedLevel, levelStars, levelBestTime, levelLeastMoves, hasSeenTutorial, settings }`.
+  - `migrate` & `merge`: Backward-compatible hydration defaulting `levelBestTime` / `levelLeastMoves` to `{}` and initializing ephemeral `selectedLevelId` to the persisted `unlockedLevel` on boot.
 - Because `startLevel` immediately persists `lives: state.lives - 1` while `escrowActive` remains in ephemeral memory, force-closing or refreshing the browser mid-level naturally forfeits the escrowed heart.
 
 ---

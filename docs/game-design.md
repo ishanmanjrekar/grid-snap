@@ -41,8 +41,8 @@
    - **Colored & Neutral Blocks** distributed across the grid in an unsolved configuration.
    - A stage **Countdown Timer** (`⏳ MM:SS`) and a live **3-Star Milestone Progress Bar**.
 3. **Toroidal Shifting & Snapping**: The player drags any row horizontally or any column vertically across one or more cells. Blocks wrap around the opposite edge of the board like a 2D torus. When a colored block lands on a matching colored target frame, it **snaps** into place.
-4. **Resolution, Rewards & No-Replay Progression**:
-   - **Win**: When **all** target frames simultaneously hold matching colored blocks before `00:00`, the timer stops, the escrowed **`1 ❤️` is refunded** (capped at `max(maxLives, livesBeforeStart)`), and the **Level Complete** modal awards **1 to 3 Stars** (based on `timeRemaining / timeLimitSeconds`) plus a flat **`+200 Coins`**. Completed levels advance `unlockedLevel` and **cannot be replayed** by design.
+4. **Resolution, Rewards & Replayable Progression**:
+   - **Win**: When **all** target frames simultaneously hold matching colored blocks before `00:00`, the timer stops, the escrowed **`1 ❤️` is refunded** (capped at `max(maxLives, livesBeforeStart)`), and the **Level Complete** modal awards **1 to 3 Stars** (based on `timeRemaining / timeLimitSeconds`) plus **`+200 Coins`** on first-time clears (**`0 Coins`** when replaying already-solved levels). Clearing the frontier stage advances `unlockedLevel`. Players can scroll back down the Main Menu level path at any time to **replay cleared levels**, upgrade their star rating, and beat their `BEST!` time and shift records (replaying Level 1 re-triggers the guided tutorial).
    - **Timeout / Quit**: If the timer hits `00:00`, the **Out of Time** modal appears, offering a **`+30 SECONDS` (`$200`)** rescue. Closing the Out of Time modal (`✕`) or quitting from the Pause menu (`QUIT`) forfeits the escrowed `1 ❤️` and returns to the Main Menu **with the same level still selected** (which serves as the retry state).
 
 ---
@@ -108,7 +108,7 @@ Each level specifies a `timeLimitSeconds` (e.g., `45s`, `60s`, `90s`). As the ti
 | **2 Stars (★★☆)** | **`15% – 50%`** (`twoStarMinRatio: 0.15`) | `★ GREAT CLEAR! ★` | Silver speed clear; 3rd star on the HUD bar dims to inactive taupe (`#D2C7AA`). |
 | **1 Star (★☆☆)** | **`< 15%`** of stage time remaining | `★ STAGE CLEAR! ★` | Bronze clear; 2nd and 3rd stars dim, 1st star at `0%` mark remains guaranteed on completion. |
 
-- **Saving Stars with Boosters & Rescues**: Because completed levels cannot be replayed, using **EXTRA TIME (`+5S`, capped at `timeLimitSeconds`)** or the **Out-of-Time Rescue (`+30 SECONDS`, sets `timeRemaining = min(30, timeLimitSeconds)`)** intentionally restores time on the bar and **can earn 2★ or 3★** if the player solves before the restored time drops below the star thresholds. There is no `1★` cap after a rescue.
+- **Saving Stars with Boosters & Rescues**: In addition to replaying cleared stages from the Main Menu level path, using **EXTRA TIME (`+5S`, capped at `timeLimitSeconds`)** or the **Out-of-Time Rescue (`+30 SECONDS`, sets `timeRemaining = min(30, timeLimitSeconds)`)** intentionally restores time on the bar and **can earn 2★ or 3★** if the player solves before the restored time drops below the star thresholds. There is no `1★` cap after a rescue.
 
 ---
 

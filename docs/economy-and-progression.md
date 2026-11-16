@@ -34,10 +34,10 @@ To prevent players from bypassing life penalties by refreshing the browser tab, 
 Coins are the primary soft currency used for tactical in-game boosters (`HINT`, `EXTRA TIME`) and emergency `Out-of-Time` rescues.
 
 #### Coin Sources
-1. **Flat Level Completion Reward (`+200 🪙`)**:
-   - Every completed level awards a flat **`+200 Coins`** (`levelClearReward: 200` in `src/config/economy.json`), regardless of star tier or stage difficulty tag (`NORMAL`, `HARD`, `SUPER HARD`).
-   - **Losing / Timing Out**: Awards **`0 Coins`**.
-   - **No Replay Farming**: Because completed levels cannot be replayed by design, every level clear is a first-time progression clear that awards the full `+200 Coins`. Stage difficulty tags (`HARD`, `SUPER HARD`) are visual milestones on the Main Menu level path.
+1. **First-Time Level Completion Reward (`+200 🪙`)**:
+   - Every newly cleared frontier level awards a flat **`+200 Coins`** (`levelClearReward: 200` in `src/config/economy.json`), regardless of star tier or stage difficulty tag (`NORMAL`, `HARD`, `SUPER HARD`).
+   - **No Replay Coin Farming (`+0 Coins` on Replay)**: Replaying a previously cleared level (`activeLevelId < unlockedLevel` or already recorded in `levelStars`) awards **`0 Coins`**. Replays are solely for increasing earned stars (`1–3★`) and setting new **`BEST!`** time or least-moves records.
+   - **Losing / Timing Out**: Awards **`0 Coins`**. Stage difficulty tags (`HARD`, `SUPER HARD`) are visual milestones on unsolved/frontier Main Menu nodes.
 2. **Starting Wallet Balance**: Configurable in `src/config/economy.json` (`startingCoins: 250`, giving new players enough coins to sample `HINT` and `EXTRA TIME`).
 4. **Live Remote Economy & Store Sync (`src/utils/remoteData.ts`)**:
    - All economy parameters (`maxLives`, `lifeRegenIntervalSeconds`, `levelClearReward`, `starThresholds`, `boosters`, and `storePacks`) are initialized in `useGameStore` from the bundled `src/config/economy.json` and refreshed on boot in production builds from `https://raw.githubusercontent.com/ishanmanjrekar/grid-snap/main/src/config/economy.json` (with a `3000ms` timeout and schema validation fallback). Pushing changes to `src/config/economy.json` on the `main` branch updates deployed Itch.io and Android APK builds automatically without rebuilding.
@@ -52,7 +52,7 @@ During an active match, the bottom HUD features two dedicated rectangular arcade
 | :--- | :---: | :--- | :--- |
 | **HINT (`💡 HINT`)** | **`50 🪙`** | Queries the hybrid IDA\* + cached-path solver for the optimal next move from the current board state and highlights the target row or column with a pulsing frame outline and an animated ghost hand showing the exact slide direction and cell distance. The visual hint remains active until the player commits their next move. | Unlimited uses per level. Disabled when `activeHint !== null`, `isSolved`, or `coins < 50`. When `coins < 50`, the `50` cost label renders in crimson red (`#EF4444`). Deducts `50` Coins when the hint is displayed. |
 | **EXTRA TIME (`+5S`)** | **`100 🪙`** | Immediately adds **`+5 seconds`** to `timeRemaining` on the active countdown clock (`timeRemaining = Math.min(timeLimitSeconds, timeRemaining + 5)`). | Can be used multiple times per stage. Capped at `timeLimitSeconds` so the 3-Star progress bar never overflows `100%`. **Intentionally restores star rating potential** if `timeRemaining` crosses back above the `15%` (2★) or `50%` (3★) thresholds. Disabled (with crimson `100` text) when `coins < 100` or `timeRemaining >= timeLimitSeconds`. |
-| **OUT-OF-TIME RESCUE (`+30 SECONDS ▶`)** | **`200 🪙`** | Offered on the **`TIME'S UP!`** modal when `timeRemaining` hits `00:00`. Deducts `200` Coins, sets `timeRemaining = Math.min(30, timeLimitSeconds)`, closes the modal, and resumes the current board state while preserving the escrowed `1 ❤️`. | **Disabled when `coins < 200`**, with the `200` cost badge text rendered in **crimson red (`#EF4444`)** to signify insufficient funds (does not navigate away mid-level). **No star cap**: because levels cannot be replayed, rescuing is a valid way to save 2★ or 3★ if the player finishes while `timeRemaining / timeLimitSeconds` is still above the star thresholds. |
+| **OUT-OF-TIME RESCUE (`+30 SECONDS ▶`)** | **`200 🪙`** | Offered on the **`TIME'S UP!`** modal when `timeRemaining` hits `00:00`. Deducts `200` Coins, sets `timeRemaining = Math.min(30, timeLimitSeconds)`, closes the modal, and resumes the current board state while preserving the escrowed `1 ❤️`. | **Disabled when `coins < 200`**, with the `200` cost badge text rendered in **crimson red (`#EF4444`)** to signify insufficient funds (does not navigate away mid-level). **No star cap**: rescuing is a valid way to save 2★ or 3★ on the current attempt if the player finishes while `timeRemaining / timeLimitSeconds` is still above the star thresholds. |
 
 ---
 
@@ -85,22 +85,27 @@ Both store sections (**GET LIVES** and **GET COINS**) are arranged in a clean 3-
 
 ---
 
-## 4. Level Progression, Last-10 Loop & Social Sharing
+## 4. Level Progression, Replayable Path & Record Tracking
 
-### 4.1 Vertical Milestone Level Path (No Replay of Cleared Levels)
-- The Main Menu displays a vertical progression track anchored at the bottom by the player's **Current Active Level (`unlockedLevel`)**, rendered as a large `w-36 h-36` beveled Emerald Green block (`#28C76F`).
-- **Upcoming Locked Nodes**: Rendered above the active level along a dashed vertical pixel connector line (`stroke-dasharray="6 7"`):
-  - `unlockedLevel + 1` and `unlockedLevel + 2`: Solid cream cards (`#FFFDF8`) with optional cosmetic difficulty tags:
+### 4.1 Scrollable Vertical Level Path & Replay Rules
+- The Main Menu features a scrollable vertical progression track anchored around the player's **Current Frontier Level (`unlockedLevel`)** and **Selected Level (`selectedLevelId`)**.
+- **Top Scroll Cap (Locked Preview Nodes)**: Rendered above `unlockedLevel` along a continuous vertical dashed connector line:
+  - `unlockedLevel + 3`: Dashed preview block (`#EDE5D3` with `opacity-60`) marking the hard top scroll limit.
+  - `unlockedLevel + 2` and `unlockedLevel + 1`: Locked cream cards (`#FFFDF8`) with optional cosmetic difficulty tags:
     - **`HARD`**: Crimson Red badge (`#EF4444`)
     - **`SUPER HARD`**: Arcade Purple badge (`#9333EA`)
-  - `unlockedLevel + 3`: Partially visible dashed preview block (`#EDE5D3` with `opacity-60`).
-- **Linear One-Way Progression (Retry on Fail Only)**:
-  - **On Win**: Completing `unlockedLevel` advances `unlockedLevel` to `unlockedLevel + 1`. Previously cleared levels are **not** shown on the path and **cannot be replayed**.
-  - **On Fail / Quit**: Closing the Out of Time modal or quitting from Pause returns to the Main Menu with `unlockedLevel` unchanged—tapping `▶ PLAY` retries that level.
+- **Bottom Scroll Reveal (Solved Levels `unlockedLevel - 1 .. 1`)**:
+  - Scrolling down below `unlockedLevel` reveals all previously solved levels down to **Level 1**.
+  - Solved nodes hide `HARD` / `SUPER HARD` badges and instead display their **3-star rating row** (`1–3` lit `⭐` icons).
+- **Selecting & Replaying**:
+  - Tapping any playable node (`1 .. unlockedLevel`) selects it (`selectedLevelId`) as the large beveled Emerald Green block (`#28C76F`). Tapping the already-selected green node or the bottom **`▶ PLAY`** button starts that level (still holding `1 ❤️` in escrow; replaying Level 1 re-triggers the full guided FTUE tutorial).
+  - **On Win**: Completing `activeLevelId` upgrades `unlockedLevel` (`Math.max(unlockedLevel, activeLevelId + 1)`), advances `selectedLevelId` sequentially to `activeLevelId + 1`, and awards `+200 Coins` on first clears (`+0 Coins` on replays).
+  - **On Fail / Quit**: Closing the Out of Time modal or quitting from Pause returns to the Main Menu with the same `selectedLevelId` retained for immediate retry.
 - **Interim End-of-Campaign Loop (Last 10 Levels Repeat)**:
-  - Until procedural level generation is enabled, when `unlockedLevel > N` (where `N` is the total number of hand-crafted levels in `src/config/levels.json`), the game loops through the **last `min(10, N)` levels** (`index = (N - loopSize) + ((levelId - N - 1) % loopSize)`), while the displayed stage number (`LVL. X` and level path nodes) continues incrementing seamlessly.
+  - Until procedural level generation is enabled, when `unlockedLevel > N` (where `N` is the total number of hand-crafted levels in `src/config/levels.json`), the game loops through the **customizable `campaignLoop` sequence** (defaulting to the last `min(10, N)` levels) with deterministic 3-way reflections, while the displayed stage number (`LVL. X` and level path nodes) continues incrementing seamlessly.
 
-### 4.2 Speed-Based Star Rating & Vanity Star Count
-- Each cleared level `id` permanently records its earned star count (`levelStars[id]: 1 | 2 | 3`) upon completion.
+### 4.2 Speed-Based Star Rating, Best Records & Vanity Star Count
+- Each cleared level `id` permanently records its highest achieved star count (`levelStars[id] = Math.max(prevBest, earnedStars)`), fastest integer clear time (`levelBestTime[id]`), and lowest winning move count (`levelLeastMoves[id]`).
+- Replaying an older level can increase its star rating (never downgrading a higher prior rating) and triggers **`BEST!`** badges on the **Level Complete** modal whenever the player clears a stage for the first time or strictly beats their previous best time or least moves.
 - **Total Star Count**: The cumulative sum of stars earned across all cleared levels (`∑ levelStars[id]`) is displayed prominently on the Main Menu's bottom vanity bar (`⭐ STAR COUNT: 72`).
 - **Share Button (`share` Icon)**: Tapping the square Share button next to the Star Count bar invokes the Web Share API (`navigator.share`) on mobile/Capacitor—or copies a formatted challenge invitation (`Testing my spatial logic in Grid Snap — made it to Level {unlockedLevel} with ⭐ {totalStars} Stars!\n\nLooking for a real puzzle challenge? Try it here:\nhttps://playable-things.itch.io/grid-snap`) to the clipboard on desktop browsers with an inline toast confirmation (`COPIED STATS!`).

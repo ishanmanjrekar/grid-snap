@@ -15,7 +15,7 @@
 | Field | Current Value |
 | :--- | :--- |
 | **Current Batch / Phase** | **All Phases 1–9.3 Complete (`[x]` Web, Itch.io & Android APK Fully Verified)** |
-| **Last Verified Milestone** | **Catchy Social Share Challenge Message (`https://playable-things.itch.io/grid-snap` link + level & star stats in `MainMenuView.tsx`, 19/19 tests passing)** |
+| **Last Verified Milestone** | **Scrollable Replayable Level Selection, Solved Star Rows & `BEST!` Time/Moves Badges on `feat/replayable-levels` (22/22 tests passing)** |
 | **Next Immediate Action** | Ready for local playtesting (`npm run dev`), level authoring (`npm run dev:editor`), Itch.io deployment (`npm run build:itch`), or Android APK export (`npm run build:apk`). |
 
 > **Agent Harness Rule (Mandatory End-of-Task Doc Sync)**:
@@ -298,3 +298,9 @@
     - On colored blocks: sized at `Math.max(16, Math.round(cellSize * 0.46))` in `rgba(255, 255, 255, 0.85)` with `drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.6)]` for contrast against both bright yellow and dark onyx tiles.
     - On target frame center pips: sized at `Math.max(12, Math.round(sizePx * 0.3))` in the frame's `pipBorder` dark tone on cream backgrounds.
   - Verified with 19/19 Vitest tests passing and clean Vite production build.
+- [x] **Scrollable Replayable Level Path, Solved Star Rows & `BEST!` Record Tags (`feat/replayable-levels` — `src/store/gameStore.ts`, `src/components/screens/MainMenuView.tsx`, `src/components/modals/LevelCompleteModal.tsx`, `src/engine/__tests__/ftue.test.ts`)**:
+  - Added persisted `levelBestTime` and `levelLeastMoves` records (with backward-compatible `merge`/`migrate` hydration) and ephemeral `selectedLevelId`, `isNewBestTime`, `isNewLeastMoves`, and `selectLevel(levelId)` action in `src/store/gameStore.ts`.
+  - Enabled replaying any solved level (`1 .. unlockedLevel - 1`): replaying Level 1 re-triggers the full guided FTUE flow; replays award `0` Coins while allowing players to increase their `levelStars` rating (`Math.max(prevBest, earnedStars)`) and beat their `BEST!` time and shift records.
+  - Updated `MainMenuView.tsx` with a vertically scrollable level path (`overflow-y-auto`, hidden scrollbar, pinned `STORE` and `SETTINGS` buttons, plus scale-aware pointer-drag scrolling with a `6px` tap-vs-drag threshold so touch and mouse dragging work seamlessly despite `#root { touch-action: none; }`) capped at `unlockedLevel + 3` dashed preview at the top and scrolling down to Level 1 below; solved nodes hide `HARD`/`SUPER HARD` badges and display their 3-star ratings (`1–3` stars) instead.
+  - Updated `LevelCompleteModal.tsx` to render pixel `BEST!` badges on `TIME` (`isNewBestTime`) and `SHIFTS` (`isNewLeastMoves`) on first clears or record improvements, and wired `NEXT LEVEL ▶` to advance sequentially (`activeLevelId + 1`).
+  - Added Vitest tests in `src/engine/__tests__/ftue.test.ts` covering Level 1 FTUE replay, first-clear vs. replay coin rewards (`+200` vs `0`), star preservation/upgrades, and `BEST!` record evaluation (22/22 tests passing) plus clean production build (`npm run build`).
